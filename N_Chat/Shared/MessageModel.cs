@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -21,13 +22,12 @@ namespace N_Chat.Shared
         public bool IsMessageDeleted { get; set; }
 
         [ForeignKey(nameof(Chat))]
-
         public int ChatId { get; set; }
         public ChatModel? Chat { get; set; }
 
 
         [ForeignKey(nameof(User))]
-        public int? UserId { get; set; }
+        public string? UserId { get; set; }
         public UserModel? User { get; set; }
         
 

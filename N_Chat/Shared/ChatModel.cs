@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -15,7 +16,7 @@ namespace N_Chat.Shared
         public string? Name  { get; set; }
 
         //Skaparen av chatten
-        public int CreatorId { get; set; }
+        public string CreatorId { get; set; }
         public bool IsChatEdited { get; set; }
         public bool IsChatEnded { get; set; }
         public bool IsChatEncrypted { get; set; }
@@ -29,12 +30,8 @@ namespace N_Chat.Shared
 
         //Relationer-One to Many
         [ForeignKey(nameof(User))]
-        public int? UserId { get; set; }
+        public string? UserId { get; set; }
         public UserModel? User { get; set; }
-        
-       
-
-
 
     }
 }
