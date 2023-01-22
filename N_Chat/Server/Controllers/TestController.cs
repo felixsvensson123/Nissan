@@ -21,7 +21,7 @@ namespace N_Chat.Server.Controllers
         [HttpGet("getall")]
         public async Task<IEnumerable<TestModel>> GetAll()
         {
-            return await context.Test.ToListAsync();
+            return await context.Test.OfType<TestModel>().ToListAsync();
         }
     }
 }
