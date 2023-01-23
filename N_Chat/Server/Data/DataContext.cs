@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using System.Security.Policy;
+using N_Chat.Shared;
 
 namespace N_Chat.Server.Data
 {
@@ -10,5 +13,46 @@ namespace N_Chat.Server.Data
         }
         //Följ detta sättet att namnge tables Testmodel = Test, ChatModel = Chat
         public DbSet<TestModel> Test { get; set; }
+        public DbSet<ChatModel> Chats { get; set; }
+        public DbSet<MessageModel> Messages { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ChatModel>()
+                .HasOne(i => i.User)
+                .WithMany(u => u.Chats)
+                .HasForeignKey(i => i.UserId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
+
+
+            // Restrict deletion of thread on message delete (set user to null instead)
+            modelBuilder.Entity<MessageModel>()
+                .HasOne(i => i.User)
+                .WithMany(u => u.Messages)
+                .HasForeignKey(i => i.UserId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<IdentityUserLogin<string>>()
+                .HasNoKey();
+            modelBuilder.Entity<IdentityUserRole<string>>()
+                .HasNoKey();
+            modelBuilder.Entity<IdentityUserToken<string>>()
+                .HasNoKey();
+            var Hash = new PasswordHasher<UserModel>();
+            var UserAdmin = new UserModel()
+            {
+                Id = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",
+                Email = "Admin@Mail.com",
+                UserName = "admin",
+                NormalizedEmail = "ADMIN@MAIL.COM",
+                NormalizedUserName = "admin",
+                EmailConfirmed = true,
+                PasswordHash = Hash.HashPassword(null!, "qwe123"),
+            };
+            modelBuilder.Entity<UserModel>().HasData(UserAdmin);
+        }
+
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using N_Chat.Server.Data;
 
@@ -11,9 +12,11 @@ using N_Chat.Server.Data;
 namespace NChat.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230123104826_AddedUserAdmin")]
+    partial class AddedUserAdmin
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -289,24 +292,6 @@ namespace NChat.Server.Migrations
                     b.HasIndex("ChatModelId");
 
                     b.ToTable("Users");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "e80d8f11-941c-47a1-b309-98dc07b850c2",
-                            Email = "Admin@Mail.com",
-                            EmailConfirmed = true,
-                            LockoutEnabled = false,
-                            NormalizedEmail = "ADMIN@MAIL.COM",
-                            NormalizedUserName = "admin",
-                            PasswordHash = "AQAAAAEAACcQAAAAELcLOVTnATJisaRwyNjZM03knPRJttCR8KSEIfbMn54vOzD8gebjyaDER5UF3vtekg==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "42031d20-cd9f-4cc1-a42c-6fd46b53e1d3",
-                            TwoFactorEnabled = false,
-                            UserName = "admin"
-                        });
                 });
 
             modelBuilder.Entity("N_Chat.Shared.ChatModel", b =>

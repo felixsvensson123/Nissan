@@ -5,7 +5,7 @@ namespace N_Chat.Client.Services
 {
     public class TestService : ITestService
     {
-        private readonly HttpClient _httpClient;
+        private readonly HttpClient _httpClient; // Initialize httpclient so you can make api calls
 
         public TestService(HttpClient httpClient)
         {
@@ -14,7 +14,7 @@ namespace N_Chat.Client.Services
 
         public async Task<List<TestModel>> GetTest()
         {
-            var result = await _httpClient.GetFromJsonAsync<List<TestModel>>("api/test/");
+            var result = await _httpClient.GetFromJsonAsync<List<TestModel>>("api/test/getall"); //Makes call to the rest api
             return result;
         }
     }
@@ -22,6 +22,6 @@ namespace N_Chat.Client.Services
 
     public interface ITestService
     {
-        Task<List<TestModel>> GetTest();
+        Task<List<TestModel>> GetTest(); // Here is the interface these methods are accesible from the entire client project
     }
 }
