@@ -367,10 +367,4 @@ FodyWeavers.xsd
 *.v2
 .vs/ProjectEvaluation/n_chat.metadata.v5.2
 .vs/ProjectEvaluation/n_chat.projects.v5.2
-.idea/.idea.N_Chat/.idea/encodings.xml
-.idea/.idea.N_Chat/.idea/.name
-.idea/.idea.N_Chat/.idea/indexLayout.xml
-.idea/.idea.N_Chat/.idea/projectSettingsUpdater.xml
-.idea/.idea.N_Chat/.idea/vcs.xml
-.idea/.idea.N_Chat/.idea/workspace.xml
-.idea/.idea.N_Chat/.idea/efCoreCommonOptions.xml
+.idea/*

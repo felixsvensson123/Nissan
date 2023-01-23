@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Identity;
 
 namespace N_Chat.Server.Controllers
 {
@@ -7,5 +9,6 @@ namespace N_Chat.Server.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
+        
     }
 }

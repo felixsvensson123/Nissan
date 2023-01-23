@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System.Security.Policy;
+using N_Chat.Shared;
 
 namespace N_Chat.Server.Data
 {
@@ -40,7 +41,7 @@ namespace N_Chat.Server.Data
             modelBuilder.Entity<IdentityUserToken<string>>()
                 .HasNoKey();
             var Hash = new PasswordHasher<UserModel>();
-            var AdminRole = new UserModel()
+            var UserAdmin = new UserModel()
             {
                 Id = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",
                 Email = "Admin@Mail.com",
@@ -50,6 +51,7 @@ namespace N_Chat.Server.Data
                 EmailConfirmed = true,
                 PasswordHash = Hash.HashPassword(null!, "qwe123"),
             };
+            modelBuilder.Entity<UserModel>().HasData(UserAdmin);
         }
 
     }
