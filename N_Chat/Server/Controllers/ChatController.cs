@@ -7,5 +7,6 @@ namespace N_Chat.Server.Controllers
     [ApiController]
     public class ChatController : ControllerBase
     {
+        
     }
 }

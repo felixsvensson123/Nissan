@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Security.Policy;
 using N_Chat.Shared;
-
+using Newtonsoft.Json;
 namespace N_Chat.Server.Data
 {
     public class DataContext : IdentityDbContext<UserModel>
@@ -21,7 +22,7 @@ namespace N_Chat.Server.Data
             modelBuilder.Entity<ChatModel>()
                 .HasOne(i => i.User)
                 .WithMany(u => u.Chats)
-                .HasForeignKey(i => i.UserId)
+                .HasForeignKey(i => i.UserId)              
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.SetNull);
 
@@ -30,6 +31,7 @@ namespace N_Chat.Server.Data
             modelBuilder.Entity<MessageModel>()
                 .HasOne(i => i.User)
                 .WithMany(u => u.Messages)
+                .HasForeignKey(z => z.ChatId)
                 .HasForeignKey(i => i.UserId)
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.SetNull);
@@ -51,8 +53,41 @@ namespace N_Chat.Server.Data
                 EmailConfirmed = true,
                 PasswordHash = Hash.HashPassword(null!, "qwe123"),
             };
-            modelBuilder.Entity<UserModel>().HasData(UserAdmin);
-        }
+            var seedChat = new ChatModel()
+            {
+                Id = 1,
+                Name = "CoolChat",
+                CreatorId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",
+                IsChatEncrypted = false,
+                IsChatEnded = false,
+                IsChatEdited = false,
+                ChatCreated = DateTime.Now,
+                ChatEnded = null,
+                Messages = null,
+                Users = null,
+                UserId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",
 
+            };
+
+            var seedMessage = new MessageModel()
+            {
+                Id = 1,
+                Message = "This is just a test message for the api's glhf",
+                MessageCreated = DateTime.Now,
+                MessageDeleted = null,
+                MessageEdited = null,
+                IsMessageEncrypted = false,
+                IsMessageEdited = false,
+                IsMessageDeleted = false,
+                ChatId = 1,         
+            };
+
+
+            modelBuilder.Entity<UserModel>().HasData(UserAdmin);
+            modelBuilder.Entity<MessageModel>().HasData(seedMessage);
+            modelBuilder.Entity<ChatModel>().HasData(seedChat);
+            
+        }
+        
     }
 }
