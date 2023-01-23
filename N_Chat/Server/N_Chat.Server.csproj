@@ -31,9 +31,5 @@
     <ProjectReference Include="..\Shared\N_Chat.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
 
 </Project>
