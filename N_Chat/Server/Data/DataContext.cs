@@ -71,7 +71,7 @@ namespace N_Chat.Server.Data
 
             var seedMessage = new MessageModel()
             {
-                Id = 1,
+                MessageId = 1,
                 Message = "This is just a test message for the api's glhf",
                 MessageCreated = DateTime.Now,
                 MessageDeleted = null,
