@@ -27,7 +27,7 @@ namespace N_Chat.Server.Controllers
         [HttpGet("{messageId}")]
         public async Task<ActionResult<MessageModel>> GetMostRecentUserMessage(int messageId)
         {
-            var message = await context.Messages.OrderByDescending(x => x.MessageCreated).FirstOrDefaultAsync(x => x.MessageId == messageId);
+            var message = await context.Messages.OrderByDescending(x => x.MessageCreated).FirstOrDefaultAsync(x => x.Id == messageId);
             return message;
         }
 
@@ -45,7 +45,7 @@ namespace N_Chat.Server.Controllers
         [HttpPut("updateUserMessage")]
         public async Task<ActionResult> PutMessage(int messageId, MessageModel message)
         {
-            if (messageId != message.MessageId)
+            if (messageId != message.Id)
             {
                 return BadRequest();
             }
