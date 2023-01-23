@@ -26,5 +26,21 @@ namespace N_Chat.Server.Controllers
         {
             return await context.Test.OfType<TestModel>().ToListAsync();
         }
+        //Simple add method for rest api, takes in testmodel uses context.Addasync to post data
+        [HttpPost("add")]
+        public async Task<IActionResult> AddTest(TestModel testModel)
+        {
+            if(ModelState.IsValid)
+            {
+                 await context.AddAsync(new TestModel
+                {
+                    Id = testModel.Id,
+                    Name = testModel.Name,
+                    Description = testModel.Description,
+                });
+                await context.SaveChangesAsync();
+            }
+            return BadRequest(ModelState);
+        }
     }
 }
