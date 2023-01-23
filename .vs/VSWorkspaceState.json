@@ -2,10 +2,13 @@
   "ExpandedNodes": [
     "",
     "\\N_Chat",
-    "\\N_Chat\\Client",
+    "\\N_Chat\\Client\\Pages",
     "\\N_Chat\\Server",
-    "\\N_Chat\\Shared"
+    "\\N_Chat\\Server\\Controllers",
+    "\\N_Chat\\Server\\Data",
+    "\\N_Chat\\Shared",
+    "\\N_Chat\\Shared\\dto"
   ],
-  "SelectedNode": "\\N_Chat.sln",
+  "SelectedNode": "\\N_Chat",
   "PreviewInSolutionExplorer": false
 }

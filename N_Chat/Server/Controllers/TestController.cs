@@ -42,5 +42,22 @@ namespace N_Chat.Server.Controllers
             }
             return BadRequest(ModelState);
         }
+        [HttpGet("get/{id}")]
+        public async Task<TestModel> GetById(int id)
+        {           
+            return context.Test.SingleOrDefault(x => x.Id == id);
+        }
+        [HttpDelete("delete/{id}")]
+        public async Task<ActionResult> DeleteTest(int id)
+        {
+            TestModel item = await GetById(id);
+            context.Remove(item);
+            await context.SaveChangesAsync();
+            return Ok();
+        }
+           
+
+
+
     }
 }

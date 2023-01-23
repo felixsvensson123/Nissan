@@ -9,6 +9,8 @@ namespace N_Chat.Server.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
+      
+
         
     }
 }
