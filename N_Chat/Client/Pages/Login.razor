@@ -1,14 +1,16 @@
-﻿@page "/Login"
+﻿@inject IUserService UserService;
+@inject NavigationManager NavigationManager;
+@page "/Login"
 
 <div class="main">
 	<input type="checkbox" id="chk" aria-hidden="true">
 	<div class="login">
-		<form>
+		<EditForm Model="user" OnValidSubmit="LoginUser">
 			<label for="chk" aria-hidden="true">Login</label>
-			<input type="email" name="email" placeholder="Email" required="">
-			<input type="password" name="pswd" placeholder="Password" required="">
-			<button href="/">Login</button>
-		</form>
+			<InputText @bind-Value="user.Username" id="Username" type="Username" placeholder="Username" class="input"></InputText>
+			<InputText @bind-Value="user.Password" id="Password" type="password" placeholder="Password" class="input"></InputText>
+			<button type="submit" href="/">Login</button>
+		</EditForm>
 	</div>
 
 	<div class="signup">
@@ -23,5 +25,16 @@
 </div>
 
 @code {
+	[Parameter]
+	public LoginModel user { get; set; } = new();
 
+	//type="email" name="email" placeholder="Email" required=""
+	//type="password" name="pswd" placeholder="Password" required=""
+	public async Task LoginUser()
+	{
+		string result = await UserService.LoginUser(user);
+		Console.WriteLine(result);
+		NavigationManager.NavigateTo("/");
+		StateHasChanged();
+	}
 }

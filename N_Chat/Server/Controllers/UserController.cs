@@ -30,7 +30,7 @@ namespace N_Chat.Server.Controllers
                 {
                     return Ok(result);
                 }
-                ModelState.AddModelError(string.Empty, "Invalid Login Attempt") // Error Message if string is empty
+                ModelState.AddModelError(string.Empty, "Invalid Login Attempt"); // Error Message if string is empty
             }
             return BadRequest(user);
         }

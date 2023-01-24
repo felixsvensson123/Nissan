@@ -38,7 +38,7 @@ label {
     transition: .5s ease-in-out;
 }
 
-input {
+input, InputText {
     width: 60%;
     height: 20px;
     background: #e0dede;
@@ -50,6 +50,7 @@ input {
     outline: none;
     border-radius: 5px;
 }
+
 
 button {
     width: 60%;
