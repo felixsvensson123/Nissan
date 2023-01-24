@@ -25,15 +25,16 @@ main {
 }
 
 .Searchbar{
-    margin-right: 25px;
-    background-color: rgb(181, 142, 205);
+    width: 15%;
+    height: 20px;
+    background: #e0dede;
+    border: none;
+    outline: none;
     border-radius: 5px;
-    color: black;
-    border: solid;
-    border-color: black;
+    margin-right: 15px
 }
 
-.oi{
+.oi {
     background-color: rgb(211, 178, 232);
     border: none;
 }
