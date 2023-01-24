@@ -15,7 +15,7 @@ namespace N_Chat.Server.Controllers
         {
             this.context = context;
         }
-        //GET:hämta en användares alla användar meddelanden
+        //GET:hämta en användares alla chattmeddelanden
         [HttpGet("getUserMessages")]
         public async Task<ActionResult<IEnumerable<MessageModel>>> GetAllUserMessages(string userId)
         {
@@ -32,9 +32,9 @@ namespace N_Chat.Server.Controllers
            
         }
 
-        //GET:Hämta det nyaste meddelandet från en användares.
+        //GET:Hämta det nyaste meddelandet från en användare.
         [HttpGet("{messageId}")]
-        public async Task<ActionResult<MessageModel>> GetMostRecentUserMessage(string userId,int messageId)
+        public async Task<ActionResult<MessageModel>> GetMostRecentMessage(string userId,int messageId)
         {
             var currentUser= await context.Users.FirstOrDefaultAsync(x => x.Id == userId);
            if(currentUser == null)
@@ -49,7 +49,7 @@ namespace N_Chat.Server.Controllers
         }
 
 
-        //POST: posta ett användar meddelande
+        //POST: sparar ett chattmeddelande till DB
         [HttpPost("postUserMessage")]
         public async Task<ActionResult<MessageModel>> PostUserMessage(string userid,MessageModel message)
 
@@ -76,11 +76,10 @@ namespace N_Chat.Server.Controllers
                 context.Messages.Add(messageToAddToChat);
                 await context.SaveChangesAsync();
                 return messageToAddToChat;
-            }
-           
+            }       
         }
 
-        //PUT:uppdatera ett användar meddelande
+        //PUT:uppdatera ett chattmeddelande
         [HttpPut("updateUserMessage")]
         public async Task<ActionResult> PutUserMessage(string userId,int messageId, MessageModel message)
         {
@@ -91,6 +90,7 @@ namespace N_Chat.Server.Controllers
             }
             else
             {
+                //första meddelandet vi hittar vars id stämmer med det id vi söker på && usern har inte raderat meddelandet (pga betygkrav får inte meddelandet vara raderat från DB, men det är "soft-deleted" för usern).
                 var userMessage = await context.Messages.FirstOrDefaultAsync(x => x.Id == messageId);
                 if (messageId != message.Id)
                 {
@@ -102,30 +102,36 @@ namespace N_Chat.Server.Controllers
                     await context.SaveChangesAsync();
                     return Ok(message);
                 }
-            }
-            
-           
+            }                
         }
 
-        //DELETE: Ta bort en användares meddelande( ska inte tas bort från databasen (softdelete),id)
-        [HttpDelete("deleteUserMessage")]
+        //DELETE: Ta bort ett chatt meddelande( ska inte tas bort från databasen (softdelete),id)
+        //pga betygkrav får inte meddelandet vara raderat från DB, men det är "soft-deleted" för usern här.
+        [HttpPut("softDeleteUserMessage")]
         public async Task<ActionResult<MessageModel>> DeleteUserMessage(string userId,int messageId)
         {
             var currentUser=await context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+            //hitta user
             if (currentUser == null)
             {
                 return NotFound();
             }
             else
             {
+                //hitta meddelande
                 var userMessage = await context.Messages.FindAsync(messageId);
                 if (userMessage == null)
                 {
                     return NotFound();
                 }
-                context.Messages.Remove(userMessage);
+
+                //tid user väljer att softdelete message.
+                DateTime MessageDeleted = DateTime.Now;
+
+                //attribut MessageDeleted får datum
+                context.Update(MessageDeleted);
                 await context.SaveChangesAsync();
-                return userMessage;
+                return MessageDeleted;
             }
             
             
