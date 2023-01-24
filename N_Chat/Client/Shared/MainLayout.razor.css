@@ -24,6 +24,20 @@ main {
     align-items: center;
 }
 
+.Searchbar{
+    margin-right: 25px;
+    background-color: rgb(181, 142, 205);
+    border-radius: 5px;
+    color: black;
+    border: solid;
+    border-color: black;
+}
+
+.oi{
+    background-color: rgb(211, 178, 232);
+    border: none;
+}
+
     .top-row ::deep a, .top-row ::deep .btn-link {
         white-space: nowrap;
         margin-left: 1.5rem;
