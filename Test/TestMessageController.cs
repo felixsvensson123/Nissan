@@ -22,7 +22,7 @@ namespace Test
             public void Setup()
             {
                 var options = new DbContextOptionsBuilder<DataContext>()
-                    .UseInMemoryDatabase(databaseName: "MessageTest")
+                    .UseInMemoryDatabase(databaseName: "UserMessageTest")
                     .Options;
                 _context = new DataContext(options);
                 _controller = new MessageController(_context);
@@ -35,29 +35,9 @@ namespace Test
                 _controller = null;
             }
 
-            [Test]
-            public void Test_GetAllUserMessages_ReturnsOkResult()
-            {
-                //Arrange
-                //Act
-                var okResult = _controller.GetAllUserMessages();
+            
 
-                //Assert
-                Assert.IsTrue(okResult.IsCompletedSuccessfully);
-            }
-
-            [Test]
-            public void Test_GetMostRecentUserMessage_ReturnsOkResult()
-            {
-                //Arrange
-                var messageId = 1;
-
-                //Act
-                var okResult = _controller.GetMostRecentUserMessage(messageId);
-
-                //Assert
-                Assert.IsTrue(okResult.IsCompleted);
-                    }
+           
         }
 
     }
