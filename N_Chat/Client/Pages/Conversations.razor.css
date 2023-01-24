@@ -1,0 +1,22 @@
+﻿.content{
+    align-items: end;
+}
+
+input {
+    width: 91.5%;
+    height: 30px;
+    background: #e0dede;
+    border: none;
+    outline: none;
+    border-radius: 5px;
+}
+
+button {
+    width: 8%;
+    height: 30px;
+    background: rgb(163, 111, 195);
+    border: none;
+    outline: none;
+    border-radius: 5px;
+    cursor: pointer;
+}

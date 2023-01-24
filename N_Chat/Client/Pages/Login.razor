@@ -10,7 +10,7 @@
 			<label for="chk" aria-hidden="true">Login</label>
 			<input @bind-value="user.Username" type="Username" placeholder="Username" required=""></input>
 			<input @bind-value="user.Password" type="password" placeholder="Password" required=""></input>
-			<button type="submit" href="/">Login</button>
+			<button type="submit">Login</button>
 		</EditForm>
 	</div>
 
@@ -35,7 +35,7 @@
 	{
 		string result = await UserService.LoginUser(user);
 		Console.WriteLine(result);
-		NavigationManager.NavigateTo("/");
+		NavigationManager.NavigateTo("/StartPage");
 		StateHasChanged();
 	}
 }
