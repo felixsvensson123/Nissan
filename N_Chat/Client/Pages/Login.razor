@@ -1,5 +1,6 @@
 ﻿@inject IUserService UserService;
 @inject NavigationManager NavigationManager;
+@layout Loginlayout
 @page "/Login"
 
 <div class="main">
@@ -7,8 +8,8 @@
 	<div class="login">
 		<EditForm Model="user" OnValidSubmit="LoginUser">
 			<label for="chk" aria-hidden="true">Login</label>
-			<InputText @bind-Value="user.Username" id="Username" type="Username" placeholder="Username" class="input"></InputText>
-			<InputText @bind-Value="user.Password" id="Password" type="password" placeholder="Password" class="input"></InputText>
+			<input @bind-value="user.Username" type="Username" placeholder="Username" required=""></input>
+			<input @bind-value="user.Password" type="password" placeholder="Password" required=""></input>
 			<button type="submit" href="/">Login</button>
 		</EditForm>
 	</div>

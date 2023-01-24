@@ -6,6 +6,7 @@
     align-items: center;
     min-height: 100vh;
     font-family: 'Jost', sans-serif;
+    width: 100%;
 }
 
 .main {
@@ -38,7 +39,7 @@ label {
     transition: .5s ease-in-out;
 }
 
-input, InputText {
+ input{
     width: 60%;
     height: 20px;
     background: #e0dede;
@@ -50,7 +51,6 @@ input, InputText {
     outline: none;
     border-radius: 5px;
 }
-
 
 button {
     width: 60%;
