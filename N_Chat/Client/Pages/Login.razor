@@ -1,7 +1,26 @@
 ﻿@page "/Login"
 
+<div class="main">
+	<input type="checkbox" id="chk" aria-hidden="true">
+	<div class="login">
+		<form>
+			<label for="chk" aria-hidden="true">Login</label>
+			<input type="email" name="email" placeholder="Email" required="">
+			<input type="password" name="pswd" placeholder="Password" required="">
+			<button href="/">Login</button>
+		</form>
+	</div>
 
-<h3>Login</h3>
+	<div class="signup">
+		<form>
+			<label for="chk" aria-hidden="true">Sign up</label>
+			<input type="text" name="txt" placeholder="Username" required="">
+			<input type="email" name="email" placeholder="Email" required="">
+			<input type="password" name="pswd" placeholder="Password" required="">
+			<button href="/">Sign up</button>
+		</form>
+	</div>
+</div>
 
 @code {
 

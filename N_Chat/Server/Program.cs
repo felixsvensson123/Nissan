@@ -3,6 +3,7 @@ global using N_Chat.Server.Data;
 global using N_Chat.Shared;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
+using N_Chat.Client.Pages;
 
 var builder = WebApplication.CreateBuilder(args);
 
