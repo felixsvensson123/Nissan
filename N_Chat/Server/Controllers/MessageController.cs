@@ -107,34 +107,27 @@ namespace N_Chat.Server.Controllers
 
         //DELETE: Ta bort ett chatt meddelande( ska inte tas bort från databasen (softdelete),id)
         //pga betygkrav får inte meddelandet vara raderat från DB, men det är "soft-deleted" för usern här.
-        [HttpPut("softDeleteUserMessage")]
-        public async Task<ActionResult<MessageModel>> DeleteUserMessage(string userId,int messageId)
+       
+        public bool SoftDeleteUserMessage(int Id)
         {
-            var currentUser=await context.Users.FirstOrDefaultAsync(x => x.Id == userId);
-            //hitta user
-            if (currentUser == null)
-            {
-                return NotFound();
-            }
-            else
-            {
-                //hitta meddelande
-                var userMessage = await context.Messages.FindAsync(messageId);
-                if (userMessage == null)
-                {
-                    return NotFound();
-                }
+               var userMessage = context.Messages.Find(Id);
+                    if (userMessage == null)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        userMessage.IsMessageDeleted=true;  
+                        context.SaveChanges();
+                        return true;
 
-                //tid user väljer att softdelete message.
-                DateTime MessageDeleted = DateTime.Now;
+                   
+                    }
+                    
+               
+            
 
-                //attribut MessageDeleted får datum
-                context.Update(MessageDeleted);
-                await context.SaveChangesAsync();
-                return MessageDeleted;
-            }
-            
-            
+
         }
     }
 
