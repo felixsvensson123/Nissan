@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using N_Chat.Server.Data;
 
@@ -11,9 +12,11 @@ using N_Chat.Server.Data;
 namespace NChat.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230123201355_ChangedProps")]
+    partial class ChangedProps
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -173,7 +176,7 @@ namespace NChat.Server.Migrations
                         new
                         {
                             Id = 1,
-                            ChatCreated = new DateTime(2023, 1, 23, 21, 16, 31, 546, DateTimeKind.Local).AddTicks(8475),
+                            ChatCreated = new DateTime(2023, 1, 23, 21, 13, 55, 521, DateTimeKind.Local).AddTicks(3813),
                             CreatorId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",
                             IsChatEdited = false,
                             IsChatEncrypted = false,
@@ -235,7 +238,7 @@ namespace NChat.Server.Migrations
                             IsMessageEdited = false,
                             IsMessageEncrypted = false,
                             Message = "This is just a test message for the api's glhf",
-                            MessageCreated = new DateTime(2023, 1, 23, 21, 16, 31, 546, DateTimeKind.Local).AddTicks(8505)
+                            MessageCreated = new DateTime(2023, 1, 23, 21, 13, 55, 521, DateTimeKind.Local).AddTicks(3844)
                         });
                 });
 
@@ -320,15 +323,15 @@ namespace NChat.Server.Migrations
                         {
                             Id = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "748d4719-a8ec-4bc2-8ad5-d26a28256844",
+                            ConcurrencyStamp = "edd2ce47-a9e6-4782-b5b6-da8054bb091c",
                             Email = "Admin@Mail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@MAIL.COM",
                             NormalizedUserName = "admin",
-                            PasswordHash = "AQAAAAEAACcQAAAAEMKjKutjzhh8wq3EvQjubHOYpFIIzkytXH+f16VChk9I7GcHPgL1lq7xYZiSVYOCmQ==",
+                            PasswordHash = "AQAAAAEAACcQAAAAELixjWDTrmY2YxwxnPb/VGhPh3mnsPKsMkjKUxc82FFWVUcjzgdEkE/XhDuGvzvB4g==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "793eb7f4-d2d4-4740-b63f-5bb4b1fbcd23",
+                            SecurityStamp = "a48265b6-4180-4eac-91ee-2d569b626908",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });

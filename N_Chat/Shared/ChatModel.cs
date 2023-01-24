@@ -11,7 +11,6 @@ namespace N_Chat.Shared
 {
     public class ChatModel
     {
-       [Key]
         public int Id { get; set; }
         public string? Name  { get; set; }
 
