@@ -6,34 +6,44 @@
 <div class="main">
 	<input type="checkbox" id="chk" aria-hidden="true">
 	<div class="login">
-		<EditForm Model="user" OnValidSubmit="LoginUser">
+		<EditForm Model="LoginModel" OnValidSubmit="LoginUser">
 			<label for="chk" aria-hidden="true">Login</label>
-			<input @bind-value="user.Username" type="Username" placeholder="Username" required=""></input>
-			<input @bind-value="user.Password" type="password" placeholder="Password" required=""></input>
-			<button type="submit">Login</button>
+			<input @bind-value="LoginModel.Username" type="Username" placeholder="Username" required="">
+			<input @bind-value="LoginModel.Password" type="password" placeholder="Password" required="">
+			<button type="submit" href="/">Login</button>
+
 		</EditForm>
 	</div>
 
 	<div class="signup">
-		<form>
+		<EditForm Model="RegisterModel" OnValidSubmit="RegisterUser">
 			<label for="chk" aria-hidden="true">Sign up</label>
-			<input type="text" name="txt" placeholder="Username" required="">
-			<input type="email" name="email" placeholder="Email" required="">
-			<input type="password" name="pswd" placeholder="Password" required="">
-			<button href="/">Sign up</button>
-		</form>
+			<input @bind-value="RegisterModel.Username" type="text" name="txt" placeholder="Username" required="">
+			<input @bind-value="RegisterModel.Email" type="email" name="email" placeholder="Email" required="">
+			<input @bind-value="RegisterModel.Password" type="password" name="pswd" placeholder="Password" required="">
+			<input @bind-value="RegisterModel.ConfirmPassword" type="password" name="pswd" placeholder="Password" required="">
+			<button type="submit" href="/">Sign up</button>
+		</EditForm>
 	</div>
 </div>
 
 @code {
 	[Parameter]
-	public LoginModel user { get; set; } = new();
+	public LoginModel LoginModel { get; set; } = new();
 
-	//type="email" name="email" placeholder="Email" required=""
-	//type="password" name="pswd" placeholder="Password" required=""
+	[Parameter]
+	public RegisterModel RegisterModel { get; set; } = new();
+	
+	
 	public async Task LoginUser()
 	{
-		string result = await UserService.LoginUser(user);
+		string result = await UserService.LoginUser(LoginModel);
+		Console.WriteLine(result);
+		NavigationManager.NavigateTo("/");
+		StateHasChanged();
+	}	public async Task RegisterUser()
+	{
+		string result = await UserService.SignUp(RegisterModel);
 		Console.WriteLine(result);
 		NavigationManager.NavigateTo("/StartPage");
 		StateHasChanged();

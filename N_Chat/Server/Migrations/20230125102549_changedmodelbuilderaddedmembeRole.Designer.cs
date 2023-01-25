@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using N_Chat.Server.Data;
 
@@ -11,9 +12,11 @@ using N_Chat.Server.Data;
 namespace NChat.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230125102549_changedmodelbuilderaddedmembeRole")]
+    partial class changedmodelbuilderaddedmembeRole
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,9 +47,9 @@ namespace NChat.Server.Migrations
                         new
                         {
                             Id = "d153c726-e709-4946-824b-0ed63bbf136a",
-                            ConcurrencyStamp = "c8354804-2728-4084-a122-b741d4408a72",
-                            Name = "Member",
-                            NormalizedName = "MEMBER"
+                            ConcurrencyStamp = "fe9bbcec-13ad-461c-951a-26c8d286fcd6",
+                            Name = "Customer",
+                            NormalizedName = "CUSTOMER"
                         });
                 });
 
@@ -182,7 +185,7 @@ namespace NChat.Server.Migrations
                         new
                         {
                             Id = 1,
-                            ChatCreated = new DateTime(2023, 1, 25, 11, 29, 21, 177, DateTimeKind.Local).AddTicks(7662),
+                            ChatCreated = new DateTime(2023, 1, 25, 11, 25, 49, 443, DateTimeKind.Local).AddTicks(6444),
                             CreatorId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",
                             IsChatEdited = false,
                             IsChatEncrypted = false,
@@ -244,7 +247,7 @@ namespace NChat.Server.Migrations
                             IsMessageEdited = false,
                             IsMessageEncrypted = false,
                             Message = "This is just a test message for the api's glhf",
-                            MessageCreated = new DateTime(2023, 1, 25, 11, 29, 21, 177, DateTimeKind.Local).AddTicks(7710)
+                            MessageCreated = new DateTime(2023, 1, 25, 11, 25, 49, 443, DateTimeKind.Local).AddTicks(6484)
                         });
                 });
 
@@ -329,15 +332,15 @@ namespace NChat.Server.Migrations
                         {
                             Id = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "6e809653-c238-4f30-a08a-f23cdd50e13a",
+                            ConcurrencyStamp = "ae704e16-edca-489f-ba06-a566c777eb03",
                             Email = "Admin@Mail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@MAIL.COM",
                             NormalizedUserName = "admin",
-                            PasswordHash = "AQAAAAEAACcQAAAAEG5JMplprqoWRfiiG73/2MDlaPhPDsadxDWSVcsD4TjhlJLcGOMo6GdN0yqSCo8ecA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAENtXMuYiRRyNq5AgUdSFo11zBH8/7O88YwXaS+CB6lz442sWXmjJ7cZQYojmxUppVg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "3c8f8fdb-e4c9-4c23-8fc7-b7fe4ea46b09",
+                            SecurityStamp = "c7f1c09f-1c54-43b2-bf6a-35df018d6164",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });
