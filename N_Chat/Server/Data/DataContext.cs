@@ -18,6 +18,7 @@ namespace N_Chat.Server.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
             modelBuilder.Entity<ChatModel>()
                 .HasOne(i => i.User)
                 .WithMany(u => u.Chats)
@@ -40,6 +41,7 @@ namespace N_Chat.Server.Data
                 .HasNoKey();
             modelBuilder.Entity<IdentityUserToken<string>>()
                 .HasNoKey();
+    
             var Hash = new PasswordHasher<UserModel>();
             var UserAdmin = new UserModel()
             {
@@ -52,6 +54,7 @@ namespace N_Chat.Server.Data
                 PasswordHash = Hash.HashPassword(null!, "qwe123"),
             };
             modelBuilder.Entity<UserModel>().HasData(UserAdmin);
+      
         }
 
     }

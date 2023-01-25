@@ -18,7 +18,7 @@ namespace N_Chat.Shared
         //Skaparen av chatten
         public string CreatorId { get; set; }
         public bool IsChatEdited { get; set; }
-        public bool IsChatEnded { get; set; }
+        public bool? IsChatEnded { get; set; }
         public bool IsChatEncrypted { get; set; }
         public DateTime ChatCreated { get; set; }
         public DateTime? ChatEnded { get; set; }
