@@ -59,13 +59,17 @@ input {
     justify-content: flex-end;
     font-size: x-large;
     grid-column-start: 5;
+    margin: 0px;
+    position: fixed;
+    padding-top: 180px;
+    padding-left: 320px;
 }
 
 .oi:hover {
     color: red;
 }
 
-button {
+.create {
     width: 60%;
     height: 40px;
     margin: 10px auto;
@@ -83,7 +87,7 @@ button {
     cursor: pointer;
 }
 
-button:hover {
+.create:hover {
     background: rgb(181, 142, 205);
 }
 
