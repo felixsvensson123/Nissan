@@ -11,7 +11,6 @@ namespace N_Chat.Shared
 {
     public class MessageModel
     {
-        [Key]
         public int Id { get; set; }
         public string? Message  { get; set; }
         public DateTime MessageCreated { get; set; }

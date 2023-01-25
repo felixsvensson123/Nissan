@@ -364,7 +364,13 @@ FodyWeavers.xsd
 
 # The suo file stores the list of files that are currently open in your editor so that when you relaunch solution after closing it, same files will be shown in the editor to resume our work. The sou also stores the current active project in the solution, so that when you relaunch it is active again. 
 *.suo
-*.v2
+.vs/N_Chat/DesignTimeBuild/.dtbcache.v2
 .vs/ProjectEvaluation/n_chat.metadata.v5.2
 .vs/ProjectEvaluation/n_chat.projects.v5.2
-.idea/*
+.idea/.idea.N_Chat/.idea/encodings.xml
+.idea/.idea.N_Chat/.idea/.name
+.idea/.idea.N_Chat/.idea/indexLayout.xml
+.idea/.idea.N_Chat/.idea/projectSettingsUpdater.xml
+.idea/.idea.N_Chat/.idea/vcs.xml
+.idea/.idea.N_Chat/.idea/workspace.xml
+.idea/.idea.N_Chat/.idea/efCoreCommonOptions.xml
