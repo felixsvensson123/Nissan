@@ -1,0 +1,28 @@
+﻿@page "/new_chat"
+@layout Loginlayout
+
+<div class="main">
+	<input type="checkbox" id="chk" aria-hidden="true">
+
+	<div class="New-Chat">
+		<form>
+			<button class="oi oi-x" aria-hidden="true"></button>
+			<label for="chk" aria-hidden="true">Singel Chat</label>
+			<input type="text" name="txt" placeholder="Username" required="">
+			<button>Create New Chat</button>
+		</form>
+	</div>
+
+	<div class="New-Group-Chat">
+		<form>
+			<label for="chk" aria-hidden="true">Group Chat</label>
+			<input type="text" name="txt" placeholder="Username 1" required="">
+			<input type="text" name="txt" placeholder="Username 2" required="">
+			<button>Create New Group Chat</button>
+		</form>
+	</div>
+</div>
+
+@code {
+
+}

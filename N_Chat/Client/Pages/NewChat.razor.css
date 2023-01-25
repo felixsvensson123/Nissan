@@ -6,7 +6,7 @@
     align-items: center;
     min-height: 100vh;
     font-family: 'Jost', sans-serif;
-    width: 100%;
+    width: 100%
 }
 
 .main {
@@ -22,7 +22,7 @@
     display: none;
 }
 
-.login {
+.New-Chat {
     position: relative;
     width: 100%;
     height: 100%;
@@ -39,7 +39,7 @@ label {
     transition: .5s ease-in-out;
 }
 
- input{
+input {
     width: 60%;
     height: 20px;
     background: #e0dede;
@@ -50,6 +50,19 @@ label {
     border: none;
     outline: none;
     border-radius: 5px;
+}
+
+.oi {
+    color: black;
+    border: none;
+    display: flex;
+    justify-content: flex-end;
+    font-size: x-large;
+    grid-column-start: 5;
+}
+
+.oi:hover {
+    color: red;
 }
 
 button {
@@ -74,27 +87,28 @@ button:hover {
     background: rgb(181, 142, 205);
 }
 
-.signup {
+.New-Group-Chat {
     height: 460px;
     background: #eee;
     border-radius: 60% / 10%;
     transform: translateY(-180px);
     transition: .8s ease-in-out;
+    margin-top: 10px;
 }
 
-.signup label {
+.New-Group-Chat label {
     color: black;
     transform: scale(.6);
 }
 
-#chk:checked ~ .signup {
+#chk:checked ~ .New-Group-Chat {
     transform: translateY(-500px);
 }
 
-#chk:checked ~ .signup label {
+#chk:checked ~ .New-Group-Chat label {
     transform: scale(1);
 }
 
-#chk:checked ~ .login label {
+#chk:checked ~ .New-Chat label {
     transform: scale(.6);
 }
