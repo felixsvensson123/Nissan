@@ -14,12 +14,10 @@ namespace N_Chat.Server.Controllers
 
         private readonly UserManager<UserModel> userManager;
         private readonly SignInManager<UserModel> signInManager;
-        private readonly IMapper mapper;
-        public UserController(UserManager<UserModel> userManager, SignInManager<UserModel> signInManager, IMapper mapper)
+        public UserController(UserManager<UserModel> userManager, SignInManager<UserModel> signInManager)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
-            this.mapper = mapper;
         }
 
         [HttpPost("login")]
@@ -27,8 +25,8 @@ namespace N_Chat.Server.Controllers
         {
             if (ModelState.IsValid) //Checks if object is valid
             {
-                var result = await signInManager.PasswordSignInAsync(user.Username, user.Password, false, false);
-                if (result.Succeeded)
+                var result = await signInManager.PasswordSignInAsync(user.Username, user.Password, false, false); // signs in user.
+                if (result.Succeeded) // checks if signin succeded
                 {
                     return Ok(result);
                 }
@@ -42,12 +40,30 @@ namespace N_Chat.Server.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = mapper.Map<UserModel>(registerModel.Username);
-                var result = await userManager.CreateAsync(user, registerModel.Password);
+                var checkUser = await userManager.FindByNameAsync(registerModel.Username); //Checks if user already exists in DB
+                if (checkUser != null)
+                {
+                    return BadRequest();
+                }
 
-                await signInManager.UserManager.AddToRoleAsync(user, "Member");
-                await signInManager.PasswordSignInAsync(user.UserName, registerModel.Password, false, false);
-                return Ok(result);
+                var user = new UserModel() // sets usermodel props to registerModel props
+                {
+                 UserName = registerModel.Username,
+                 Email = registerModel.Email
+                };
+                
+                var result = await userManager.CreateAsync(user, registerModel.Password); // Creates user account sets after usermodel and registermodels password
+
+                if (result.Succeeded) // Checks if createasync succeded
+                {
+                    await signInManager.UserManager.AddToRoleAsync(user, "Member"); // sets register'd users role to "Member"
+                    await signInManager.PasswordSignInAsync(user, registerModel.Password, false, false); //"Signs in user after registering"
+                    return Ok(result);
+                }
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
+                }
             }
             return BadRequest(ModelState);
         }
