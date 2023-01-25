@@ -8,6 +8,10 @@ main {
     flex: 1;
 }
 
+.content {
+    height: 94vh;
+}
+
 .sidebar {
     background-color: rgb(211, 178, 232);
     border-right: solid;
