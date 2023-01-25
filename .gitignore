@@ -374,3 +374,6 @@ FodyWeavers.xsd
 .idea/.idea.N_Chat/.idea/vcs.xml
 .idea/.idea.N_Chat/.idea/workspace.xml
 .idea/.idea.N_Chat/.idea/efCoreCommonOptions.xml
+.idea/*
+.vs/*
+*.v2

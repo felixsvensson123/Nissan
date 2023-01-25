@@ -1,26 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using N_Chat.Server.Data;
+﻿using N_Chat.Server.Data;
 using N_Chat.Server.Controllers;
 using Microsoft.EntityFrameworkCore;
+using N_Chat.Shared;
 
-namespace Test
-{
-    public class _
-    {
+namespace Test{
+    public class _{
         [TestFixture]
-        public class MessageControllerTests
-        {
+        public class MessageControllerTests{
             private DataContext _context;
             private MessageController _controller;
 
             [SetUp]
-
-            public void Setup()
-            {
+            public void Setup(){
                 var options = new DbContextOptionsBuilder<DataContext>()
                     .UseInMemoryDatabase(databaseName: "MessageTest")
                     .Options;
@@ -29,36 +20,40 @@ namespace Test
             }
 
             [TearDown]
-            public void TearDown()
-            {
+            public void TearDown(){
                 _context.Dispose();
                 _controller = null;
             }
 
             [Test]
-            public void Test_GetAllUserMessages_ReturnsOkResult()
-            {
+            public void Test_GetAllUserMessages_ReturnsOkResult(){
                 //Arrange
+                var user = _context.Users.FirstOrDefaultAsync();
+                string userId = user.Id.ToString();
+
+                MessageModel messageModel = new MessageModel();
+
                 //Act
-                var okResult = _controller.GetAllUserMessages();
+                var okResult = _controller.GetAllUserMessages(messageModel);
 
                 //Assert
                 Assert.IsTrue(okResult.IsCompletedSuccessfully);
             }
 
             [Test]
-            public void Test_GetMostRecentUserMessage_ReturnsOkResult()
-            {
+            public void Test_GetMostRecentUserMessage_ReturnsOkResult(){
                 //Arrange
-                var messageId = 1;
+                //var messageId = 1;
+                var user = _context.Users.FirstOrDefaultAsync();
+                string userId = user.Id.ToString();
+                MessageModel messageModel = new MessageModel();
 
                 //Act
-                var okResult = _controller.GetMostRecentUserMessage(messageId);
+                var okResult = _controller.GetMostRecentMessage(messageModel);
 
                 //Assert
                 Assert.IsTrue(okResult.IsCompleted);
-                    }
+            }
         }
-
     }
 }
