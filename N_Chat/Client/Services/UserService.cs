@@ -22,6 +22,17 @@ namespace N_Chat.Client.Services
             }
             return result.StatusCode.ToString();
         }
+
+        public async Task<string> SignUp(RegisterModel user)
+        {
+            var result = await httpClient.PostAsJsonAsync<RegisterModel>("api/user/signup", user);
+            if (result.IsSuccessStatusCode)
+            {
+                return await result.Content.ReadAsStringAsync();
+            }
+
+            return result.StatusCode.ToString();
+        }
     }
 
     public interface IUserService
