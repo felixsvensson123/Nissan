@@ -11,14 +11,14 @@ namespace N_Chat.Server.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-
+        private readonly DataContext context;
         private readonly UserManager<UserModel> userManager;
         private readonly SignInManager<UserModel> signInManager;
-        public UserController(UserManager<UserModel> userManager, SignInManager<UserModel> signInManager)
+        public UserController(UserManager<UserModel> userManager, SignInManager<UserModel> signInManager, DataContext context)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
-        }
+            this.context = context;        }
 
         [HttpPost("login")]
         public async Task<IActionResult> LoginUser(LoginModel user)
@@ -66,6 +66,27 @@ namespace N_Chat.Server.Controllers
                 }
             }
             return BadRequest(ModelState);
+        }// Update email for user
+        [HttpPut("edituser")]
+        public async Task<IActionResult> UpdateUsersMail(UserModel updateModel)
+        {
+            if (ModelState.IsValid)
+            { 
+
+            var checkUser = await signInManager.UserManager.FindByIdAsync(updateModel.Id);
+
+                if (checkUser == null) 
+                {
+                    return BadRequest();
+                }
+                checkUser.Email = updateModel.Email;
+                context.Update(checkUser);
+                await context.SaveChangesAsync();
+                return Ok();
+
+            }
+
+            return BadRequest(updateModel);
         }
 
     }
