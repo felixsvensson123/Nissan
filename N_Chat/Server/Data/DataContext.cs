@@ -6,7 +6,8 @@ using N_Chat.Shared;
 using Newtonsoft.Json;
 
 namespace N_Chat.Server.Data{
-    public class DataContext : IdentityDbContext<UserModel>{
+    public class DataContext : IdentityDbContext<UserModel>
+    {
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
         }
