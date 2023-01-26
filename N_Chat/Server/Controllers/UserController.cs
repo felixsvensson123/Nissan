@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Identity;
 using N_Chat.Shared.dto;
-using AutoMapper;
+//using AutoMapper;
 
 namespace N_Chat.Server.Controllers
 {

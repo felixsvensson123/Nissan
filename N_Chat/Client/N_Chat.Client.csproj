@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Content Remove="Pages\Index.cshtml" />
+    <Content Remove="Pages\RegisterUser.razor" />
     <Content Remove="wwwroot\css\StyleSheet.css" />
   </ItemGroup>
 
