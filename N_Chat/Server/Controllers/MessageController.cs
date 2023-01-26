@@ -1,120 +1,211 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace N_Chat.Server.Controllers{
+namespace N_Chat.Server.Controllers
+{
     [Route("api/[controller]")]
     [ApiController]
-    public class MessageController : ControllerBase{
+    public class MessageController : ControllerBase
+    {
         private readonly DataContext _context;
 
-        public MessageController(DataContext context){
+        public MessageController(DataContext context)
+        {
             _context = context;
         }
 
         //GET:hämta en användares alla chatt meddelanden
         /* IsMessageDeleted används för att kolla om message är softdeleted (och om det är true visas meddelandet inte för användaren pga det är softdeleted).*/
         [HttpGet("GetAllUserMessages")]
-        public async Task<ActionResult<IEnumerable<MessageModel>>> GetAllUserMessages(MessageModel messageModel){
-            try{
+        public async Task<ActionResult<IEnumerable<MessageModel>>> GetAllUserMessages(MessageModel messageModel)
+        {
+            try
+            {
                 var currentUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == messageModel.UserId);
+                if (currentUser == null)
+                {
+                    return NotFound();
+                }
 
                 var userMessages = await _context.Messages
-                    .Where(u => u.UserId == messageModel.UserId && u.IsMessageDeleted != false).ToListAsync();
+                  .Where(u => u.UserId == messageModel.UserId && u.IsMessageDeleted != true).ToListAsync();
                 return Ok(userMessages);
             }
-            catch (Exception e){
-                Console.WriteLine(e.Message);
-                Console.WriteLine(e.StackTrace);
-                return NotFound();
+            catch (Exception e)
+            {
+
+                return NotFound(e.Message + e.StackTrace);
             }
         }
-
         //GET:Hämta det nyaste meddelandet från en användare.
-        [HttpGet("{messageId}")]
-        public async Task<ActionResult<MessageModel>> GetMostRecentMessage(MessageModel messageModel){
-            try{
+        [HttpGet("{GetMessageId}")]
+        public async Task<ActionResult<MessageModel>> GetMostRecentMessage(MessageModel messageModel)
+        {
+            try
+            {
+                var currentUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == messageModel.UserId);
+                if (currentUser == null)
+                {
+                    return NotFound();
+                }
+
                 //select using user.id + OrderByDescending() & MessageCreated and that is not soft-deleted.
 
-                var userMessage = await _context.Messages
-                    .Where(x => x.UserId == messageModel.UserId && x.IsMessageDeleted != false)
-                    .OrderByDescending(y => y.MessageCreated).FirstOrDefaultAsync();
+                var userMessage = await _context.Messages.FirstOrDefaultAsync(p => p.Id == messageModel.Id);
 
-                return userMessage;
+                //.Where(x => x.UserId == messageModel.UserId && x.IsMessageDeleted != true).OrderByDescending(y => y.MessageCreated).
+                return Ok(userMessage);
             }
-            catch (Exception e){
-                Console.WriteLine(e.Message);
-                Console.WriteLine(e.StackTrace);
-                return NotFound();
+            catch (Exception e)
+            {
+                return NotFound(e.Message + e.StackTrace);
             }
         }
 
 
         //POST: posta ett chattmeddelande
-        [HttpPost("postUserMessage")]
-        public async Task<ActionResult<MessageModel>> PostUserMessage(string userId, MessageModel message){
-            //om det inte finns en user i databasen
-            var currentUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
-            if (currentUser == null){
-                return NotFound();
-            }
-            //spara ett nytt meddelande till DB
-            else{
-                var messageToAddToChat = new MessageModel(){
-                    Message = message.Message,
-                    User = currentUser,
-                    UserId = userId,
+        [HttpPost("postNewUserMessage")]
+        public async Task<ActionResult<MessageModel>> PostUserMessage(MessageModel messageModel)
+        {
+            try
+            {
+                var currentUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == messageModel.UserId);
+                if (currentUser == null)
+                {
+                    return NotFound();
+                }
+
+                //skapar ett nytt meddelande till databasen
+                await _context.AddAsync(new MessageModel()
+                {
+                    UserId = currentUser.Id,
+                    Id = messageModel.Id,
+                    IsMessageEncrypted = messageModel.IsMessageEncrypted,
+                    IsMessageDeleted = messageModel.IsMessageDeleted,
+                    ChatId = messageModel.ChatId,
                     MessageCreated = DateTime.Now,
-                    IsMessageDeleted = false,
-                    IsMessageEdited = false,
-                    IsMessageEncrypted = false,
-                };
-                _context.Messages.Add(messageToAddToChat);
+                    Message = messageModel.Message,
+                });
                 await _context.SaveChangesAsync();
-                return messageToAddToChat;
+                return Ok();
+
             }
+            catch (Exception e)
+            {
+
+                return NotFound(e.Message + e.StackTrace);
+
+            }
+
+
         }
 
         //PUT:uppdatera ett chattmeddelande
         [HttpPut("updateMessage")]
-        public async Task<ActionResult> PutUserMessage(string userId, int messageId, string editedMessage){
-            //check if user exist.
-            var currentUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
-            if (currentUser == null){
-                return NotFound();
+        public async Task<ActionResult> PutUserMessage(MessageModel messageModel)
+        {
+
+            try
+            {
+                var currentUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == messageModel.UserId);
+                if (currentUser == null)
+                {
+                    return NotFound();
+                }
+
+
+                // välja meddelande med rätt messageId sen editera message. Även kolla så user inte raderat meddelande (pga betygkrav får inte meddelandet vara raderat från DB, men det är "soft-deleted" för user:n).
+
+                //hitta meddelandet med id
+
+                var updateUserMessage = await _context.Messages
+                   .Where(x => x.UserId == messageModel.UserId).FirstOrDefaultAsync(p => p.Id == messageModel.Id);
+
+                //hantera meddelandet fanns inte.
+                if (updateUserMessage == null)
+                {
+
+                    return BadRequest();
+                }
+                //uppdatera meddelandet i databasen där meddelandeId = messageId.
+
+                updateUserMessage.IsMessageEncrypted = messageModel.IsMessageEncrypted;
+                updateUserMessage.IsMessageDeleted = messageModel.IsMessageDeleted;
+                updateUserMessage.MessageCreated = messageModel.MessageCreated;
+                updateUserMessage.ChatId = messageModel.ChatId;
+                updateUserMessage.MessageCreated = DateTime.Now;
+                updateUserMessage.Message = messageModel.Message;
+                updateUserMessage.MessageDeleted = messageModel.MessageDeleted;
+
+
+                _context.Update(updateUserMessage);
+                await _context.SaveChangesAsync();
+                return Ok(updateUserMessage);
+
             }
+            catch (Exception e)
+            {
 
-            // välja meddelande med rätt messageId sen editera message. Även kolla så user inte raderat meddelande (pga betygkrav får inte meddelandet vara raderat från DB, men det är "soft-deleted" för user:n).
-            
-            //hitta meddelandet med id.
-            var updatedMessage = await _context.Messages.FirstOrDefaultAsync(x => x.Id == messageId);
+                return NotFound(e.Message + e.StackTrace);
 
-            //hantera meddelandet fanns inte.
-            if (updatedMessage == null){
-                return BadRequest();
             }
+        }
+        [HttpGet("getallmessages")]
+        public async Task<ActionResult<IEnumerable<MessageModel>>> GetAllMessages(MessageModel messageModel)
+        {
+            try
+            {
+               
 
-            //uppdatera chattmeddelandet, ersätta det gamla med det nya.
-            updatedMessage.Message = editedMessage;
+                var allMessages = await _context.Messages.ToListAsync();
+                return Ok(allMessages);
+            }
+            catch (Exception e)
+            {
 
-            //uppdatera meddelandet i databasen där meddelandeId = messageId.
-            _context.Update(updatedMessage);
-            await _context.SaveChangesAsync();
-            return Ok(updatedMessage);
+                return NotFound(e.Message + e.StackTrace);
+            }
         }
 
         //SOFTDELETE: soft-delete ett chatt meddelande 
         //pga betygkrav fpr inte meddelandet vara raderat från DB, pga meddelandet är "soft-deleted" kan vi läsa av boolean IsMessageDeleted och/eller MessageDeleted.
-        public bool SoftDeleteUserMessage(int messageId){
-            var userMessage = _context.Messages.Find(messageId);
-            if (userMessage == null){
-                return false;
-            }
+        /* [HttpPut("SoftDeleteUserMessage")]
+         public async Task SoftDeleteUserMessage(MessageModel messageModel)
+         {
+             try
+             {
+                 //hämtar användaren
+                 var currentUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == messageModel.UserId);
 
-            userMessage.MessageDeleted = DateTime.Now; //time chat message was deleted. 
-            userMessage.IsMessageDeleted = true; // är true om message är softdeleted 
-            
-            //Saves all changes made in this context to the database.
-            _context.SaveChanges();
-            return true;
-        }
+
+                 //hämtar användarens meddelande
+                 var messageToSoftDelete = await _context.Messages
+                        .Where(x => x.UserId == messageModel.UserId && x.IsMessageDeleted == false)
+                        .OrderByDescending(y => y.MessageCreated).FirstOrDefaultAsync(p => p.Id == messageModel.Id);
+
+
+
+                 if (messageToSoftDelete != null)
+                 {
+                     messageToSoftDelete.MessageDeleted = DateTime.Now; //time chat message was deleted. 
+                     messageToSoftDelete.IsMessageDeleted = true; // är true om message är softdeleted 
+
+                     //Saves all changes made in this context to the database.
+                     _context.Update(messageToSoftDelete);
+                     await _context.SaveChangesAsync();
+
+
+
+                 }
+
+             }
+             catch (Exception e)
+             {
+                 Console.WriteLine(e.Message);
+                 Console.WriteLine(e.StackTrace);
+
+             }*/
+
+
+
     }
 }
