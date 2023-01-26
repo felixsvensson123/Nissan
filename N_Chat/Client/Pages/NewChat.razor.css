@@ -23,7 +23,7 @@
 }
 
 .New-Chat {
-    position: relative;
+    /*position: relative;*/
     width: 100%;
     height: 100%;
 }
@@ -52,23 +52,6 @@ input {
     border-radius: 5px;
 }
 
-.oi {
-    color: black;
-    border: none;
-    display: flex;
-    justify-content: flex-end;
-    font-size: x-large;
-    grid-column-start: 5;
-    margin: 0px;
-    position: fixed;
-    padding-top: 180px;
-    padding-left: 320px;
-}
-
-.oi:hover {
-    color: red;
-}
-
 .create {
     width: 60%;
     height: 40px;
@@ -91,11 +74,25 @@ input {
     background: rgb(181, 142, 205);
 }
 
+#cross {
+    color: black;
+    display: flex;
+    justify-content: flex-end;
+    font-size: x-large;
+    border: none;
+    background: rgb(222, 196, 238);
+    margin-left: auto;
+}
+
+#cross:hover {
+    color: red;
+}
+
 .New-Group-Chat {
     height: 460px;
     background: #eee;
     border-radius: 60% / 10%;
-    transform: translateY(-180px);
+    transform: translateY(-150px);
     transition: .8s ease-in-out;
     margin-top: 10px;
 }
@@ -106,7 +103,7 @@ input {
 }
 
 #chk:checked ~ .New-Group-Chat {
-    transform: translateY(-500px);
+    transform: translateY(-400px);
 }
 
 #chk:checked ~ .New-Group-Chat label {
