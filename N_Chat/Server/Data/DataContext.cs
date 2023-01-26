@@ -7,21 +7,20 @@ using Newtonsoft.Json;
 
 namespace N_Chat.Server.Data{
     public class DataContext : IdentityDbContext<UserModel>{
-        public DataContext(DbContextOptions<DataContext> options) : base(options){
+        public DataContext(DbContextOptions<DataContext> options) : base(options)
+        {
         }
 
-
+        public DbSet<TestModel> Test { get; set; }
+        public DbSet<ChatModel> Chats { get; set; }
+        public DbSet<MessageModel> Messages { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             var member = new IdentityRole() { Name = "Member", NormalizedName = "MEMBER", Id = "d153c726-e709-4946-824b-0ed63bbf136a" };
             
 
         //Följ detta sättet att namnge tables Testmodel = Test, ChatModel = Chat
-        public DbSet<TestModel> Test{ get; set; }
-        public DbSet<ChatModel> Chats{ get; set; }
-        public DbSet<MessageModel> Messages{ get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder){
        
             modelBuilder.Entity<ChatModel>()
                 .HasOne(i => i.User)
@@ -74,8 +73,6 @@ namespace N_Chat.Server.Data{
 
             var seedMessage = new MessageModel()
             {
-
-            var seedMessage = new MessageModel(){
 
                 Id = 1,
                 Message = "This is just a test message for the api's glhf",
