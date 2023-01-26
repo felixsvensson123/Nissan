@@ -41,10 +41,8 @@ namespace N_Chat.Server.Controllers
             if (ModelState.IsValid)
             {
                 var checkUser = await userManager.FindByNameAsync(registerModel.Username); //Checks if user already exists in DB
-                if (checkUser != null)
-                {
-                    return BadRequest();
-                }
+                if (checkUser.UserName == registerModel.Username)
+                    return BadRequest("User Already exists!!");
 
                 var user = new UserModel() // sets usermodel props to registerModel props
                 {

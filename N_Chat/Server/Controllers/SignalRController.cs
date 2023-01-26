@@ -17,7 +17,7 @@ public class SignalRController : Hub
     public async Task SendMessage(UserModel user, MessageModel message)
     {
         await Clients.All.SendAsync("ReceiveMessage", user, message.Message);
-        messageController.PostUserMessage(message);
+        await messageController.PostUserMessage(message);
     }
     /*public async Task<ActionResult> Test()
     {
