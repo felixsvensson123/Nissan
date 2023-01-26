@@ -44,7 +44,7 @@ namespace NChat.Server.Migrations
                         new
                         {
                             Id = "d153c726-e709-4946-824b-0ed63bbf136a",
-                            ConcurrencyStamp = "c8354804-2728-4084-a122-b741d4408a72",
+                            ConcurrencyStamp = "8a0acbf7-8533-4b12-8b6c-c18a384c77e8",
                             Name = "Member",
                             NormalizedName = "MEMBER"
                         });
@@ -181,8 +181,8 @@ namespace NChat.Server.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
-                            ChatCreated = new DateTime(2023, 1, 25, 11, 29, 21, 177, DateTimeKind.Local).AddTicks(7662),
+                            Id = 5,
+                            ChatCreated = new DateTime(2023, 1, 26, 16, 47, 25, 784, DateTimeKind.Local).AddTicks(6753),
                             CreatorId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",
                             IsChatEdited = false,
                             IsChatEncrypted = false,
@@ -238,13 +238,47 @@ namespace NChat.Server.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
-                            ChatId = 1,
+                            Id = 2,
+                            ChatId = 5,
+                            IsMessageDeleted = false,
+                            IsMessageEdited = false,
+                            IsMessageEncrypted = false,
+                            Message = "This one admin message 1",
+                            MessageCreated = new DateTime(2023, 1, 26, 16, 47, 25, 784, DateTimeKind.Local).AddTicks(6786),
+                            UserId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ChatId = 5,
+                            IsMessageDeleted = false,
+                            IsMessageEdited = false,
+                            IsMessageEncrypted = false,
+                            Message = "This one admin message 2",
+                            MessageCreated = new DateTime(2023, 1, 26, 21, 47, 25, 784, DateTimeKind.Local).AddTicks(6790),
+                            UserId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            ChatId = 5,
+                            IsMessageDeleted = false,
+                            IsMessageEdited = false,
+                            IsMessageEncrypted = false,
+                            Message = "This is felix message 1",
+                            MessageCreated = new DateTime(2023, 1, 26, 16, 47, 25, 784, DateTimeKind.Local).AddTicks(6792),
+                            UserId = "ded90182-7b04-41e0-aef6-8977a4d1c292"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            ChatId = 5,
                             IsMessageDeleted = false,
                             IsMessageEdited = false,
                             IsMessageEncrypted = false,
                             Message = "This is just a test message for the api's glhf",
-                            MessageCreated = new DateTime(2023, 1, 25, 11, 29, 21, 177, DateTimeKind.Local).AddTicks(7710)
+                            MessageCreated = new DateTime(2023, 1, 26, 16, 47, 25, 784, DateTimeKind.Local).AddTicks(6794),
+                            UserId = "ded90182-7b04-41e0-aef6-8977a4d1c292"
                         });
                 });
 
@@ -329,15 +363,31 @@ namespace NChat.Server.Migrations
                         {
                             Id = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "6e809653-c238-4f30-a08a-f23cdd50e13a",
+                            ConcurrencyStamp = "35991a8a-4e90-42c5-8e5d-b4b5793645f0",
                             Email = "Admin@Mail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@MAIL.COM",
                             NormalizedUserName = "admin",
-                            PasswordHash = "AQAAAAEAACcQAAAAEG5JMplprqoWRfiiG73/2MDlaPhPDsadxDWSVcsD4TjhlJLcGOMo6GdN0yqSCo8ecA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEDSnrJtubOKtWh+AOpdaqDa7Iy+XWbqJ2StI3PmGKiXCy6eE7bbrywzxPcW/5B8aqA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "3c8f8fdb-e4c9-4c23-8fc7-b7fe4ea46b09",
+                            SecurityStamp = "182c5fc9-a9c6-4a2d-b9a1-df5d5264009f",
+                            TwoFactorEnabled = false,
+                            UserName = "admin"
+                        },
+                        new
+                        {
+                            Id = "ded90182-7b04-41e0-aef6-8977a4d1c292",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "dcf28a6b-12b1-42c0-a1a9-d4557b638288",
+                            Email = "Admin@Mail.com",
+                            EmailConfirmed = true,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "ADMIN@MAIL.COM",
+                            NormalizedUserName = "admin",
+                            PasswordHash = "AQAAAAEAACcQAAAAEKgColkytHwAZ28sQEfvP93JyG1VMoV3WU+7WRJjgK3bGmd8AVkGmk8ktyqSFMee/g==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "9afd0b68-e435-4e48-ba16-c9239131ebe0",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });
