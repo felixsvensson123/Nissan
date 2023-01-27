@@ -69,7 +69,6 @@ namespace N_Chat.Server.Data{
                 EmailConfirmed = true,
                 PasswordHash = Hash.HashPassword(null!, "qwe123"),
             };
-            modelBuilder.Entity<UserModel>().HasData(UserAdmin);
             
             var seedChat = new ChatModel(){
                 Id = 5,
