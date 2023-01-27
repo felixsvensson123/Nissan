@@ -4,16 +4,17 @@
     background: #e0dede;
     border: none;
     outline: none;
-    border-radius: 5px;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 0.5rem;
 }
 
 button {
     width: 8%;
-    height: 45px;
+    height: 46px;
     background: rgb(163, 111, 195);
     border: none;
     outline: none;
-    border-radius: 5px;
     cursor: pointer;
 }
 
@@ -25,4 +26,31 @@ button:hover {
     height: 100%;
     display: flex;
     align-items: end;
+}
+
+#Pencil{
+    background-color: #e0dede;
+    width: 3%;
+}
+
+#Pencil:hover{
+    color: dimgray;
+}
+
+#Trash{
+    background-color: #e0dede;
+    width: 3%;
+}
+
+#Trash:hover {
+    color: dimgray;
+}
+
+#Send {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+#Send:hover{
+    color: white;
 }

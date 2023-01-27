@@ -19,7 +19,11 @@ namespace N_Chat.Server.Data{
         {
             var member = new IdentityRole() { Name = "Member", NormalizedName = "MEMBER", Id = "d153c726-e709-4946-824b-0ed63bbf136a" };
             
-            
+
+        //Följ detta sättet att namnge tables Testmodel = Test, ChatModel = Chat
+
+       
+
             modelBuilder.Entity<ChatModel>()
                 .HasOne(i => i.User)
                 .WithMany(u => u.Chats)
@@ -33,7 +37,6 @@ namespace N_Chat.Server.Data{
                 .HasOne(i => i.User)
                 .WithMany(u => u.Messages)
                 .HasForeignKey(z => z.ChatId)
-                .IsRequired(false)
                 .HasForeignKey(i => i.UserId)
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.SetNull);
@@ -66,9 +69,6 @@ namespace N_Chat.Server.Data{
                 EmailConfirmed = true,
                 PasswordHash = Hash.HashPassword(null!, "qwe123"),
             };
-
-            modelBuilder.Entity<UserModel>().HasData(UserAdmin);
-
             
             var seedChat = new ChatModel(){
                 Id = 5,
