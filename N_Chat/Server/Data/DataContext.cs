@@ -70,10 +70,7 @@ namespace N_Chat.Server.Data{
                 PasswordHash = Hash.HashPassword(null!, "qwe123"),
             };
             modelBuilder.Entity<UserModel>().HasData(UserAdmin);
-      
-        }
-
-
+            
             var seedChat = new ChatModel(){
                 Id = 5,
                 Name = "CoolChat",
