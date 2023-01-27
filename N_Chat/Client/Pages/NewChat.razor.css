@@ -82,6 +82,8 @@ input {
     border: none;
     background: rgb(222, 196, 238);
     margin-left: auto;
+    margin-right: 7px;
+    margin-top: 3px;
 }
 
 #cross:hover {

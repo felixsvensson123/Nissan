@@ -23,6 +23,7 @@ namespace N_Chat.Server.Data{
         //Följ detta sättet att namnge tables Testmodel = Test, ChatModel = Chat
 
        
+
             modelBuilder.Entity<ChatModel>()
                 .HasOne(i => i.User)
                 .WithMany(u => u.Chats)
@@ -47,6 +48,7 @@ namespace N_Chat.Server.Data{
             modelBuilder.Entity<IdentityUserToken<string>>()
                 .HasNoKey();
             modelBuilder.Entity<IdentityRole>().HasData(member);
+    
             var Hash = new PasswordHasher<UserModel>();
             var UserAdmin = new UserModel(){
                 Id = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",
@@ -57,8 +59,23 @@ namespace N_Chat.Server.Data{
                 EmailConfirmed = true,
                 PasswordHash = Hash.HashPassword(null!, "qwe123"),
             };
+            var UserAdmin2 = new UserModel()
+            {
+                Id = "ded90182-7b04-41e0-aef6-8977a4d1c292",
+                Email = "Admin@Mail.com",
+                UserName = "admin",
+                NormalizedEmail = "ADMIN@MAIL.COM",
+                NormalizedUserName = "admin",
+                EmailConfirmed = true,
+                PasswordHash = Hash.HashPassword(null!, "qwe123"),
+            };
+            modelBuilder.Entity<UserModel>().HasData(UserAdmin);
+      
+        }
+
+
             var seedChat = new ChatModel(){
-                Id = 1,
+                Id = 5,
                 Name = "CoolChat",
                 CreatorId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",
                 IsChatEncrypted = false,
@@ -72,22 +89,64 @@ namespace N_Chat.Server.Data{
             };
 
 
-            var seedMessage = new MessageModel()
+            var seedMessage1 = new MessageModel()
             {
 
-                Id = 1,
-                Message = "This is just a test message for the api's glhf",
+                Id = 2,
+                Message = "This one admin message 1",
+                UserId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35", //admin qwe123
                 MessageCreated = DateTime.Now,
                 MessageDeleted = null,
                 MessageEdited = null,
                 IsMessageEncrypted = false,
                 IsMessageEdited = false,
                 IsMessageDeleted = false,
-                ChatId = 1,
+                ChatId = 5,
             };
 
-            modelBuilder.Entity<UserModel>().HasData(UserAdmin);
-            modelBuilder.Entity<MessageModel>().HasData(seedMessage);
+            var seedMessage2 = new MessageModel()
+            {
+
+                Id = 3,
+                Message = "This one admin message 2",
+                UserId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35", //admin qwe123
+                MessageCreated = DateTime.Now.AddHours(5),
+                MessageDeleted = null,
+                MessageEdited = null,
+                IsMessageEncrypted = false,
+                IsMessageEdited = false,
+                IsMessageDeleted = false,
+                ChatId = 5,
+            };
+
+            var seedMessage3 = new MessageModel()
+            {
+                Id = 4,
+                Message = "This is felix message 1",
+                UserId = "ded90182-7b04-41e0-aef6-8977a4d1c292", //felix qwe123
+                ChatId = 5,
+                MessageCreated = DateTime.Now,
+                MessageDeleted = null,
+                MessageEdited = null,
+                IsMessageEncrypted = false,
+                IsMessageEdited = false,
+                IsMessageDeleted = false,              
+            };
+            var seedMessage4 = new MessageModel()
+            {
+                Id = 5,
+                Message = "This is just a test message for the api's glhf",
+                UserId = "ded90182-7b04-41e0-aef6-8977a4d1c292", //felix qwe123
+                ChatId = 5,
+                MessageCreated = DateTime.Now,
+                MessageDeleted = null,
+                MessageEdited = null,
+                IsMessageEncrypted = false,
+                IsMessageEdited = false,
+                IsMessageDeleted = false,
+            };
+            modelBuilder.Entity<UserModel>().HasData(UserAdmin, UserAdmin2);
+            modelBuilder.Entity<MessageModel>().HasData(seedMessage1, seedMessage2, seedMessage3, seedMessage4);
             modelBuilder.Entity<ChatModel>().HasData(seedChat);
         }
     }
