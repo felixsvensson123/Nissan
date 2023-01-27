@@ -27,10 +27,14 @@ public class SignalRController : Hub
     
     public async Task SendMessage(UserModel userModel, MessageModel messageModel)
     {
+<<<<<<< HEAD
         await Clients.All.SendAsync("ReceiveMessage", userModel, messageModel.Message);
         encryptionController.Encrypt(messageModel.Message);
-        await messageController.PostMessage(messageModel);
-
+        await messageController.PostUserMessage(messageModel);
+=======
+        await Clients.All.SendAsync("ReceiveMessage", user, message.Message);
+        await messageController.PostMessage(message);
+>>>>>>> dev
     }
     //hash.HashPassword(userModel, messageModel.Message);
     /*public async Task<ActionResult> Test()
