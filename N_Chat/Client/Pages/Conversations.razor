@@ -1,8 +1,10 @@
 ﻿@page "/Conversations"
 
 <div class="message">
-	<input class="messageinput" type="text" name="txt" placeholder="Write something..." wrap="hard" rows="5" cols="50" required="">
-	<button class="oi oi-location" aria-hidden="true"></button>
+	<input class="messageinput" type="text" name="txt" placeholder="Write something..." wrap="hard" rows="5" cols="30" required="">
+	<button class="oi oi-pencil" aria-hidden="true" id="Pencil"></button>
+	<button class="oi oi-trash" aria-hidden="true" id="Trash"></button>
+	<button class="oi oi-location" aria-hidden="true" id="Send"></button>
 </div>
 
 @code {
