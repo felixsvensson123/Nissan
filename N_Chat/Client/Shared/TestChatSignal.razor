@@ -1,0 +1,29 @@
+@page "/chat"
+@inject NavigationManager navigationManager
+@inject ITestService TestService;
+<h3>chat</h3>
+
+@code {
+
+
+    protected override async Task OnInitializedAsync()
+    {    
+    }
+
+}
+
+
+/*
+     MessageModel messageToGet = new()
+    {
+        UserId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",
+        MessageCreated = DateTime.Now,
+        MessageDeleted = null,
+        MessageEdited = null,
+        IsMessageEncrypted = false,
+        IsMessageEdited = false,
+        IsMessageDeleted = false,
+        };
+        messages = await TestService.GetAllUserMessages(messageToGet.UserId);
+        //messageList.AddRange(messages.Where(x => x.UserId == CurrentUser.Id));
+        StateHasChanged();*/
