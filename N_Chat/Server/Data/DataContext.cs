@@ -22,6 +22,7 @@ namespace N_Chat.Server.Data{
 
         //Följ detta sättet att namnge tables Testmodel = Test, ChatModel = Chat
 
+      //  modelBuilder.Entity<UserModel>().Property<List<MessageModel>>(Messages);
        
             modelBuilder.Entity<ChatModel>()
                 .HasOne(i => i.User)
@@ -36,6 +37,7 @@ namespace N_Chat.Server.Data{
                 .HasOne(i => i.User)
                 .WithMany(u => u.Messages)
                 .HasForeignKey(z => z.ChatId)
+                .IsRequired(false)
                 .HasForeignKey(i => i.UserId)
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.SetNull);
@@ -67,8 +69,7 @@ namespace N_Chat.Server.Data{
                 EmailConfirmed = true,
                 PasswordHash = Hash.HashPassword(null!, "qwe123"),
             };
-
-
+            
             var seedChat = new ChatModel(){
                 Id = 5,
                 Name = "CoolChat",

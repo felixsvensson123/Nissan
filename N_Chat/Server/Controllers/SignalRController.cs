@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using N_Chat.Server.Controllers;
 namespace N_Chat.Server.Controllers;
@@ -8,6 +9,8 @@ public class SignalRController : Hub
 {
     private MessageController messageController { get; set; }
     private readonly DataContext context;
+    //private SignInManager<UserModel> signInManager { get; set; }
+    private UserManager<UserModel> signInManager { get; set; } 
     public SignalRController(MessageController messageController, DataContext context)
     {
         this.context = context;
@@ -17,6 +20,7 @@ public class SignalRController : Hub
     public async Task SendMessage(UserModel user, MessageModel message)
     {
         await Clients.All.SendAsync("ReceiveMessage", user, message.Message);
+        //message.Message.Has
         await messageController.PostUserMessage(message);
     }
     /*public async Task<ActionResult> Test()
