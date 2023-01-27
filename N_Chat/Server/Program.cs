@@ -25,12 +25,7 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequireDigit = false;
 });
 var app = builder.Build();
-/*app.UseEndpoints(endpoints =>
-{
-    endpoints.MapBlazorHub();
-    endpoints.MapFallbackToPage("/_Host");
-    endpoints.MapHub<SignalRController>(SignalRController.HubUrl);
-});*/
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
