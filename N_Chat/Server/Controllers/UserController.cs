@@ -115,9 +115,6 @@ namespace N_Chat.Server.Controllers
 
             List<ChatModel> chats = new();
 
-        //for each loop
-        //context.add alla items i listan till context.Users
-        //se till så att meddelandet hamnar på rätt user(Where kan kanske fungera)
             using(var db = context) 
             { 
                 chats = await db.Chats.Where(m => m.UserId == chatModel.UserId).ToListAsync();
@@ -125,10 +122,6 @@ namespace N_Chat.Server.Controllers
                 foreach (var chat in chats)
                 {
                     CurrentUser.Chats.Add(chat);   
-
-        //<ActionResult<MessageModel>> och en ChatModel [HttpPost]
-        // List<MessageModel> messageList = context.Messages.FirstOrDefaultAsync(x => x.UserId == updateModel.Id).ToListAsync();
-        // context add till databasen       Databas  Table       query for table
                 }
 
                 db.SaveChanges();
