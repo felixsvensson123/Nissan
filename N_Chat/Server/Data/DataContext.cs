@@ -19,12 +19,7 @@ namespace N_Chat.Server.Data{
         {
             var member = new IdentityRole() { Name = "Member", NormalizedName = "MEMBER", Id = "d153c726-e709-4946-824b-0ed63bbf136a" };
             
-
-        //Följ detta sättet att namnge tables Testmodel = Test, ChatModel = Chat
-
-      //  modelBuilder.Entity<UserModel>().Property<List<MessageModel>>(Messages);
-       
-
+            
             modelBuilder.Entity<ChatModel>()
                 .HasOne(i => i.User)
                 .WithMany(u => u.Chats)
