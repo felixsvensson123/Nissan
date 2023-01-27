@@ -23,6 +23,7 @@ namespace N_Chat.Server.Data{
         //Följ detta sättet att namnge tables Testmodel = Test, ChatModel = Chat
 
        
+
             modelBuilder.Entity<ChatModel>()
                 .HasOne(i => i.User)
                 .WithMany(u => u.Chats)
@@ -47,6 +48,7 @@ namespace N_Chat.Server.Data{
             modelBuilder.Entity<IdentityUserToken<string>>()
                 .HasNoKey();
             modelBuilder.Entity<IdentityRole>().HasData(member);
+    
             var Hash = new PasswordHasher<UserModel>();
             var UserAdmin = new UserModel(){
                 Id = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",
@@ -67,6 +69,9 @@ namespace N_Chat.Server.Data{
                 EmailConfirmed = true,
                 PasswordHash = Hash.HashPassword(null!, "qwe123"),
             };
+            modelBuilder.Entity<UserModel>().HasData(UserAdmin);
+      
+        }
 
 
             var seedChat = new ChatModel(){
