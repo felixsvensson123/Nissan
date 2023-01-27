@@ -27,7 +27,7 @@ namespace N_Chat.Client.Services
 
         public async Task<IEnumerable<MessageModel>> GetAllUserMessages(string id)
         {
-            var respons = await _httpClient.GetFromJsonAsync<MessageModel>("api/message/usermessages/{id}");
+            var respons = await _httpClient.GetFromJsonAsync<MessageModel>($"api/message/usermessages/{id}");
             if(respons != null)
             {
                 return (IEnumerable<MessageModel>)respons;
@@ -37,7 +37,7 @@ namespace N_Chat.Client.Services
 
         public async Task<MessageModel>GetById(int id)
         {
-            var respons = await _httpClient.GetFromJsonAsync<MessageModel>("api/message/{id}");
+            var respons = await _httpClient.GetFromJsonAsync<MessageModel>($"api/message/{id}");
             if( respons != null)
             {
                 return respons;
@@ -45,19 +45,19 @@ namespace N_Chat.Client.Services
             return null;
         }
 
-       /* public async Task<string> PostMessage(MessageModel messageModel)
+        public async Task<string> PostMessage(MessageModel messageModel)
         {
-            var respons = await _httpClient.PostAsJsonAsync<MessageModel>("api/message/postmessage",messageModel);
+            var respons = await _httpClient.PostAsJsonAsync<MessageModel>($"api/message/postmessage",messageModel);
             if(respons != null)
             {
                 return await respons.Content.ReadAsStringAsync();
             }
             return null;
-        }*/
+        }
 
         public async Task<string> PutMessage(MessageModel messageModel, int id)
         {
-            var respons = await _httpClient.PutAsJsonAsync<MessageModel>("api/message/updatemessage/{id}",messageModel);
+            var respons = await _httpClient.PutAsJsonAsync<MessageModel>($"api/message/updatemessage/{id}",messageModel);
             if (respons != null)
             {
                 return await respons.Content.ReadAsStringAsync(); 
@@ -75,6 +75,6 @@ namespace N_Chat.Client.Services
         Task<string> PutMessage(MessageModel messageModel, int id);
         Task<IEnumerable<MessageModel>> GetAllMessages();
 
-       /* Task<string> PostMessage(MessageModel messageModel);*/
+        Task<string> PostMessage(MessageModel messageModel);
     }
 }
