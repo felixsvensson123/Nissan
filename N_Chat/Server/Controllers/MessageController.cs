@@ -68,28 +68,29 @@ namespace N_Chat.Server.Controllers{
         }
 
         //PUT:uppdatera ett chattmeddelande
-        [HttpPut("updatemessage")]
-        public async Task<ActionResult> PutMessage(MessageModel messageModel){
+        [HttpPut("updatemessage/{id}")]
+        public async Task<ActionResult> PutMessage(MessageModel messageModel,int id){
             try{
-                var currentUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == messageModel.UserId);
-                if (currentUser == null){
-                    return NotFound();
-                }
+               
 
                 // välja meddelande med rätt messageId sen editera message. Även kolla så user inte raderat meddelande (pga betygkrav får inte meddelandet vara raderat från DB, men det är "soft-deleted" för user:n).
 
                 //hitta meddelandet med id
 
                 var updateUserMessage = await _context.Messages
-                    .Where(x => x.UserId == messageModel.UserId).FirstOrDefaultAsync(p => p.Id == messageModel.Id);
+                    .Where(x => x.UserId == messageModel.UserId).FirstOrDefaultAsync(p => p.Id ==id);
 
                 //hantera meddelandet fanns inte.
                 if (updateUserMessage == null){
                     return BadRequest();
                 }
                 //uppdatera meddelandet.
+                updateUserMessage.IsMessageEncrypted = messageModel.IsMessageEncrypted;
+                updateUserMessage.IsMessageDeleted = messageModel.IsMessageDeleted;              
+                updateUserMessage.ChatId = messageModel.ChatId;         
                 updateUserMessage.Message = messageModel.Message;
-                
+                updateUserMessage.MessageDeleted = messageModel.MessageDeleted;
+
                 //uppdatera meddelandet i databasen.
                 _context.Update(updateUserMessage);
                 await _context.SaveChangesAsync();
