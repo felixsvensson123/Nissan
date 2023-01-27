@@ -11,19 +11,16 @@ namespace N_Chat.Server.Controllers;
 public class SignalRController : Hub
 
 {
+    public const string HubUrl = "/chat";
     private MessageController messageController { get; set; }
     private EncryptionController encryptionController { get; set; }
     private readonly DataContext context;
-    private SignInManager<UserModel> signInManager;
-    private UserManager<UserModel> userManager;
     //private IPasswordHasher<UserModel> hash;
     private HashAlgorithm hash;
-    public SignalRController(MessageController messageController, DataContext context, SignInManager<UserModel> signInManager, UserManager<UserModel> userManager, HashAlgorithm hash, EncryptionController encryptionController)
+    public SignalRController(MessageController messageController, DataContext context, HashAlgorithm hash, EncryptionController encryptionController)
     {
         this.context = context;
         this.messageController = messageController;
-        this.signInManager = signInManager;
-        this.userManager = userManager;
         this.hash = hash;
         this.encryptionController = encryptionController;
     }

@@ -4,6 +4,7 @@ global using N_Chat.Shared;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
 using N_Chat.Client.Pages;
+using N_Chat.Server.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +25,12 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequireDigit = false;
 });
 var app = builder.Build();
-
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapBlazorHub();
+    endpoints.MapFallbackToPage("/_Host");
+    endpoints.MapHub<SignalRController>(SignalRController.HubUrl);
+});
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
