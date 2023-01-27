@@ -44,11 +44,10 @@ namespace N_Chat.Server.Controllers
             chatToBeUpdated.Name = chat.Name;
             context.Update(chatToBeUpdated);
             await context.SaveChangesAsync();
-            return Ok();
+            return Ok(chatToBeUpdated);
         }
 
-        [HttpPost("
-            ")]
+        [HttpPost("createchat")]
         public async Task<ActionResult> CreateChat(ChatModel chat)
         {
             ChatModel chatToBeCreated = new ChatModel();
