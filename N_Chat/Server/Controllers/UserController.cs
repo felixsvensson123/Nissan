@@ -85,9 +85,40 @@ namespace N_Chat.Server.Controllers
                 return Ok();
 
             }
-
+           
+                
             return BadRequest(updateModel);
         }
+        [HttpPost("ListMessages")]
+        public async Task<ActionResult<List<MessageModel>>> GetMessages(MessageModel messageModel)
+        {
+            var CurrentUser = await userManager.FindByIdAsync(messageModel.UserId);
+            
+            List<MessageModel> messages = new();
+            using (var db = context)
+            {
+                messages = await db.Messages.Where(m => m.UserId== messageModel.UserId).ToListAsync();
+
+                foreach (var message in messages)
+                {
+
+                    Console.Write(message.ToString());
+                }
+
+            }
+           
+
+        }
+
+
+        //for each loop
+        //context.add alla items i listan till context.Users
+        //se till så att meddelandet hamnar på rätt user(Where kan kanske fungera)
+
+
+        //<ActionResult<MessageModel>> och en ChatModel [HttpPost]
+        // List<MessageModel> messageList = context.Messages.FirstOrDefaultAsync(x => x.UserId == updateModel.Id).ToListAsync();
+        // context add till databasen       Databas  Table       query for table
 
     }
 }
