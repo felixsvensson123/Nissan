@@ -15,7 +15,7 @@ namespace N_Chat.Server.Controllers{
         [HttpGet("GetAllUserMessages")]
         public async Task<ActionResult<IEnumerable<MessageModel>>> GetAllUserMessages(MessageModel messageModel){
             try{
-                var currentUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == messageModel.UserId);
+                var currentUser = await _context.Users.FirstOrDefaultAsync(x => x.Id==messageModel.UserId);
                 if (currentUser == null){
                     return NotFound();
                 }
@@ -30,8 +30,8 @@ namespace N_Chat.Server.Controllers{
         }
 
         //GET:Hämta det nyaste meddelandet från en användare.
-        [HttpGet("{GetMessageId}")]
-        public async Task<ActionResult<MessageModel>> GetMostRecentMessage(MessageModel messageModel){
+        [HttpGet("{Id}")]
+        public async Task<ActionResult<MessageModel>> GetById(MessageModel messageModel){
             try{
                 var currentUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == messageModel.UserId);
                 if (currentUser == null){
@@ -112,7 +112,7 @@ namespace N_Chat.Server.Controllers{
         }
 
         [HttpGet("getallmessages")]
-        public async Task<ActionResult<IEnumerable<MessageModel>>> GetAllMessages(MessageModel messageModel){
+        public async Task<ActionResult<IEnumerable<MessageModel>>> GetAllMessages(){
             try{
                 var allMessages = await _context.Messages.ToListAsync();
                 return Ok(allMessages);
