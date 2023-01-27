@@ -12,17 +12,13 @@ namespace N_Chat.Server.Controllers{
 
         //GET:hämta en användares alla chatt meddelanden
         /* IsMessageDeleted används för att kolla om message är softdeleted (och om det är true visas meddelandet inte för användaren pga det är softdeleted).*/
-        [HttpGet("GetAllUserMessages")]
-        public async Task<ActionResult<IEnumerable<MessageModel>>> GetAllUserMessages(MessageModel messageModel){
+        [HttpGet("usermessages/{id}")]
+        public async Task<ActionResult<IEnumerable<MessageModel>>> GetAllUserMessages(string id){
             try{
-                var currentUser = await _context.Users.FirstOrDefaultAsync(x => x.Id==messageModel.UserId);
-                if (currentUser == null){
-                    return NotFound();
-                }
-
                 var userMessages = await _context.Messages
-                    .Where(u => u.UserId == messageModel.UserId && u.IsMessageDeleted != true).ToListAsync();
-                return Ok(userMessages);
+                  .Where(u => u.UserId == id && u.IsMessageDeleted != true)
+                  .ToListAsync();
+                return userMessages;
             }
             catch (Exception e){
                 return NotFound(e.Message + e.StackTrace);
@@ -30,19 +26,12 @@ namespace N_Chat.Server.Controllers{
         }
 
         //GET:Hämta det nyaste meddelandet från en användare.
-        [HttpGet("{Id}")]
-        public async Task<ActionResult<MessageModel>> GetById(MessageModel messageModel){
+        [HttpGet("{id}")]
+        public async Task<ActionResult<MessageModel>> GetById(int id){
             try{
-                var currentUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == messageModel.UserId);
-                if (currentUser == null){
-                    return NotFound();
-                }
+                //hämtar meddelande med meddelande id
+               var userMessage = await _context.Messages.FirstOrDefaultAsync(p => p.Id == id);
 
-                //select using user.id + OrderByDescending() & MessageCreated and that is not soft-deleted.
-
-                var userMessage = await _context.Messages.FirstOrDefaultAsync(p => p.Id == messageModel.Id);
-
-                //.Where(x => x.UserId == messageModel.UserId && x.IsMessageDeleted != true).OrderByDescending(y => y.MessageCreated).
                 return Ok(userMessage);
             }
             catch (Exception e){
@@ -52,8 +41,8 @@ namespace N_Chat.Server.Controllers{
 
 
         //POST: posta ett chattmeddelande
-        [HttpPost("postNewUserMessage")]
-        public async Task<ActionResult<MessageModel>> PostUserMessage(MessageModel messageModel){
+        [HttpPost("postmessage")]
+        public async Task<ActionResult<MessageModel>> PostMessage(MessageModel messageModel){
             try{
                 var currentUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == messageModel.UserId);
                 if (currentUser == null){
@@ -79,8 +68,8 @@ namespace N_Chat.Server.Controllers{
         }
 
         //PUT:uppdatera ett chattmeddelande
-        [HttpPut("updateMessage")]
-        public async Task<ActionResult> PutUserMessage(MessageModel messageModel){
+        [HttpPut("updatemessage")]
+        public async Task<ActionResult> PutMessage(MessageModel messageModel){
             try{
                 var currentUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == messageModel.UserId);
                 if (currentUser == null){
