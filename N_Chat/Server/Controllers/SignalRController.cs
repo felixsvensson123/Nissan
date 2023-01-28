@@ -11,7 +11,7 @@ namespace N_Chat.Server.Controllers;
 public class SignalRController : Hub
 
 {
-    public const string HubUrl = "/chat";
+    public const string HubUrl = "/conversations";
     private MessageController messageController { get; set; }
     private EncryptionController encryptionController { get; set; }
 
@@ -29,11 +29,11 @@ public class SignalRController : Hub
         this.encryptionController = encryptionController;
     }
 
-    public async Task SendMessage(UserModel userModel, MessageModel messageModel)
+    public async Task SendMessage(string user, string message)
     {
-        await Clients.All.SendAsync("BroadCast", userModel, messageModel.Message);
-        encryptionController.Encrypt(messageModel.Message);
-        await messageController.PostMessage(messageModel);
+        await Clients.All.SendAsync("BroadCast", user, message);
+        encryptionController.Encrypt(message);
+      //  await messageController.PostMessage(messageModel);
     }
 
     public override Task OnConnectedAsync()
