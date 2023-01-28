@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.Identity;
 using N_Chat.Shared.dto;
 //using AutoMapper;
@@ -25,9 +27,16 @@ namespace N_Chat.Server.Controllers
         {
             if (ModelState.IsValid) //Checks if object is valid
             {
-                var result = await signInManager.PasswordSignInAsync(user.Username, user.Password, false, false); // signs in user.
+                var result = await signInManager
+                    .PasswordSignInAsync(user.Username, user.Password, false, false); // signs in user.
                 if (result.Succeeded) // checks if signin succeded
                 {
+                    ClaimsIdentity claimsIdentity = new ClaimsIdentity(new List<Claim>
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, user.Username)
+                    }, "auth");
+                    ClaimsPrincipal claims = new ClaimsPrincipal(claimsIdentity);
+                    await HttpContext.SignInAsync(claims);
                     return Ok(result);
                 }
                 ModelState.AddModelError(string.Empty, "Invalid Login Attempt"); // Error Message if string is empty
