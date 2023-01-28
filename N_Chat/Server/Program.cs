@@ -2,6 +2,7 @@ global using Microsoft.EntityFrameworkCore;
 global using N_Chat.Server.Data;
 global using N_Chat.Shared;
 using Microsoft.AspNetCore.Http.Connections;
+using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -28,15 +29,20 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequireDigit = false;
 });
 //Adds signalR service
-builder.Services.AddSignalR().AddHubOptions<SignalRController>
+builder.Services.AddSignalR()
+    .AddHubOptions<SignalRController>
     (options =>
     {
         options.KeepAliveInterval = TimeSpan.FromMinutes(1);
         options.EnableDetailedErrors = true;
     });
+builder.Services.AddResponseCompression(options => options.MimeTypes = 
+    options.MimeTypes = ResponseCompressionDefaults.MimeTypes
+        .Concat(new[] {"application/octet-stream"}));
 
 var app = builder.Build();
 
+app.UseResponseCompression();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -59,25 +65,7 @@ app.UseRouting();
 
 app.MapRazorPages();
 app.MapControllers();
+app.MapHub<SignalRController>("/conversations");
 app.MapFallbackToFile("index.html");
-app.MapHub<SignalRController>("/conversations", options =>
-{
-    options.Transports =
-        HttpTransportType.WebSockets |
-        HttpTransportType.LongPolling;
-});
-var connection = new HubConnectionBuilder()
-    .WithUrl("https://localhost:44392/conversations")
-    .ConfigureLogging(logging => {
-        logging.SetMinimumLevel(LogLevel.Information);
-        logging.AddConsole();
-    })
-    .Build();
-/*app.UseEndpoints(endpoints =>
-{
-    endpoints.MapBlazorHub("/conversations");
-    endpoints.MapFallbackToPage("localhost:44392");
-    endpoints.MapHub<SignalRController>(SignalRController.HubUrl);
-});*/
 
 app.Run();

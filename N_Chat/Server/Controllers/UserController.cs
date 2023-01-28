@@ -131,7 +131,7 @@ namespace N_Chat.Server.Controllers
         }
         //Get CurrentUser by ID
         [HttpGet("getuser/{id}")]
-        public async Task<ActionResult<UserModel>> GetUser(string id)
+        public async Task<ActionResult> GetUser(string id)
         {
             UserModel currentuser = await userManager.FindByIdAsync(id); //gets current user using recieved ID
             if (currentuser != null) 

@@ -35,9 +35,9 @@ namespace N_Chat.Client.Services
             return null;
         }
 
-        public async Task<string> GetUser(string id)
+        public async Task<UserModel> GetUser(string id)
         {
-            var result = await httpClient.GetFromJsonAsync<string>($"api/user/getuser/{id}");
+            var result = await httpClient.GetFromJsonAsync<UserModel>($"api/user/getuser/{id}");
             return result;
         }
         
@@ -47,7 +47,7 @@ namespace N_Chat.Client.Services
     {
         Task<string> LoginUser(LoginModel loginModel); // Login User Method
         Task<string> SignUp(RegisterModel registerModel); // Signup User Method
-        Task<string> GetUser(string id);  // Get user by id method
+        Task<UserModel> GetUser(string id);  // Get user by id method
     }
 }
  
