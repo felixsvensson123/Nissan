@@ -130,5 +130,11 @@ namespace N_Chat.Server.Controllers
 
         }
 
+        [HttpGet("getuser")]
+        public async Task<ActionResult<UserModel>> GetCurrentUser(UserModel userModel)
+        {
+            
+        }
+
     }
 }
