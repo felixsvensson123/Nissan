@@ -11,14 +11,14 @@ namespace N_Chat.Server.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-
+        private readonly DataContext context;
         private readonly UserManager<UserModel> userManager;
         private readonly SignInManager<UserModel> signInManager;
-        public UserController(UserManager<UserModel> userManager, SignInManager<UserModel> signInManager)
+        public UserController(UserManager<UserModel> userManager, SignInManager<UserModel> signInManager, DataContext context)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
-        }
+            this.context = context;        }
 
         [HttpPost("login")]
         public async Task<IActionResult> LoginUser(LoginModel user)
@@ -64,6 +64,70 @@ namespace N_Chat.Server.Controllers
                 }
             }
             return BadRequest(ModelState);
+        }// Update email for user
+        [HttpPut("edituser")]
+        public async Task<IActionResult> UpdateUsersMail(UserModel updateModel)
+        {
+            if (ModelState.IsValid)
+            { 
+
+            var checkUser = await signInManager.UserManager.FindByIdAsync(updateModel.Id);
+
+                if (checkUser == null) 
+                {
+                    return BadRequest();
+                }
+                checkUser.Email = updateModel.Email;
+                context.Update(checkUser);
+                await context.SaveChangesAsync();
+                return Ok();
+
+            }
+           
+                
+            return BadRequest(updateModel);
+        }
+        [HttpPost("ListMessages")]
+        public async Task<ActionResult<List<MessageModel>>> GetMessages(MessageModel messageModel)
+        {
+            var CurrentUser = await userManager.FindByIdAsync(messageModel.UserId);
+            List<MessageModel> messages = new();
+            using (var db = context)
+            {
+                messages = await db.Messages.Where(m => m.UserId == messageModel.UserId).ToListAsync();
+
+                foreach (var message in messages)
+                {
+                    CurrentUser.Messages.Add(message); 
+                }
+                db.SaveChanges();
+
+            }
+           
+            return Ok();
+        }
+        [HttpPost("ChatList")]
+        public async Task<ActionResult<List<ChatModel>>> GetChat (ChatModel chatModel)
+        {
+            var CurrentUser = await userManager.FindByIdAsync(chatModel.UserId);
+
+            List<ChatModel> chats = new();
+
+            using(var db = context) 
+            { 
+                chats = await db.Chats.Where(m => m.UserId == chatModel.UserId).ToListAsync();
+
+                foreach (var chat in chats)
+                {
+                    CurrentUser.Chats.Add(chat);   
+                }
+
+                db.SaveChanges();
+            
+            }
+
+            return Ok();
+
         }
 
     }
