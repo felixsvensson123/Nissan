@@ -8,6 +8,10 @@ main {
     flex: 1;
 }
 
+.content {
+    height: 94vh;
+}
+
 .sidebar {
     background-color: rgb(211, 178, 232);
     border-right: solid;
@@ -24,19 +28,13 @@ main {
     align-items: center;
 }
 
-.Searchbar{
-    width: 15%;
-    height: 20px;
-    background: #e0dede;
-    border: none;
-    outline: none;
-    border-radius: 5px;
-    margin-right: 15px
-}
-
 .oi {
     background-color: rgb(211, 178, 232);
     border: none;
+}
+
+.oi:hover{
+    color: white;
 }
 
     .top-row ::deep a, .top-row ::deep .btn-link {

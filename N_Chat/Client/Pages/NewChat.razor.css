@@ -6,7 +6,7 @@
     align-items: center;
     min-height: 100vh;
     font-family: 'Jost', sans-serif;
-    width: 100%;
+    width: 100%
 }
 
 .main {
@@ -22,8 +22,8 @@
     display: none;
 }
 
-.login {
-    position: relative;
+.New-Chat {
+    /*position: relative;*/
     width: 100%;
     height: 100%;
 }
@@ -39,7 +39,7 @@ label {
     transition: .5s ease-in-out;
 }
 
- input{
+input {
     width: 60%;
     height: 20px;
     background: #e0dede;
@@ -52,7 +52,7 @@ label {
     border-radius: 5px;
 }
 
-button {
+.create {
     width: 60%;
     height: 40px;
     margin: 10px auto;
@@ -70,31 +70,48 @@ button {
     cursor: pointer;
 }
 
-button:hover {
+.create:hover {
     background: rgb(181, 142, 205);
 }
 
-.signup {
+#cross {
+    color: black;
+    display: flex;
+    justify-content: flex-end;
+    font-size: x-large;
+    border: none;
+    background: rgb(222, 196, 238);
+    margin-left: auto;
+    margin-right: 7px;
+    margin-top: 3px;
+}
+
+#cross:hover {
+    color: red;
+}
+
+.New-Group-Chat {
     height: 460px;
     background: #eee;
     border-radius: 60% / 10%;
-    transform: translateY(-180px);
+    transform: translateY(-150px);
     transition: .8s ease-in-out;
+    margin-top: 10px;
 }
 
-.signup label {
+.New-Group-Chat label {
     color: black;
     transform: scale(.6);
 }
 
-#chk:checked ~ .signup {
-    transform: translateY(-500px);
+#chk:checked ~ .New-Group-Chat {
+    transform: translateY(-400px);
 }
 
-#chk:checked ~ .signup label {
+#chk:checked ~ .New-Group-Chat label {
     transform: scale(1);
 }
 
-#chk:checked ~ .login label {
+#chk:checked ~ .New-Chat label {
     transform: scale(.6);
 }
