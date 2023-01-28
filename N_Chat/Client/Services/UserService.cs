@@ -34,12 +34,20 @@ namespace N_Chat.Client.Services
 
             return null;
         }
+
+        public async Task<string> GetUser(string id)
+        {
+            var result = await httpClient.GetFromJsonAsync<string>($"api/user/getuser/{id}");
+            return result;
+        }
+        
     }
 
-    public interface IUserService
+    public interface IUserService 
     {
-        Task<string> LoginUser(LoginModel loginModel);
-        Task<string> SignUp(RegisterModel loginModel);
+        Task<string> LoginUser(LoginModel loginModel); // Login User Method
+        Task<string> SignUp(RegisterModel registerModel); // Signup User Method
+        Task<string> GetUser(string id);  // Get user by id method
     }
 }
  

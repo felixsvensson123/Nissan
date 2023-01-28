@@ -69,9 +69,9 @@ namespace N_Chat.Server.Controllers
         public async Task<IActionResult> UpdateUsersMail(UserModel updateModel)
         {
             if (ModelState.IsValid)
-            { 
-
-            var checkUser = await signInManager.UserManager.FindByIdAsync(updateModel.Id);
+            {
+                
+                var checkUser = await signInManager.UserManager.FindByIdAsync(updateModel.Id); // Gets current user using ID
 
                 if (checkUser == null) 
                 {
@@ -129,11 +129,14 @@ namespace N_Chat.Server.Controllers
             return Ok();
 
         }
-
-        [HttpGet("getuser")]
-        public async Task<ActionResult<UserModel>> GetCurrentUser(UserModel userModel)
+        //Get CurrentUser by ID
+        [HttpGet("getuser/{id}")]
+        public async Task<ActionResult<UserModel>> GetUser(string id)
         {
-            
+            UserModel currentuser = await userManager.FindByIdAsync(id); //gets current user using recieved ID
+            if (currentuser != null) 
+                return Ok(currentuser);
+            return BadRequest(currentuser);
         }
 
     }
