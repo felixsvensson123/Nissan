@@ -1,6 +1,7 @@
 global using Microsoft.EntityFrameworkCore;
 global using N_Chat.Server.Data;
 global using N_Chat.Shared;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,6 +40,19 @@ builder.Services.AddSignalR()
 builder.Services.AddResponseCompression(options => options.MimeTypes = 
     options.MimeTypes = ResponseCompressionDefaults.MimeTypes
         .Concat(new[] {"application/octet-stream"}));
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsSpecs",
+    builder =>
+    {
+        builder
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .SetIsOriginAllowed(options => true)
+            .AllowCredentials();
+    });
+});
 
 var app = builder.Build();
 
@@ -62,10 +76,13 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-
 app.MapRazorPages();
 app.MapControllers();
 app.MapHub<SignalRController>("/conversations");
 app.MapFallbackToFile("index.html");
+
+app.UseCors("CorsSpecs");
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.Run();

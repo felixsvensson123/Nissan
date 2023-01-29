@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity;
 using N_Chat.Shared.dto;
 //using AutoMapper;
@@ -20,8 +23,41 @@ namespace N_Chat.Server.Controllers
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
-            this.context = context;        }
+            this.context = context;        
+        }
+        
+        //Get User by ID
+        [HttpGet("getuser/{id}")]
+        public async Task<ActionResult> GetUser(string id)
+        {
+            UserModel currentuser = await userManager.FindByIdAsync(id); //gets current user using recieved ID
+            if (currentuser != null) 
+                return Ok(currentuser);
+            return BadRequest(currentuser);
+        }
 
+        
+        [HttpGet("getusercookie")] //get current user from cookies
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            string userId = HttpContext.User.Claims
+                .Where(u => u.Type == "userid")
+                .Select(v =>Convert.ToString( v.Value))
+                .First();
+
+            var user = await context.Users
+                .Where(u => u.Id == userId)
+                .Select(p => new UserModel
+                {
+                    Id = p.Id,
+                    Email = p.Email,
+                    UserName = p.UserName,
+                    NormalizedEmail = p.NormalizedEmail,
+                    NormalizedUserName = p.NormalizedUserName
+                }).FirstOrDefaultAsync();
+            return Ok(user);
+        }
+        
         [HttpPost("login")]
         public async Task<IActionResult> LoginUser(LoginModel user)
         {
@@ -31,16 +67,28 @@ namespace N_Chat.Server.Controllers
                     .PasswordSignInAsync(user.Username, user.Password, false, false); // signs in user.
                 if (result.Succeeded) // checks if signin succeded
                 {
-                    ClaimsIdentity claimsIdentity = new ClaimsIdentity(new List<Claim>
+                    UserModel currentUser = await signInManager.UserManager.FindByNameAsync(user.Username); // gets current user by username
+                    var claims = new List<Claim>
                     {
-                        new Claim(ClaimTypes.NameIdentifier, user.Username)
-                    }, "auth");
-                    ClaimsPrincipal claims = new ClaimsPrincipal(claimsIdentity);
-                    await HttpContext.SignInAsync(claims);
+                        new("userid", currentUser.Id),
+                        new(ClaimTypes.Name, currentUser.UserName)
+                    };
+ 
+                    var claimsIdentity = new ClaimsIdentity(
+                        claims, CookieAuthenticationDefaults.AuthenticationScheme);
+ 
+                    var authProperties = new AuthenticationProperties();
+ 
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity),
+                        authProperties);
                     return Ok(result);
                 }
+
                 ModelState.AddModelError(string.Empty, "Invalid Login Attempt"); // Error Message if string is empty
             }
+
             return BadRequest(user);
         }
 
@@ -73,7 +121,17 @@ namespace N_Chat.Server.Controllers
                 }
             }
             return BadRequest(ModelState);
-        }// Update email for user
+        }
+        [HttpPost("logout")]
+        public async Task<IActionResult> LogoutAsync()
+        {
+            await HttpContext.SignOutAsync(); 
+            await signInManager.SignOutAsync();
+            return Ok("Successful sign out!");
+        }
+        
+        
+        // Update email for user
         [HttpPut("edituser")]
         public async Task<IActionResult> UpdateUsersMail(UserModel updateModel)
         {
@@ -138,15 +196,11 @@ namespace N_Chat.Server.Controllers
             return Ok();
 
         }
-        //Get CurrentUser by ID
-        [HttpGet("getuser/{id}")]
-        public async Task<ActionResult> GetUser(string id)
+        /*ClaimsIdentity claimsIdentity = new ClaimsIdentity(new List<Claim>
         {
-            UserModel currentuser = await userManager.FindByIdAsync(id); //gets current user using recieved ID
-            if (currentuser != null) 
-                return Ok(currentuser);
-            return BadRequest(currentuser);
-        }
-
+            new Claim(ClaimTypes.NameIdentifier, user.Username)
+        }, "auth");
+        ClaimsPrincipal claims = new ClaimsPrincipal(claimsIdentity);
+        await HttpContext.SignInAsync(claims);*/
     }
 }
