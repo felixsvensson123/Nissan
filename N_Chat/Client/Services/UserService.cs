@@ -45,13 +45,13 @@ namespace N_Chat.Client.Services
 
         public async Task<UserModel> GetUserById(string id)
         {
-            var result = await httpClient.GetFromJsonAsync<UserModel>($"api/user/getuser/{id}");
+            var result = await httpClient.GetFromJsonAsync<UserModel>($"api/user/get/{id}");
             return result;
         }
 
         public async Task<(string Message, UserModel? user)> GetUserClaim()
         {
-            var response = await httpClient.GetAsync("api/user/getuserclaim");
+            var response = await httpClient.GetAsync("api/user/getcurrent");
             if (response.IsSuccessStatusCode)
             {
                 return ("Success", await response.Content.ReadFromJsonAsync<UserModel>());
