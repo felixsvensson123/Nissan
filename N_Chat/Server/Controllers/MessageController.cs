@@ -26,7 +26,7 @@ namespace N_Chat.Server.Controllers{
         }
 
         //GET:Hämta det nyaste meddelandet från en användare.
-        [HttpGet("{id}")]
+        [HttpGet("getbyid/{id}")]
         public async Task<ActionResult<MessageModel>> GetById(int id){
             try{
                 //hämtar meddelande med meddelande id
