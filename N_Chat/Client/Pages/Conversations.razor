@@ -3,7 +3,10 @@
 @using Microsoft.AspNetCore.SignalR.Client
 
 @page "/conversations"
-
+@if (!_isChatting)
+{
+    <p>Enter your name to start chatting</p>
+}
 <div class="message">
 	<input class="messageinput" type="text" name="txt" placeholder="Write something..." wrap="hard" rows="5" cols="30" required="">
 	<button class="oi oi-pencil" aria-hidden="true" id="Pencil"></button>
@@ -19,7 +22,6 @@
     //private string _username;
     public UserModel _username { get; set; }
     
-    public UserModel CurrentUser { get; set; }
     // on-screen message
     //private string _message;
     public MessageModel _message { get; set; }
@@ -35,7 +37,13 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _username = await UserService.GetUserById("d7fc4ba6-4957-41a7-96b5-52b65c06bc35");
+        var currentUser = await UserService.GetUserClaim();
+        if (currentUser.Message == "Success")
+        {
+            _username = currentUser.user;
+            StateHasChanged();
+        }
+        
     }
 
     public async Task Chat()

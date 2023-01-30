@@ -27,7 +27,7 @@ namespace N_Chat.Server.Controllers
         }
         
         //Get User by ID
-        [HttpGet("getuser/{id}")]
+        [HttpGet("get/{id}")]
         public async Task<ActionResult> GetUser(string id)
         {
             UserModel currentuser = await userManager.FindByIdAsync(id); //gets current user using recieved ID
@@ -35,8 +35,8 @@ namespace N_Chat.Server.Controllers
                 return Ok(currentuser);
             return BadRequest(currentuser);
         }
-        
-        [HttpGet("getuserclaim")] //get current user from claim
+        [Authorize]
+        [HttpGet("getcurrent")] //get current user from claim
         public async Task<ActionResult> GetCurrentUser()
         {
             var uid = User.FindFirst(ClaimTypes.Name)?.Value; //Finds user claim
@@ -52,7 +52,7 @@ namespace N_Chat.Server.Controllers
             if (ModelState.IsValid) //Checks if object is valid
             {
                 var result = await signInManager
-                    .PasswordSignInAsync(user.Username, user.Password, false, false); // signs in user.
+                    .PasswordSignInAsync(user.Username, user.Password, true, false); // signs in user.
                 if (result.Succeeded) // checks if signin succeded
                 {
                     UserModel currentUser = await signInManager.UserManager.FindByNameAsync(user.Username); // gets current user by username
