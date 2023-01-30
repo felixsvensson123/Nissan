@@ -6,14 +6,21 @@
     </div>
 
     <main>
+       <AuthorizeView>
+    <NotAuthorized>
+        <div style="align-content: center; justify-content: center;">
+            <LoginDisplay></LoginDisplay>
+        </div>
+    </NotAuthorized>
+    <Authorized>
         <div class="top-row px-4">
             <input class="Searchbar" name="txt" placeholder="Search" required="">
             <button class="oi oi-person" aria-hidden="true"></button>
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
         </div>
-
         <article class="content px-4">
-            @Body
-        </article>
+                    @Body
+                </article>
+    </Authorized>
+</AuthorizeView>
     </main>
 </div>
