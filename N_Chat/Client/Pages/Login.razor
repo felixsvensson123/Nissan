@@ -1,6 +1,10 @@
 ﻿@inject IUserService UserService;
 @inject NavigationManager NavigationManager;
+@inject ILocalStorageService LocalStorageService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject CookieHandler CookieHandler
 @layout Loginlayout
+
 @page "/Login"
 
 <div class="main">
@@ -38,13 +42,18 @@
 	{
 		string result = await UserService.LoginUser(LoginModel);
 		Console.WriteLine(result);
-		NavigationManager.NavigateTo("/");
+		if (result == "Success") 
+		{
+			await LocalStorageService.SetItemAsStringAsync("isauthenticated", "true");
+			NavigationManager.NavigateTo("/");
+			StateHasChanged();
+		}
 		StateHasChanged();
 	}	public async Task RegisterUser()
 	{
 		string result = await UserService.SignUp(RegisterModel);
 		Console.WriteLine(result);
-		NavigationManager.NavigateTo("/StartPage");
+		NavigationManager.NavigateTo("/");
 		StateHasChanged();
 	}
 }

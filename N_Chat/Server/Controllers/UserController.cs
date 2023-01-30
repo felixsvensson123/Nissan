@@ -23,7 +23,7 @@ namespace N_Chat.Server.Controllers
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
-            this.context = context;        
+            this.context = context;
         }
         
         //Get User by ID
@@ -35,26 +35,18 @@ namespace N_Chat.Server.Controllers
                 return Ok(currentuser);
             return BadRequest(currentuser);
         }
-
         
-        [HttpGet("getusercookie")] //get current user from cookies
-        public async Task<IActionResult> GetCurrentUser()
+        [HttpGet("getuserclaim")] //get current user from claim
+        public async Task<ActionResult> GetCurrentUser()
         {
-            string userId = HttpContext.User.Claims
+            var uid = User.FindFirst(ClaimTypes.Name)?.Value;
+            /*var userId = User.Claims //finds user claim
                 .Where(u => u.Type == "userid")
-                .Select(v =>Convert.ToString( v.Value))
-                .First();
+                .Select(v => v.Value) //convert to string?
+                .First();*/
 
-            var user = await context.Users
-                .Where(u => u.Id == userId)
-                .Select(p => new UserModel
-                {
-                    Id = p.Id,
-                    Email = p.Email,
-                    UserName = p.UserName,
-                    NormalizedEmail = p.NormalizedEmail,
-                    NormalizedUserName = p.NormalizedUserName
-                }).FirstOrDefaultAsync();
+            UserModel? user = await context.Users //finds user that matches claim and sets properties
+                .FirstOrDefaultAsync(u => u.UserName == uid);
             return Ok(user);
         }
         
@@ -68,7 +60,7 @@ namespace N_Chat.Server.Controllers
                 if (result.Succeeded) // checks if signin succeded
                 {
                     UserModel currentUser = await signInManager.UserManager.FindByNameAsync(user.Username); // gets current user by username
-                    var claims = new List<Claim>
+                    var claims = new List<Claim> //sets up userid claim
                     {
                         new("userid", currentUser.Id),
                         new(ClaimTypes.Name, currentUser.UserName)
@@ -79,7 +71,7 @@ namespace N_Chat.Server.Controllers
  
                     var authProperties = new AuthenticationProperties();
  
-                    await HttpContext.SignInAsync(
+                    await HttpContext.SignInAsync(              //sets claims principals and signs in use to HttpContext.
                         CookieAuthenticationDefaults.AuthenticationScheme,
                         new ClaimsPrincipal(claimsIdentity),
                         authProperties);
@@ -125,6 +117,7 @@ namespace N_Chat.Server.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> LogoutAsync()
         {
+            
             await HttpContext.SignOutAsync(); 
             await signInManager.SignOutAsync();
             return Ok("Successful sign out!");

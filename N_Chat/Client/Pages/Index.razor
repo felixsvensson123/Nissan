@@ -1,10 +1,16 @@
-﻿@inherits LayoutComponentBase
+﻿@inject ILocalStorageService LocalStorageService
+
+@inherits LayoutComponentBase
 @layout MainLayout;
 
 @page "/"
 
 <PageTitle>About Nchat</PageTitle>
-<AuthorizeView>Button here maybe you are auth tho</AuthorizeView>
+<AuthorizeView>
+    <Authorized>
+          Button here maybe you are auth tho
+    </Authorized>
+</AuthorizeView>
 <MudButton Color="Color.Dark" Variant="Variant.Filled">TestButton</MudButton>
 
 <h1>StartPage/ About Nchat</h1>

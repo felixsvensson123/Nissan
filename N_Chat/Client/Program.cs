@@ -4,13 +4,15 @@ global using MudBlazor.Services;
 global using Microsoft.AspNetCore.SignalR.Client;
 global using  Microsoft.AspNetCore.Authentication;
 global using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+global using N_Chat.Client;
+global  using N_Chat.Client.Handlers;
+global using N_Chat.Client.Services;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using N_Chat.Client;
-using N_Chat.Client.Services;
+
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -26,4 +28,9 @@ builder.Services.AddAuthentication();
 builder.Services.AddBlazoredLocalStorage();
 builder.Services
     .AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
+builder.Services.AddScoped<CookieHandler>();
+builder.Services.AddHttpClient("API", options => {
+        options.BaseAddress = new Uri("https://localhost:7280/");
+    })
+    .AddHttpMessageHandler<CookieHandler>();
 await builder.Build().RunAsync();

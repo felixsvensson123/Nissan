@@ -35,7 +35,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _username = await UserService.GetUser("d7fc4ba6-4957-41a7-96b5-52b65c06bc35");
+        _username = await UserService.GetUserById("d7fc4ba6-4957-41a7-96b5-52b65c06bc35");
     }
 
     public async Task Chat()
