@@ -39,15 +39,11 @@ namespace N_Chat.Server.Controllers
         [HttpGet("getuserclaim")] //get current user from claim
         public async Task<ActionResult> GetCurrentUser()
         {
-            var uid = User.FindFirst(ClaimTypes.Name)?.Value;
-            /*var userId = User.Claims //finds user claim
-                .Where(u => u.Type == "userid")
-                .Select(v => v.Value) //convert to string?
-                .First();*/
+            var uid = User.FindFirst(ClaimTypes.Name)?.Value; //Finds user claim
 
-            UserModel? user = await context.Users //finds user that matches claim and sets properties
+            UserModel? user = await context.Users //finds user that matches claim
                 .FirstOrDefaultAsync(u => u.UserName == uid);
-            return Ok(user);
+            return Ok(user); //returns found user
         }
         
         [HttpPost("login")]
