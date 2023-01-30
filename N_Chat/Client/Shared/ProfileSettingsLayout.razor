@@ -1,0 +1,26 @@
+﻿@inherits LayoutComponentBase
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenuProfile />
+    </div>
+
+    <main>
+       <AuthorizeView>
+    <NotAuthorized>
+        <div style="align-content: center; justify-content: center;">
+            <LoginDisplay></LoginDisplay>
+        </div>
+    </NotAuthorized>
+    <Authorized>
+        <div class="top-row px-4">
+            <input class="Searchbar" name="txt" placeholder="Search" required="">
+            <button class="oi oi-person" aria-hidden="true"></button>
+        </div>
+        <article class="content px-4">
+                    @Body
+                </article>
+    </Authorized>
+</AuthorizeView>
+    </main>
+</div>

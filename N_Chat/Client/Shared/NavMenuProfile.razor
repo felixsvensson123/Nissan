@@ -1,0 +1,61 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/StartPage">N-Chat</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="Conversations" Match="NavLinkMatch.All">
+                <span class="oi oi-chat" aria-hidden="true"></span>
+                <span class="Chat" aria-hidden="true">Conversations</span>
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="">
+                <span class="Chat" aria-hidden="true">Chat settings</span>
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="">
+                <span class="Chat" aria-hidden="true">Change password</span>
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="">
+                <span class="Chat" aria-hidden="true">Change username</span>
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="">
+                <span class="Chat" aria-hidden="true">Change profile picture</span>
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="">
+                <span class="Chat" aria-hidden="true">Information Policy</span>
+            </NavLink>
+        </div>
+        <div class="nav-item px-3" id="LogOut">
+            <NavLink class="nav-link" href="">
+                <span class="Chat" aria-hidden="true">Log out</span>
+            </NavLink>
+        </div>
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}
+
