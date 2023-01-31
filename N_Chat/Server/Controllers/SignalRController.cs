@@ -22,14 +22,14 @@ public class SignalRController : Hub
         this.context = context;
         //this.messageController = messageController;
         //this.hash = hash;
-       // this.encryptionController = encryptionController;
+        // this.encryptionController = encryptionController;
     }
 
     public async Task SendMessage(string user, string message)
     {
         await Clients.All.SendAsync("BroadCast", user, message);
-      //  encryptionController.Encrypt(message);
-      //  await messageController.PostMessage(messageModel);
+        //  encryptionController.Encrypt(message);
+        //  await messageController.PostMessage(messageModel);
     }
 
     public override Task OnConnectedAsync()
