@@ -153,7 +153,7 @@ namespace N_Chat.Server.Controllers
             return BadRequest(updateModel);
         }
         [HttpPost("ListMessages")]
-        public async Task<ActionResult<List<MessageModel>>> GetMessages(MessageModel messageModel)
+        public async Task<ActionResult<List<MessageModel>>> AddMessagesToUser(MessageModel messageModel)
         {
             var CurrentUser = await userManager.FindByIdAsync(messageModel.UserId);
             List<MessageModel> messages = new();
@@ -172,7 +172,7 @@ namespace N_Chat.Server.Controllers
             return Ok();
         }
         [HttpPost("ChatList")]
-        public async Task<ActionResult<List<ChatModel>>> GetChat (ChatModel chatModel)
+        public async Task<ActionResult<List<ChatModel>>> AddChatsToUser(ChatModel chatModel)
         {
             var CurrentUser = await userManager.FindByIdAsync(chatModel.UserId);
 
