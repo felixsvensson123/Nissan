@@ -1,12 +1,42 @@
-﻿<Router AppAssembly="@typeof(App).Assembly">
-    <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
-    </Found>
-    <NotFound>
-        <PageTitle>Not found</PageTitle>
-        <LayoutView Layout="@typeof(MainLayout)">
-            <p role="alert">Sorry, there's nothing at this address.</p>
-        </LayoutView>
-    </NotFound>
-</Router>
+﻿@inject ILocalStorageService LocalStorageService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IUserService UserService;
+<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(App).Assembly" OnNavigateAsync="@OnNavigateAsync">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <NotAuthorized>
+                    <N_Chat.Client.Shared.LoginDisplay/>
+                </NotAuthorized>
+            </AuthorizeRouteView>
+            <FocusOnNavigate RouteData="@routeData" Selector="h1"/>
+        </Found>
+        <NotFound>
+            <PageTitle>Not found</PageTitle>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <p role="alert">Sorry, there's nothing at this address.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>
+
+@code{
+    private async Task OnNavigateAsync(NavigationContext args)
+    {
+        var auth =  await LocalStorageService.GetItemAsync<string>("isauthenticated");
+        var user = (await( AuthStateProvider as CustomAuthStateProvider)
+            .GetAuthenticationStateAsync()).User;
+
+        if(!string.IsNullOrEmpty(auth) && !user.Identity.IsAuthenticated ){
+            var response = await UserService.GetUserClaim();
+            if (response.Message == "Success")
+            {
+                ( AuthStateProvider as CustomAuthStateProvider)
+                    .SetAuthInfo(response.user);
+            }
+            else if(response.Message == "Unauthorized"){
+                await LocalStorageService.RemoveItemAsync("isauthenticated");
+            }
+        }
+    }
+}

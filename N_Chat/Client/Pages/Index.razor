@@ -1,12 +1,25 @@
-﻿@inherits LayoutComponentBase
+﻿@inject ILocalStorageService LocalStorageService
+@inject IUserService UserService
+@inherits LayoutComponentBase
 @layout MainLayout;
 
 @page "/"
 
 <PageTitle>About Nchat</PageTitle>
-<MudButton Color="Color.Dark" Variant="Variant.Filled">TestButton</MudButton>
+<AuthorizeView>
+    <Authorized>
+          You are authorized! <MudButton Color="Color.Dark" Variant="Variant.Filled" @onclick="Disconnect">Signout</MudButton>
+    </Authorized>
+</AuthorizeView>
+
+
 <h1>StartPage/ About Nchat</h1>
 
 @code {
 
+    private async Task Disconnect()
+    {
+        await UserService.Signout();
+        await LocalStorageService.RemoveItemAsync("isauthenticated");
+    }
 }
