@@ -94,4 +94,10 @@ main {
         padding-left: 2rem !important;
         padding-right: 1.5rem !important;
     }
+    .center-authorize-login {
+        justify-content: center;
+        display: flex;
+        align-items: center;
+        margin: 10rem;
+    }
 }

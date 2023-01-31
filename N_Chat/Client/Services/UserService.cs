@@ -24,7 +24,7 @@ namespace N_Chat.Client.Services
         }
         public async Task<string> Signout()
         {
-            var reponse = await httpClient.PostAsync("/api/user/logout", null);
+            var reponse = await httpClient.PostAsync("api/user/logout", null);
             if (reponse.IsSuccessStatusCode)
             {
                 return "Sign Out succeded!";

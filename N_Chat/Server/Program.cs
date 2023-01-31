@@ -37,9 +37,9 @@ builder.Services.AddSignalR()
         options.KeepAliveInterval = TimeSpan.FromMinutes(1);
         options.EnableDetailedErrors = true;
     });
-builder.Services.AddResponseCompression(options => options.MimeTypes = 
+/*builder.Services.AddResponseCompression(options => options.MimeTypes = 
     options.MimeTypes = ResponseCompressionDefaults.MimeTypes
-        .Concat(new[] {"application/octet-stream"}));
+        .Concat(new[] {"application/octet-stream"}));*/
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
 builder.Services.AddCors(options =>
 {
@@ -56,7 +56,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-app.UseResponseCompression();
+//app.UseResponseCompression();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

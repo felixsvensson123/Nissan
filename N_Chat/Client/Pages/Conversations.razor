@@ -3,15 +3,16 @@
 @using Microsoft.AspNetCore.SignalR.Client
 
 @page "/conversations"
-@if (!_isChatting)
-{
-    <p>Enter your name to start chatting</p>
-}
+
 <div class="message">
+    @if (!_isChatting)
+    {
+        <p>Enter your name to start chatting</p>
+    }
     <input class="messageinput" type="text" name="txt" placeholder="Write something..." wrap="hard" rows="5" cols="30" required="">
-	<button class="oi oi-pencil" aria-hidden="true" id="Pencil"></button>
-	<button class="oi oi-trash" aria-hidden="true" id="Trash"></button>
-	<button class="oi oi-location" aria-hidden="true" id="Send" @onclick="Chat"></button>
+    <button class="oi oi-pencil" aria-hidden="true" id="Pencil"></button>
+    <button class="oi oi-trash" aria-hidden="true" id="Trash"></button>
+    <button class="oi oi-location" aria-hidden="true" id="Send" @onclick="Chat"></button>
 </div>
 
 @code {

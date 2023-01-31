@@ -26,7 +26,7 @@
         var auth =  await LocalStorageService.GetItemAsync<string>("isauthenticated");
         var user = (await( AuthStateProvider as CustomAuthStateProvider)
             .GetAuthenticationStateAsync()).User;
-            
+
         if(!string.IsNullOrEmpty(auth) && !user.Identity.IsAuthenticated ){
             var response = await UserService.GetUserClaim();
             if (response.Message == "Success")

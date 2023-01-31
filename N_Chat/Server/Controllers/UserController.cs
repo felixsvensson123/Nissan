@@ -27,6 +27,7 @@ namespace N_Chat.Server.Controllers
         }
         
         //Get User by ID
+        [Authorize]
         [HttpGet("get/{id}")]
         public async Task<ActionResult> GetUser(string id)
         {
@@ -43,7 +44,14 @@ namespace N_Chat.Server.Controllers
 
             UserModel? user = await context.Users //finds user that matches claim
                 .FirstOrDefaultAsync(u => u.UserName == uid);
-            return Ok(user); //returns found user
+            UserModel dtoUser = new UserModel()
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                NormalizedUserName = user.NormalizedUserName
+            };
+            return Ok(dtoUser); //returns found user
         }
         
         [HttpPost("login")]
@@ -66,7 +74,6 @@ namespace N_Chat.Server.Controllers
                         claims, CookieAuthenticationDefaults.AuthenticationScheme);
  
                     var authProperties = new AuthenticationProperties();
- 
                     await HttpContext.SignInAsync(              //sets claims principals and signs in use to HttpContext.
                         CookieAuthenticationDefaults.AuthenticationScheme,
                         new ClaimsPrincipal(claimsIdentity),
@@ -86,21 +93,23 @@ namespace N_Chat.Server.Controllers
             if (ModelState.IsValid)
             {
                 var checkUser = await userManager.FindByNameAsync(registerModel.Username); //Checks if user already exists in DB
-                if (checkUser.UserName == registerModel.Username)
+                if (checkUser != null)
                     return BadRequest("User Already exists!!");
 
                 var user = new UserModel() // sets usermodel props to registerModel props
                 {
-                 UserName = registerModel.Username,
-                 Email = registerModel.Email
+                    UserName = registerModel.Username, 
+                    Email = registerModel.Email
                 };
                 
                 var result = await userManager.CreateAsync(user, registerModel.Password); // Creates user account sets after usermodel and registermodels password
 
                 if (result.Succeeded) // Checks if createasync succeded
                 {
-                    await signInManager.UserManager.AddToRoleAsync(user, "Member"); // sets register'd users role to "Member"
-                    await signInManager.PasswordSignInAsync(user, registerModel.Password, false, false); //"Signs in user after registering"
+                    string role = "Member";
+                    LoginModel login = registerModel;
+                    await userManager.AddToRoleAsync(user, role);// sets register'd users role to "Member"
+                    await LoginUser(login); //Signs in user after registering
                     return Ok(result);
                 }
                 foreach (var error in result.Errors)
