@@ -38,7 +38,7 @@ namespace NChat.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
 
                     b.HasData(
                         new
@@ -76,7 +76,7 @@ namespace NChat.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RoleClaims");
+                    b.ToTable("RoleClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -98,7 +98,7 @@ namespace NChat.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserClaims");
+                    b.ToTable("UserClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
@@ -115,7 +115,7 @@ namespace NChat.Server.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(max)");
 
-                    b.ToTable("UserLogins");
+                    b.ToTable("UserLogins", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
@@ -128,7 +128,7 @@ namespace NChat.Server.Migrations
 
                     b.HasKey("UserId");
 
-                    b.ToTable("UserRoles");
+                    b.ToTable("UserRoles", (string)null);
 
                     b.HasData(
                         new
@@ -152,7 +152,7 @@ namespace NChat.Server.Migrations
                     b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");
 
-                    b.ToTable("UserTokens");
+                    b.ToTable("UserTokens", (string)null);
                 });
 
             modelBuilder.Entity("N_Chat.Shared.ChatModel", b =>
@@ -192,7 +192,7 @@ namespace NChat.Server.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Chats");
+                    b.ToTable("Chats", (string)null);
 
                     b.HasData(
                         new
@@ -249,7 +249,7 @@ namespace NChat.Server.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Messages");
+                    b.ToTable("Messages", (string)null);
 
                     b.HasData(
                         new
@@ -314,7 +314,7 @@ namespace NChat.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Test");
+                    b.ToTable("Test", (string)null);
                 });
 
             modelBuilder.Entity("N_Chat.Shared.UserModel", b =>
@@ -372,7 +372,7 @@ namespace NChat.Server.Migrations
 
                     b.HasIndex("ChatModelId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
 
                     b.HasData(
                         new

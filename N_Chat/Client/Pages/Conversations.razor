@@ -1,18 +1,22 @@
 ﻿@inject NavigationManager NavigationManager
 @inject IUserService UserService
+@inject IMessageService MessageService
+
 @using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.AspNetCore.Connections
 
 @page "/conversations"
 
 <div class="message">
     @if (!_isChatting)
     {
-        <p>Enter your name to start chatting</p>
+        <input class="" type="text" placeholder="Enter your name">
+        <button @onclick="Chat">Connect</button>
     }
     <input class="messageinput" type="text" name="txt" placeholder="Write something..." wrap="hard" rows="5" cols="30" required="">
     <button class="oi oi-pencil" aria-hidden="true" id="Pencil"></button>
     <button class="oi oi-trash" aria-hidden="true" id="Trash"></button>
-    <button class="oi oi-location" aria-hidden="true" id="Send" @onclick="Chat"></button>
+    <button class="oi oi-location" aria-hidden="true" id="Send"></button>
 </div>
 
 @code {
@@ -21,27 +25,30 @@
 
     // name of the user who will be chatting
     //private string _username;
-    public UserModel _username { get; set; }
+    public UserModel User { get; set; }
     
     // on-screen message
     //private string _message;
-    public MessageModel _message { get; set; }
+    public MessageModel DisplayMessage { get; set; }
     
     // new message input
     //private string _newMessage;
-    public MessageModel _newMessage { get; set; }
+    public MessageModel InputMessage { get; set; }
+    
     // list of messages in chat
-    private List<MessageModel> _messages = new List<MessageModel>();
+    private List<MessageModel> _messages = new();
 
     private string _hubUrl;
     private HubConnection _hubConnection;
+
+    public ChatModel currentchat { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         var currentUser = await UserService.GetUserClaim();
         if (currentUser.Message == "Success")
         {
-            _username = currentUser.user;
+            User = currentUser.user;
             StateHasChanged();
         }
         
@@ -51,9 +58,9 @@
     {
         
         // check username is valid
-        if (string.IsNullOrWhiteSpace(_username.UserName))
+        if (string.IsNullOrWhiteSpace(User.UserName))
         {
-            _message.Message = "Please enter a name";
+            DisplayMessage.Message = "Please enter a name";
             return;
         };
 
@@ -74,35 +81,35 @@
             _hubConnection = new HubConnectionBuilder()
                 .WithUrl(NavigationManager.ToAbsoluteUri(_hubUrl))
                 .Build();
-
+            
             _hubConnection.On<string, string>("Broadcast", BroadcastMessage);
 
             await _hubConnection.StartAsync();
 
-            await SendAsync($"[Notice] {_username} joined chat room.");
+            await SendAsync($"[Notice] {User.UserName} joined chat room.");
         }
         catch (Exception e)
         {
-            _message.Message = $"ERROR: Failed to start chat client: {e.Message}";
+            DisplayMessage.Message = $"ERROR: Failed to start chat client: {e.Message}";
             _isChatting = false;
         }
     }
 
     private void BroadcastMessage(string name, string message)
     {
-        bool isMine = name.Equals(_username.UserName, StringComparison.OrdinalIgnoreCase);
+        bool isMine = name.Equals(User.UserName, StringComparison.OrdinalIgnoreCase);
 
         _messages.Add(new MessageModel()
         {
             Id = +1,
             Message = message,
-            UserId = _username.Id,
+            UserId = User.Id,
             MessageCreated = DateTime.Now,
-            IsMessageEncrypted = _message.IsMessageEncrypted
+            IsMessageEncrypted = InputMessage.IsMessageEncrypted
             
         }
             );
-
+      
         // Inform blazor the UI needs updating
         InvokeAsync(StateHasChanged);
     }
@@ -111,7 +118,7 @@
     {
         if (_isChatting)
         {
-            await SendAsync($"[Notice] {_username} left chat room.");
+            await SendAsync($"[Notice] {User.UserName} left chat room.");
 
             await _hubConnection.StopAsync();
             await _hubConnection.DisposeAsync();
@@ -125,9 +132,9 @@
     {
         if (_isChatting && !string.IsNullOrWhiteSpace(message))
         {
-            await _hubConnection.SendAsync("Broadcast", _username, message);
+            await _hubConnection.SendAsync("Broadcast", User, message);
 
-            _newMessage.Message = string.Empty;
+            InputMessage.Message = string.Empty;
         }
     }
 

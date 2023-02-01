@@ -19,8 +19,9 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient {BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)});
-builder.Services.AddScoped<ITestService, TestService>(); // Initiazilerar test service i client projektet s� det kan n�s i codebehinden p� en sida // bara ett exempel //
+builder.Services.AddScoped<ITestService, TestService>(); // Initiazile test service i client projektet s� det kan n�s i codebehinden p� en sida // bara ett exempel //
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddMudServices();
 builder.Services.AddOptions();
 builder.Services.AddAuthorizationCore();

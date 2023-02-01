@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using System.Collections;
+using Microsoft.AspNetCore.SignalR;
 
 
 namespace N_Chat.Server.Controllers;
@@ -25,11 +26,11 @@ public class SignalRController : Hub
         // this.encryptionController = encryptionController;
     }
 
-    public async Task SendMessage(string user, string message)
+    public async Task SendMessage(string user, string message, string userId)
     {
-        await Clients.All.SendAsync("BroadCast", user, message);
+        var chat = context.Chats.FirstOrDefault(c => c.UserId == userId);
+        await Clients.Client(chat.UserId).SendAsync("BroadCast", user, message);
         //  encryptionController.Encrypt(message);
-        //  await messageController.PostMessage(messageModel);
     }
 
     public override Task OnConnectedAsync()
