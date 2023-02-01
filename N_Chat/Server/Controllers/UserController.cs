@@ -36,7 +36,7 @@ namespace N_Chat.Server.Controllers{
             return BadRequest(currentuser);
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet("getcurrent")] //get current user from claim
         public async Task<ActionResult> GetCurrentUser(){
             try{
