@@ -1,5 +1,7 @@
 ﻿@page "/new_chat"
 @layout Loginlayout
+@inject NavigationManager NavigationManager
+
 <AuthorizeView>
 	<Authorized>
 		<div class="main">
@@ -8,7 +10,7 @@
 
 			<div class="New-Chat">
 				<form>
-					<button class="oi oi-x" aria-hidden="true" id="cross"></button>
+					<button class="oi oi-x" aria-hidden="true" id="cross" @onclick=@(() => NavigationManager.NavigateTo("/StartPage")) ></button>
 					<label for="chk" aria-hidden="true">Singel Chat</label>
 					<input type="text" name="txt" placeholder="Username" required="">
 					<button class="create">Create New Chat</button>
