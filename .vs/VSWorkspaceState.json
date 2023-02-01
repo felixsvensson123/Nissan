@@ -2,13 +2,12 @@
   "ExpandedNodes": [
     "",
     "\\N_Chat",
-    "\\N_Chat\\Client\\Pages",
     "\\N_Chat\\Server",
     "\\N_Chat\\Server\\Controllers",
     "\\N_Chat\\Server\\Data",
     "\\N_Chat\\Shared",
     "\\N_Chat\\Shared\\dto"
   ],
-  "SelectedNode": "\\N_Chat",
+  "SelectedNode": "\\N_Chat\\Server\\N_Chat.Server.csproj",
   "PreviewInSolutionExplorer": false
 }
