@@ -17,13 +17,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+
 // Add database connection
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(connectionString));
+
 //Add identityuser to db
-builder.Services.AddIdentity<UserModel, IdentityRole>().AddEntityFrameworkStores<DataContext>().AddDefaultTokenProviders();
-builder.Services.Configure<IdentityOptions>(options =>
-{
+builder.Services.AddIdentity<UserModel, IdentityRole>().AddEntityFrameworkStores<DataContext>()
+    .AddDefaultTokenProviders();
+builder.Services.Configure<IdentityOptions>(options => {
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
     options.Password.RequiredLength = 6;
@@ -32,8 +34,7 @@ builder.Services.Configure<IdentityOptions>(options =>
 //Adds signalR service
 builder.Services.AddSignalR()
     .AddHubOptions<SignalRController>
-    (options =>
-    {
+    (options => {
         options.KeepAliveInterval = TimeSpan.FromMinutes(1);
         options.EnableDetailedErrors = true;
     });
@@ -41,48 +42,45 @@ builder.Services.AddSignalR()
     options.MimeTypes = ResponseCompressionDefaults.MimeTypes
         .Concat(new[] {"application/octet-stream"}));*/
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
-builder.Services.AddCors(options =>
-{
+builder.Services.AddCors(options => {
     options.AddPolicy("CorsSpecs",
-    builder =>
-    {
-        builder
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .SetIsOriginAllowed(options => true)
-            .AllowCredentials();
-    });
+        builder => {
+            builder
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .SetIsOriginAllowed(options => true)
+                .AllowCredentials();
+        });
 });
 
 var app = builder.Build();
 
 //app.UseResponseCompression();
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+if (app.Environment.IsDevelopment()){
     app.UseWebAssemblyDebugging();
 }
-else
-{
+else{
     app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+//du är du
+app.UseAuthentication();
+//du har rätt eller inte rätt att se detta.
+app.UseAuthorization();
 
+app.UseHttpsRedirection();
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
-
 app.UseRouting();
-
 app.MapRazorPages();
 app.MapControllers();
 app.MapHub<SignalRController>("/conversations");
 app.MapFallbackToFile("index.html");
 
 app.UseCors("CorsSpecs");
-app.UseAuthentication();
-app.UseAuthorization();
+
 
 app.Run();
