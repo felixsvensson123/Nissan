@@ -11,55 +11,45 @@
 
 @if (!_isChatting)
 {
-    <p>
-        Enter your name to start chatting:
-    </p>
-
     <button type="button" @onclick="@Chat"><span class="oi oi-chat" aria-hidden="true"></span> Chat!</button>
-
-    // Error messages
-    @if (DisplayMessage != null)
-    {
-        <div class="invalid-feedback">@DisplayMessage</div>
-        <small id="emailHelp" class="form-text text-muted">@DisplayMessage</small>
-    }
 }
 else
 {
     <div class="alert alert-secondary mt-4" role="alert">
         <span class="oi oi-person mr-2" aria-hidden="true"></span>
         <span>You are connected as <b>@User.UserName</b></span>
+                @foreach (var item in _messages)
+        {
+            <div class="">
+                <div class="user">@User.UserName</div>
+                <div class="msg">@item.Message</div>
+            </div>
+        }
         <button class="btn btn-sm btn-warning ml-md-auto" @onclick="@DisconnectAsync">Disconnect</button>
     </div>
     // display messages
     <div id="scrollbox">
-        @foreach (var item in _messages)
-        {
-            <div class="">
-                <div class="user">@item.User.UserName</div>
-                <div class="msg">@item.Message</div>
-            </div>
-        }
+
     </div>
     <div class="message">
-        <input class="messageinput" type="text" name="txt" placeholder="Write something..." wrap="hard" rows="5" cols="30" required="">
+        <input @bind="_message" class="messageinput" type="text" name="txt" placeholder="Write something..." wrap="hard" rows="5" cols="30" required="">
         <button class="oi oi-pencil" aria-hidden="true" id="Pencil"></button>
         <button class="oi oi-trash" aria-hidden="true" id="Trash"></button>
-        <button class="oi oi-location" aria-hidden="true" id="Send"></button>
+        <button @onclick="@(() => SendAsync(_message))" class="oi oi-location" aria-hidden="true" id="Send"></button>
     </div>
 }
 
 
 @code {
     private bool _isChatting = false;
-    public UserModel User { get; set; } // name of the user who will be chatting
-    public MessageModel DisplayMessage { get; set; } // on-screen message
-    public MessageModel InputMessage { get; set; } // new message input
-    public ChatModel CurrentChat { get; set; } // Current Chat
+    private UserModel? User { get; set; } // name of the user who will be chatting
+    private MessageModel? DisplayMessage { get; set; } = new();// on-screen message
+    private MessageModel? InputMessage { get; set; } = new();// new message input
+    public ChatModel? CurrentChat { get; set; } = new(); // Current Chat
     private List<MessageModel> _messages = new(); // list of messages in chat
     private string _hubUrl;
     private HubConnection _hubConnection;
-
+    private string? _message;
 
     protected override async Task OnInitializedAsync()
     {
@@ -75,11 +65,13 @@ else
     public async Task Chat()
     {
     // check username is valid
-        if (string.IsNullOrWhiteSpace(User.UserName))
+        var currentUser = await UserService.GetUserClaim();
+        if (currentUser.Message == "Success")
         {
-            DisplayMessage.Message = "Please enter a name";
-            return;
-        };
+            User = currentUser.user;
+            
+            StateHasChanged();
+        }
         try
         {
     // Start chatting and force refresh UI.
@@ -111,17 +103,16 @@ else
         }
     }
 
-    private void BroadcastMessage(string name, string message, string userId)
+    private async Task BroadcastMessage(string name, string message, string userId)
     {
-        bool isMine = name.Equals(User.UserName, StringComparison.OrdinalIgnoreCase);
-
+       // bool isMine = name.Equals(User.UserName, StringComparison.OrdinalIgnoreCase);
+        
         _messages.Add(new MessageModel()
         {
             Id = +1,
             Message = message,
             UserId = User.Id,
             MessageCreated = DateTime.Now,
-            IsMessageEncrypted = InputMessage.IsMessageEncrypted
         }
             );
 
@@ -137,7 +128,7 @@ else
 
             await _hubConnection.StopAsync();
             await _hubConnection.DisposeAsync();
-
+            
             _hubConnection = null;
             _isChatting = false;
         }
@@ -147,9 +138,10 @@ else
     {
         if (_isChatting && !string.IsNullOrWhiteSpace(message))
         {
-            await _hubConnection.SendAsync("Broadcast", User, message, User.Id);
+            await _hubConnection.SendAsync("Broadcast", User.UserName, message, User.Id);
 
-            InputMessage.Message = string.Empty;
+            message = string.Empty;
+            await InvokeAsync(StateHasChanged);
         }
     }
 
