@@ -34,7 +34,8 @@ builder.Services.AddSignalR()
     .AddHubOptions<SignalRController>
     (options =>
     {
-        options.KeepAliveInterval = TimeSpan.FromMinutes(1);
+        options.KeepAliveInterval = TimeSpan.FromSeconds(10);
+        options.ClientTimeoutInterval = TimeSpan.FromDays(155);
         options.EnableDetailedErrors = true;
     });
 /*builder.Services.AddResponseCompression(options => options.MimeTypes = 

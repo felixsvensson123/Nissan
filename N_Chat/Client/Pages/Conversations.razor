@@ -1,7 +1,6 @@
 ﻿@inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject IMessageService MessageService
-
 @using Microsoft.AspNetCore.SignalR.Client
 @using Microsoft.AspNetCore.Connections
 
@@ -18,7 +17,7 @@ else
     <div class="alert alert-secondary mt-4" role="alert">
         <span class="oi oi-person mr-2" aria-hidden="true"></span>
         <span>You are connected as <b>@User.UserName</b></span>
-                @foreach (var item in _messages)
+        @foreach (var item in _messages)
         {
             <div class="">
                 <div class="user">@User.UserName</div>
@@ -43,8 +42,8 @@ else
 @code {
     private bool _isChatting = false;
     private UserModel? User { get; set; } // name of the user who will be chatting
-    private MessageModel? DisplayMessage { get; set; } = new();// on-screen message
-    private MessageModel? InputMessage { get; set; } = new();// new message input
+    private MessageModel? DisplayMessage { get; set; } = new(); // on-screen message
+    private MessageModel? InputMessage { get; set; } = new(); // new message input
     public ChatModel? CurrentChat { get; set; } = new(); // Current Chat
     private List<MessageModel> _messages = new(); // list of messages in chat
     private string _hubUrl;
@@ -57,7 +56,7 @@ else
         if (currentUser.Message == "Success")
         {
             User = currentUser.user;
-            
+
             StateHasChanged();
         }
     }
@@ -69,44 +68,40 @@ else
         if (currentUser.Message == "Success")
         {
             User = currentUser.user;
-            
+
             StateHasChanged();
         }
-        try
-        {
+
     // Start chatting and force refresh UI.
-            _isChatting = true;
-            await Task.Delay(1);
+        _isChatting = true;
+        await Task.Delay(1);
 
     // remove old messages if any
-            _messages.Clear();
+        _messages.Clear();
 
     // Create the chat client
-            string baseUrl = NavigationManager.BaseUri;
+        _hubUrl = "/conversations";
+        _hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri(_hubUrl))
+            .WithAutomaticReconnect()
+            .Build();
+        _hubConnection.On<string, string, string>("Broadcast", BroadcastMessage);
+        await _hubConnection.StartAsync();
 
-            _hubUrl = "/conversations";
-
-            _hubConnection = new HubConnectionBuilder()
-                .WithUrl(NavigationManager.ToAbsoluteUri(_hubUrl))
-                .Build();
-
-            _hubConnection.On<string, string, string>("Broadcast", BroadcastMessage);
-
-            await _hubConnection.StartAsync();
-
-            await SendAsync($"[Notice] {User.UserName} joined chat room.");
-        }
-        catch (Exception e)
+        await SendAsync($"[Notice] {User.UserName} joined chat room.");
+    }    
+    private async Task SendAsync(string message)
+    {
+        if (_isChatting && !string.IsNullOrWhiteSpace(message))
         {
-            DisplayMessage.Message = $"ERROR: Failed to start chat client: {e.Message}";
-            _isChatting = false;
+            await _hubConnection.SendAsync("SendMessage", User.UserName, message, User.Id);
+            message = string.Empty;
+            await InvokeAsync(StateHasChanged);
         }
     }
 
     private async Task BroadcastMessage(string name, string message, string userId)
     {
-       // bool isMine = name.Equals(User.UserName, StringComparison.OrdinalIgnoreCase);
-        
         _messages.Add(new MessageModel()
         {
             Id = +1,
@@ -116,8 +111,7 @@ else
         }
             );
 
-    // Inform blazor the UI needs updating
-        InvokeAsync(StateHasChanged);
+        InvokeAsync(StateHasChanged); // Inform blazor the UI needs updating
     }
 
     private async Task DisconnectAsync()
@@ -128,23 +122,12 @@ else
 
             await _hubConnection.StopAsync();
             await _hubConnection.DisposeAsync();
-            
+
             _hubConnection = null;
             _isChatting = false;
         }
     }
-
-    private async Task SendAsync(string message)
-    {
-        if (_isChatting && !string.IsNullOrWhiteSpace(message))
-        {
-            await _hubConnection.SendAsync("Broadcast", User.UserName, message, User.Id);
-
-            message = string.Empty;
-            await InvokeAsync(StateHasChanged);
-        }
-    }
-
+    
     /*private class Message
     {
         public Message(string username, string body, bool mine)

@@ -25,17 +25,11 @@ public class SignalRController : Hub
         //this.hash = hash;
         // this.encryptionController = encryptionController;
     }
-
-    public async Task SendMessage(string user, string message, string userId)
-    {
-        await Clients.Client(userId).SendAsync("Broadcast", user, message, userId);
-        //  encryptionController.Encrypt(message);
-    }
-
-    public override Task OnConnectedAsync()
+    public override async Task OnConnectedAsync()
     {
         Console.WriteLine($"{Context.ConnectionId} connected");
-        return base.OnConnectedAsync();
+        await SendMessage($"{Context.User}", " has joined the chat.", "");
+        await base.OnConnectedAsync();
     }
 
     public override async Task OnDisconnectedAsync(Exception e)
@@ -43,6 +37,12 @@ public class SignalRController : Hub
         Console.WriteLine($"Disconnected {e?.Message} {Context.ConnectionId}");
         await base.OnDisconnectedAsync(e);
     }
+    public async Task SendMessage(string user, string message, string userId)
+    {
+        await Clients.All.SendAsync("Broadcast", user, message, userId);
+    }
+
+
     //hash.HashPassword(userModel, messageModel.Message);
     /*public async Task<ActionResult> Test()
     {
