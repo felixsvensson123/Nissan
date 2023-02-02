@@ -7,41 +7,59 @@
 
 @page "/conversations"
 
-<div class="message">
-    @if (!_isChatting)
+
+
+@if (!_isChatting)
+{
+    <p>
+        Enter your name to start chatting:
+    </p>
+
+    <button type="button" @onclick="@Chat"><span class="oi oi-chat" aria-hidden="true"></span> Chat!</button>
+
+    // Error messages
+    @if (DisplayMessage != null)
     {
-        <input class="" type="text" placeholder="Enter your name">
-        <button @onclick="Chat">Connect</button>
+        <div class="invalid-feedback">@DisplayMessage</div>
+        <small id="emailHelp" class="form-text text-muted">@DisplayMessage</small>
     }
-    <input class="messageinput" type="text" name="txt" placeholder="Write something..." wrap="hard" rows="5" cols="30" required="">
-    <button class="oi oi-pencil" aria-hidden="true" id="Pencil"></button>
-    <button class="oi oi-trash" aria-hidden="true" id="Trash"></button>
-    <button class="oi oi-location" aria-hidden="true" id="Send"></button>
-</div>
+}
+else
+{
+    <div class="alert alert-secondary mt-4" role="alert">
+        <span class="oi oi-person mr-2" aria-hidden="true"></span>
+        <span>You are connected as <b>@User.UserName</b></span>
+        <button class="btn btn-sm btn-warning ml-md-auto" @onclick="@DisconnectAsync">Disconnect</button>
+    </div>
+    // display messages
+    <div id="scrollbox">
+        @foreach (var item in _messages)
+        {
+            <div class="">
+                <div class="user">@item.User.UserName</div>
+                <div class="msg">@item.Message</div>
+            </div>
+        }
+    </div>
+    <div class="message">
+        <input class="messageinput" type="text" name="txt" placeholder="Write something..." wrap="hard" rows="5" cols="30" required="">
+        <button class="oi oi-pencil" aria-hidden="true" id="Pencil"></button>
+        <button class="oi oi-trash" aria-hidden="true" id="Trash"></button>
+        <button class="oi oi-location" aria-hidden="true" id="Send"></button>
+    </div>
+}
+
 
 @code {
-    // flag to indicate chat status
     private bool _isChatting = false;
-
-    // name of the user who will be chatting
-    //private string _username;
-    public UserModel User { get; set; }
-    
-    // on-screen message
-    //private string _message;
-    public MessageModel DisplayMessage { get; set; }
-    
-    // new message input
-    //private string _newMessage;
-    public MessageModel InputMessage { get; set; }
-    
-    // list of messages in chat
-    private List<MessageModel> _messages = new();
-
+    public UserModel User { get; set; } // name of the user who will be chatting
+    public MessageModel DisplayMessage { get; set; } // on-screen message
+    public MessageModel InputMessage { get; set; } // new message input
+    public ChatModel CurrentChat { get; set; } // Current Chat
+    private List<MessageModel> _messages = new(); // list of messages in chat
     private string _hubUrl;
     private HubConnection _hubConnection;
 
-    public ChatModel currentchat { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -49,40 +67,38 @@
         if (currentUser.Message == "Success")
         {
             User = currentUser.user;
+            
             StateHasChanged();
         }
-        
     }
 
     public async Task Chat()
     {
-        
-        // check username is valid
+    // check username is valid
         if (string.IsNullOrWhiteSpace(User.UserName))
         {
             DisplayMessage.Message = "Please enter a name";
             return;
         };
-
         try
         {
-            // Start chatting and force refresh UI.
+    // Start chatting and force refresh UI.
             _isChatting = true;
             await Task.Delay(1);
 
-            // remove old messages if any
+    // remove old messages if any
             _messages.Clear();
 
-            // Create the chat client
+    // Create the chat client
             string baseUrl = NavigationManager.BaseUri;
 
             _hubUrl = "/conversations";
-            
+
             _hubConnection = new HubConnectionBuilder()
                 .WithUrl(NavigationManager.ToAbsoluteUri(_hubUrl))
                 .Build();
-            
-            _hubConnection.On<string, string>("Broadcast", BroadcastMessage);
+
+            _hubConnection.On<string, string, string>("Broadcast", BroadcastMessage);
 
             await _hubConnection.StartAsync();
 
@@ -95,7 +111,7 @@
         }
     }
 
-    private void BroadcastMessage(string name, string message)
+    private void BroadcastMessage(string name, string message, string userId)
     {
         bool isMine = name.Equals(User.UserName, StringComparison.OrdinalIgnoreCase);
 
@@ -106,11 +122,10 @@
             UserId = User.Id,
             MessageCreated = DateTime.Now,
             IsMessageEncrypted = InputMessage.IsMessageEncrypted
-            
         }
             );
-      
-        // Inform blazor the UI needs updating
+
+    // Inform blazor the UI needs updating
         InvokeAsync(StateHasChanged);
     }
 
@@ -132,7 +147,7 @@
     {
         if (_isChatting && !string.IsNullOrWhiteSpace(message))
         {
-            await _hubConnection.SendAsync("Broadcast", User, message);
+            await _hubConnection.SendAsync("Broadcast", User, message, User.Id);
 
             InputMessage.Message = string.Empty;
         }

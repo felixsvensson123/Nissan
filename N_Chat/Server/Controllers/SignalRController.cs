@@ -28,8 +28,7 @@ public class SignalRController : Hub
 
     public async Task SendMessage(string user, string message, string userId)
     {
-        var chat = context.Chats.FirstOrDefault(c => c.UserId == userId);
-        await Clients.Client(chat.UserId).SendAsync("BroadCast", user, message);
+        await Clients.Client(userId).SendAsync("Broadcast", user, message, userId);
         //  encryptionController.Encrypt(message);
     }
 
