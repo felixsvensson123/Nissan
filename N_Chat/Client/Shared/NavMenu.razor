@@ -1,46 +1,107 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="/StartPage">N-Chat</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
+@using N_Chat.Client.Pages
+@inject IUserService UserService
+@using N_Chat.Client.Services;
+
+<div class="top-row ps-3 navbar navbar-dark">
+   <div class="container-fluid">
+      <a class="navbar-brand" href="/StartPage">N-Chat</a>
+      <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+         <span class="navbar-toggler-icon"></span>
+      </button>
+   </div>
 </div>
 
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="/New_chat" Match="NavLinkMatch.All">
-                <span class="oi oi-plus" aria-hidden="true"></span>
-                <span class="Chat" aria-hidden="true">New Chat</span>
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="/LegalInformation">
-                <span class="Chat" aria-hidden="true">Chatt 1</span>
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="conversations">
-                <span class="Chat" aria-hidden="true">Chatt 2</span>
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="/Login">
-                <span class="Chat" aria-hidden="true">Chatt 3</span>
-            </NavLink>
-        </div>
+   <nav class="flex-column">
+      <div class="nav-item px-3">
+         <NavLink class="nav-link" href="/New_chat" Match="NavLinkMatch.All">
+            <span class="oi oi-plus" aria-hidden="true"></span>
+            <span class="Chat" aria-hidden="true">New Chat</span>
+         </NavLink>
+      </div>
+      <div class="nav-item px-3">
+         <NavLink class="nav-link" href="/LegalInformation">
+            <span class="Chat" aria-hidden="true">Legal Information</span>
+         </NavLink>
+      </div>
+      <div class="nav-item px-3">
+         <NavLink class="nav-link" href="conversations">
+            <span class="Chat" aria-hidden="true">Chatt 2</span>
+         </NavLink>
+      </div>
+      //utkommenterat pga är redan bra authorization kontroll, loginfönster visas om användare in är inloggad redan.
+      @*$1$check if user is not logged in#1#
+        @if (User == null){
+             <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="/Login">
+                            <span class="Chat" aria-hidden="true">Log in</span>
+                        </NavLink>
+                    </div>
+        }*@
 
-    </nav>
+      //display all the chats of the user
+      <div class="display-users-chat-conversations">
+         <h2>Chats </h2>
+         //for each chat, display the chat name and the participants
+         @foreach (var chat in Chats){
+            <div class="chat">
+               <div class="chat-name">
+                  <h3>@chat.Name</h3>
+               </div>
+               <div class="chat-participants">
+                  <h4>Participants:</h4>
+                  <p>@chat.UserId</p>
+                  @*<ul>
+               @foreach (var participant in chat.JoinerIds){
+                  <li>@participant.JoinerIds</li>
+               }
+            </ul>*@
+               </div>
+            </div>
+         }
+      </div>
+
+   </nav>
 </div>
 
 @code {
-    private bool collapseNavMenu = true;
 
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+   [Parameter]
+   public UserModel User { get; set; } = new();
 
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
+   [Parameter]
+   public List<ChatModel> Chats { get; set; } = new();
+
+   /*get the logged in user, if success then we call the method GetTheChats*/
+
+   protected override async Task OnInitializedAsync(){
+      var currentuser = await UserService.GetUserClaim();
+      if (currentuser.Message == "Success"){
+         User = currentuser.user;
+         StateHasChanged();
+         GetTheChats();
+      }
+   }
+
+   public HttpClient HttpClient { get; set; }
+
+   private void GetTheChats(){
+      ChatService chatService = new ChatService(HttpClient);
+
+   //call method GetAll in class ChatController
+      
+
+      /*
+      Chats = chatService.GetChats();*/
+   }
+
+
+   private bool collapseNavMenu = true;
+
+   private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+   private void ToggleNavMenu(){
+      collapseNavMenu = !collapseNavMenu;
+   }
+
 }
