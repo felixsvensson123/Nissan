@@ -30,7 +30,7 @@ namespace N_Chat.Server.Data
 
             // Restrict deletion of thread on message delete (set user to null instead)
             modelBuilder.Entity<MessageModel>()
-                .HasOne(i => i.User)
+                .HasOne(i => i.User)    
                 .WithMany(u => u.Messages)
                 .HasForeignKey(z => z.ChatId)
                 .HasForeignKey(i => i.UserId)

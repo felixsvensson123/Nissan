@@ -8,22 +8,18 @@ public class SignalRController : Hub
 
 {
     public const string HubUrl = "/conversations";
-    /*
-    private MessageController messageController { get; set; }
-    private EncryptionController encryptionController { get; set; }
-    */
-
+    private readonly ChatController chatController;
+    private readonly MessageController messageController;
+    private readonly EncryptionController encryptionController;
+    private readonly UserController userController;
     private readonly DataContext context;
-
-    //private IPasswordHasher<UserModel> hash;
-    //private HashAlgorithm hash;
-
-    public SignalRController(DataContext context)
+    public SignalRController(DataContext context,ChatController chatController,MessageController messageController,UserController userController,EncryptionController encryptionControlle)
     {
         this.context = context;
-        //this.messageController = messageController;
-        //this.hash = hash;
-        // this.encryptionController = encryptionController;
+        this.chatController = chatController;
+        this.messageController = messageController;
+        this.userController = userController;
+        this.encryptionController = encryptionController;
     }
     public override async Task OnConnectedAsync()
     {
@@ -41,7 +37,33 @@ public class SignalRController : Hub
     {
         await Clients.All.SendAsync("Broadcast", user, message, userId);
     }
+//OneonOne-ChatConveration
+    public  async Task SendPrivateChatMessage(string userId,string user,string message,int chatId ,string chatName)
+    {
+        await chatController.GetById(chatId);
+        await Clients.Client(userId).SendAsync("RecivePrivateChatMessage",message, user, chatId,userId,chatName);
+    }
 
+
+    //EncryptChat-Converation
+    public async Task EncryptChat(string userId,string user,int chatId,string chatName,bool? isEncrypted)
+    {
+        var chat = await chatController.GetById(chatId);
+        if (chat != null)
+        {
+            await Clients.Client(userId).SendAsync("ReciveEncryptChat",chat,chat.Id,chat.UserId,user,chatName, chat.IsChatEncrypted);
+        }
+
+    }
+    //
+    public async Task EncryptIndividualMessage(int messageId,bool isEncrypted,string user,string userId,string message)
+    {
+        var encryptMessage = await messageController.GetById(messageId);
+        if(encryptMessage != null)
+        {
+            await Clients.Client(userId).SendAsync("ReciveEncryptMessage",message,isEncrypted,user,userId,messageId);
+        }
+    }
 
     //hash.HashPassword(userModel, messageModel.Message);
     /*public async Task<ActionResult> Test()
