@@ -1,14 +1,14 @@
 ﻿@inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject IMessageService MessageService
+
 @using Microsoft.AspNetCore.SignalR.Client
 @using Microsoft.AspNetCore.Connections
 
 @page "/conversations"
 
 
-@if (PageHasLoaded)
-{
+
 @if (!_isChatting)
 {
     <button type="button" @onclick="@Chat"><span class="oi oi-chat" aria-hidden="true"></span> Chat!</button>
@@ -18,15 +18,13 @@ else
     <div class="alert alert-secondary mt-4" role="alert">
         <span class="oi oi-person mr-2" aria-hidden="true"></span>
         <span>You are connected as <b>@User.UserName</b></span>
-        @foreach (var item in _messages)
+                @foreach (var item in _messages)
         {
             <div class="">
                 <div class="user">@User.UserName</div>
                 <div class="msg">@item.Message</div>
             </div>
         }
-        <p>USER CHATS</p>
-
         <button class="btn btn-sm btn-warning ml-md-auto" @onclick="@DisconnectAsync">Disconnect</button>
     </div>
     // display messages
@@ -40,20 +38,21 @@ else
         <button @onclick="@(() => SendAsync(_message))" class="oi oi-location" aria-hidden="true" id="Send"></button>
     </div>
 }
-}
+
 
 @code {
-    bool PageHasLoaded = false;
     private bool _isChatting = false;
     private UserModel? User { get; set; } // name of the user who will be chatting
-    private MessageModel? DisplayMessage { get; set; } = new(); // on-screen message
-    private MessageModel? InputMessage { get; set; } = new(); // new message input
+    private MessageModel? DisplayMessage { get; set; } = new();// on-screen message
+    private MessageModel? InputMessage { get; set; } = new();// new message input
     public ChatModel? CurrentChat { get; set; } = new(); // Current Chat
-    public List<ChatModel> ListOfChats = new();
     private List<MessageModel> _messages = new(); // list of messages in chat
     private string _hubUrl;
     private HubConnection _hubConnection;
     private string? _message;
+    private string? encryptedMessage;
+
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -61,56 +60,59 @@ else
         if (currentUser.Message == "Success")
         {
             User = currentUser.user;
-            PageHasLoaded = true;
+
             StateHasChanged();
         }
     }
 
     public async Task Chat()
     {
-    // check username is valid
+        // check username is valid
         var currentUser = await UserService.GetUserClaim();
         if (currentUser.Message == "Success")
         {
             User = currentUser.user;
-            foreach (var item in User.Chats)
-            {
-                
-            }
+
             StateHasChanged();
         }
-
-    // Start chatting and force refresh UI.
-        _isChatting = true;
-        await Task.Delay(1);
-
-    // remove old messages if any
-        _messages.Clear();
-
-    // Create the chat client
-        _hubUrl = "/conversations";
-        _hubConnection = new HubConnectionBuilder()
-            .WithUrl(NavigationManager.ToAbsoluteUri(_hubUrl))
-            .WithAutomaticReconnect()
-            .Build();
-        _hubConnection.On<string, string, string>("Broadcast", BroadcastMessage);
-        await _hubConnection.StartAsync();
-
-        await SendAsync($"[Notice] {User.UserName} joined chat room.");
-    }
-
-    private async Task SendAsync(string message)
-    {
-        if (_isChatting && !string.IsNullOrWhiteSpace(message))
+        try
         {
-            await _hubConnection.SendAsync("SendMessage", User.UserName, message, User.Id);
-            message = string.Empty;
-            await InvokeAsync(StateHasChanged);
+            // Start chatting and force refresh UI.
+            _isChatting = true;
+            await Task.Delay(1);
+
+            // remove old messages if any
+            _messages.Clear();
+
+            // Create the chat client
+            string baseUrl = NavigationManager.BaseUri;
+
+            _hubUrl = "/conversations";
+
+            _hubConnection = new HubConnectionBuilder()
+                .WithUrl(NavigationManager.ToAbsoluteUri(_hubUrl))
+                .Build();
+
+            _hubConnection.On<string, string, string>("Broadcast", BroadcastMessage);
+            _hubConnection.On<string, string, string, int,bool>("RecivePrivateChatMessage",SendPrivateChatMessage);
+
+
+
+            await _hubConnection.StartAsync();
+
+            await SendAsync($"[Notice] {User.UserName}:{_message}");
+        }
+        catch (Exception e)
+        {
+            DisplayMessage.Message = $"ERROR: Failed to start chat client: {e.Message}";
+            _isChatting = false;
         }
     }
 
     private async Task BroadcastMessage(string name, string message, string userId)
     {
+        // bool isMine = name.Equals(User.UserName, StringComparison.OrdinalIgnoreCase);
+
         _messages.Add(new MessageModel()
         {
             Id = +1,
@@ -120,8 +122,53 @@ else
         }
             );
 
-        InvokeAsync(StateHasChanged); // Inform blazor the UI needs updating
+        // Inform blazor the UI needs updating
+        InvokeAsync(StateHasChanged);
     }
+
+
+
+
+
+   
+
+    //skicka ett privat meddeland i en chat-connectar till ett visst chatId-valbar med encrypt
+    private async Task SendPrivateChatMessage(string userId,string user,string message,int chatId,bool isChatEncrypted)
+    {
+       
+
+        CurrentChat = (new ChatModel()//create chat
+            {
+                Id = CurrentChat.Id,
+                ChatCreated = DateTime.Now,
+                CreatorId = userId,
+                Name = CurrentChat.Name,
+                Users = CurrentChat.Users,             
+                Messages = new List<MessageModel>()
+
+                {
+
+                    new()//Message in chat
+                    {
+                   
+                        Message=message,
+                        MessageCreated = DateTime.Now,
+                        UserId = User.Id,
+                   
+                    }   
+
+               }
+          }
+       );
+
+        InvokeAsync(StateHasChanged);
+
+    }
+   
+
+
+
+   
 
     private async Task DisconnectAsync()
     {
@@ -131,30 +178,22 @@ else
 
             await _hubConnection.StopAsync();
             await _hubConnection.DisposeAsync();
-
+            
             _hubConnection = null;
             _isChatting = false;
         }
     }
 
-    
-    //skicka ett privat meddeland i en chat
-    private async Task SendPrivateChatMessageAsync()
+    private async Task SendAsync(string message)
     {
-        if (_hubConnection is not null)
+        if (_isChatting && !string.IsNullOrWhiteSpace(message))
         {
-            await _hubConnection.SendAsync("SendPrivateChatMessage", _message, CurrentChat.Id, User.Id, User.UserName, CurrentChat.Name);
-        }
-    }
+            await _hubConnection.SendAsync("Broadcast", User.UserName, message, User.Id);
 
-    private async Task SendEncryptChatMessageAsync()
-    {
-        if (_hubConnection is not null)
-        {
-            await _hubConnection.SendAsync("EncryptChat", _message, CurrentChat.Id, User.Id, CurrentChat.Name, CurrentChat.IsChatEncrypted = true, User.UserName);
+            message = string.Empty;
+            await InvokeAsync(StateHasChanged);
         }
     }
-    
 
     /*private class Message
     {
@@ -174,4 +213,3 @@ else
         public string CSS => Mine ? "sent" : "received";
     }*/
 }
-
