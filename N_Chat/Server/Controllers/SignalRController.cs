@@ -10,19 +10,76 @@ public class SignalRController : Hub
     public const string HubUrl = "/conversations";
     
     private readonly DataContext context;
-
+    private readonly static UserController userController;
     public SignalRController(DataContext context)
     {
         this.context = context;
-        
-    }
-    
-    public async Task SendMessage(string user, string message, string userId)
 
+    }
+    public override Task OnConnectedAsync()
+    {
+        //Get users
+        var user = context.Users.Include(u => u.Chats).SingleOrDefault(x => x.UserName == Context.User.Identity.Name);
+        //Add user to each assigned group
+        foreach (var item in user.Chats)
+        {
+            Groups.AddToGroupAsync(Context.ConnectionId, item.Name);
+        }
+        Console.WriteLine($"{Context.ConnectionId} connected");
+        return base.OnConnectedAsync();
+    }
+
+    public override Task OnDisconnectedAsync(Exception e)
+    {
+        Console.WriteLine($"Disconnected {e?.Message} {Context.ConnectionId}");
+        return base.OnDisconnectedAsync(e);
+    }
+
+    public async Task AddToRoom(string chatName)
+    {
+        await using (var db = context)
+        {
+            //Find chat in db
+            var chat = db.Chats.Find(chatName);
+            if (chat != null)
+            {
+                var user = new UserModel() {UserName = Context.User.Identity.Name};
+                db.Users.Attach(user);
+                
+                chat.Users.Add(user);
+                db.SaveChanges();
+                await Groups.AddToGroupAsync(Context.ConnectionId, chatName);
+            }
+        }
+    }
+    public async Task RemoveFromRoom(string chatName)
+    {
+        using (var db = context)
+        {
+            // Retrieve room.
+            var chat = db.Chats.Find(chatName);
+            if (chat != null)
+            {
+                var user = new UserModel() { UserName = Context.User.Identity.Name };
+                db.Users.Attach(user);
+
+                chat.Users.Remove(user);
+                db.SaveChanges();
+                    
+                Groups.RemoveFromGroupAsync(Context.ConnectionId, chatName);
+            }
+        }
+    }
+    public async Task SendGroupMessage(string user,string message, string chatName)
+    {
+        await Clients.Groups(chatName).SendAsync("SendGroupMessage",user, message, chatName);
+    }
+    public async Task Broadcast(string user, string message, string userId)
     {
         await Clients.All.SendAsync("Broadcast", user, message, userId);
     }
 
+    /*
     //OneonOne-ChatConveration
     public async Task SendPrivateChatMessage(string userId, string user, string message, int chatId,
         bool isChatEncrypted)
@@ -30,16 +87,7 @@ public class SignalRController : Hub
         await Clients.Client(userId)
             .SendAsync("RecivePrivateChatMessage", message, user, userId, chatId, isChatEncrypted);
     }
+    */
 
-    public override Task OnConnectedAsync()
-    {
-        Console.WriteLine($"{Context.ConnectionId} connected");
-        return base.OnConnectedAsync();
-    }
 
-    public override async Task OnDisconnectedAsync(Exception e)
-    {
-        Console.WriteLine($"Disconnected {e?.Message} {Context.ConnectionId}");
-        await base.OnDisconnectedAsync(e);
-    }
 }

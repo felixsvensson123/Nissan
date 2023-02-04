@@ -54,6 +54,7 @@ namespace N_Chat.Server.Controllers
             { return BadRequest(ModelState); }
 
             var user = await context.Users.FirstOrDefaultAsync(x => x.Id == chat.UserId);
+            var user2 = await context.Users.FirstOrDefaultAsync(x => x.UserName == "admin");
             if (user != null)
             {
                 ChatModel chatToBeCreated = new ()
@@ -67,6 +68,11 @@ namespace N_Chat.Server.Controllers
                     IsChatEncrypted = chat.IsChatEncrypted,
                     ChatCreated= chat.ChatCreated,
                     ChatEnded = chat.ChatEnded,
+                    Users = new List<UserModel>()
+                    {
+                        user,
+                        user2
+                    },
                     Messages = new List<MessageModel>()
                     {
                         new()

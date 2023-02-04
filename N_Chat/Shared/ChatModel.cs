@@ -25,7 +25,7 @@ namespace N_Chat.Shared
         //Lista av meddelanden i chatt
         public List<MessageModel>? Messages { get; set; }
         //Lista av användare i chatt
-
+        public virtual List<UserModel>? Users { get; set; }
 
         //Relationer-One to Many
         [ForeignKey(nameof(User))]

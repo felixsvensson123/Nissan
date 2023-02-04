@@ -37,20 +37,13 @@ namespace N_Chat.Server.Controllers
                 .Include(t => t.User).ToListAsync();
             return dbChats;
         }
-        [HttpGet("getchat/{id}")]
-        public async Task<IEnumerable<UserModel>> getchat(string id)
-        {
-            List<UserModel> dbChats = await context.Users.Where(x => x.Id == id)
-                .Include(t => t.Chats)
-                .Include(t => t.Messages).ToListAsync();
-            return dbChats;
-        }
+
         //Get User by ID
         [Authorize]
         [HttpGet("get/{id}")]
         public async Task<ActionResult> GetUser(string id)
         {
-            UserModel currentuser = await userManager.FindByIdAsync(id); //gets current user using recieved ID
+            UserModel currentuser = await userManager.FindByNameAsync(id); //gets current user using recieved ID
             if (currentuser != null) 
                 return Ok(currentuser);
             return BadRequest(currentuser);

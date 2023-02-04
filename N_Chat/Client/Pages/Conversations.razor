@@ -6,6 +6,8 @@
 @using Microsoft.AspNetCore.SignalR.Client
 @using Microsoft.AspNetCore.Connections
 
+
+
 @page "/conversations"
 
 
@@ -28,21 +30,21 @@
         <RowTemplate>
             <MudTd DataLabel="Name">@context.Name</MudTd>
             <MudTd>
-                <MudButton Color="Color.Dark" Id="@context.Id" @onclick="(() => Chat(context.Id))">Enter</MudButton>
+                <MudButton Color="Color.Dark" @onclick="(() => Chat(context.Name))">Enter</MudButton>
             </MudTd>
         </RowTemplate>
     </MudTable>
 }
 else
 {
+    <body>
     <div class="alert alert-secondary mt-4" role="alert">
         <span class="oi oi-person mr-2" aria-hidden="true"></span>
         <span>You are connected as <b>@User.UserName</b></span>
         @foreach (var item in _messages)
         {
-            <div class="">
-                <div class="user">@User.UserName</div>
-                <div class="msg">@item.Message</div>
+            <div class="scrollbox">
+                <div class="msg">@item.User.UserName: @item.Message</div>
             </div>
         }
         <button class="btn btn-sm btn-warning ml-md-auto" @onclick="@DisconnectAsync">Disconnect</button>
@@ -51,8 +53,10 @@ else
         <input @bind="_message" class="messageinput" type="text" name="txt" placeholder="Write something..." wrap="hard" rows="5" cols="30" required="">
         <button class="oi oi-pencil" aria-hidden="true" id="Pencil"></button>
         <button class="oi oi-trash" aria-hidden="true" id="Trash"></button>
-        <button @onclick="@(() => SendAsync(_message))" class="oi oi-location" aria-hidden="true" id="Send"></button>
+        <button @onclick="@(() => SendAsync(_message, _chatName))" class="oi oi-location" aria-hidden="true" id="Send"></button>
+
     </div>
+    </body>
 }
 }
 
@@ -63,13 +67,13 @@ else
     private UserModel? User { get; set; } // name of the user who will be chatting
     private MessageModel? DisplayMessage { get; set; } = new(); // on-screen message
     private MessageModel? InputMessage { get; set; } = new(); // new message input
-    public ChatModel? CurrentChat { get; set; } = new(); // Current Chat
+    private ChatModel? CurrentChat { get; set; } = new(); // Current Chat
     private List<MessageModel> _messages = new(); // list of messages in chat
     private string _hubUrl;
     private HubConnection _hubConnection;
     private string? _message;
     private string? encryptedMessage;
-
+    private string? _chatName;
 
     protected override async Task OnInitializedAsync()
     {
@@ -88,7 +92,7 @@ else
         }
     }
 
-    private async Task Chat(int id)
+    private async Task Chat(string chatName)
     {
         try
         {
@@ -96,18 +100,17 @@ else
             await Task.Delay(1);
 
             _messages.Clear(); // remove old messages if any
-            _hubUrl = "/conversations";
 
             _hubConnection = new HubConnectionBuilder()
-                .WithUrl(NavigationManager.ToAbsoluteUri(_hubUrl))
+                .WithUrl(NavigationManager.ToAbsoluteUri("/conversations"))
                 .Build();
 
-            _hubConnection.On<string, string, string>("Broadcast", BroadcastMessage);
-    //_hubConnection.On<string, string, string, int, bool>("RecivePrivateChatMessage", SendPrivateChatMessage);
+            _hubConnection.On<string, string, string>("SendGroupMessage", BroadcastMessage);
+            _chatName = chatName; // Sets chatname after chosen item in list
 
             await _hubConnection.StartAsync();
 
-            await SendAsync($"[Notice] {User.UserName}: has joined the chat");
+            await SendAsync($"[Notice] {User.UserName}: has joined the chat", chatName);
         }
         catch (Exception e)
         {
@@ -116,36 +119,53 @@ else
         }
     }
 
-    private async Task BroadcastMessage(string name, string message, string userId)
+    private async Task BroadcastMessage(string name, string message, string chatName)
     {
-    // bool isMine = name.Equals(User.UserName, StringComparison.OrdinalIgnoreCase);
-
-        _messages.Add(new MessageModel()
+    //Adds message to list for display in html
+        var findUser = User.UserName;
+        if (findUser != null)
         {
-            Id = +1,
-            Message = message,
-            UserId = User.Id,
-            MessageCreated = DateTime.Now,
+            var user = await UserService.GetUserById(findUser);
+            _messages.Add(new MessageModel()
+            {
+                Id = +1,
+                Message = message,
+                UserId = User.Id,
+                User = user,
+                MessageCreated = DateTime.Now,
+            });
         }
-            );
-
-    // Inform blazor the UI needs updating
-        InvokeAsync(StateHasChanged);
+        InvokeAsync(StateHasChanged); // update ui
     }
 
     //skicka ett privat meddeland i en chat
-    private async Task SendAsync(string message)
+    private async Task SendAsync(string message, string chatName)
     {
         if (_isChatting && !string.IsNullOrWhiteSpace(message))
         {
-            await _hubConnection.SendAsync("Broadcast", User.UserName, message, User.Id);
-
+            await _hubConnection.SendAsync("SendGroupMessage", User.UserName, message, chatName);
             message = string.Empty;
             await InvokeAsync(StateHasChanged);
         }
     }
 
-    //skicka ett privat meddeland i en chat-connectar till ett visst chatId-valbar med encrypt
+
+    private async Task DisconnectAsync()
+    {
+        if (_isChatting)
+        {
+            await SendAsync($"[Notice] {User.UserName} left chat room.", "");
+
+            await _hubConnection.StopAsync();
+            await _hubConnection.DisposeAsync();
+
+            _hubConnection = null;
+            _isChatting = false;
+        }
+    }
+
+
+    /*//skicka ett privat meddeland i en chat-connectar till ett visst chatId-valbar med encrypt
     private async Task SendPrivateChatMessage(string userId, string user, string message, int chatId, bool isChatEncrypted)
     {
         CurrentChat = (new ChatModel() //create chat
@@ -167,22 +187,6 @@ else
             );
 
         InvokeAsync(StateHasChanged);
-    }
-
-    private async Task DisconnectAsync()
-    {
-        if (_isChatting)
-        {
-            await SendAsync($"[Notice] {User.UserName} left chat room.");
-
-            await _hubConnection.StopAsync();
-            await _hubConnection.DisposeAsync();
-
-            _hubConnection = null;
-            _isChatting = false;
-        }
-    }
-
-
+    }*/
 
 }

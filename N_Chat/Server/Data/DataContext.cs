@@ -16,6 +16,7 @@ namespace N_Chat.Server.Data
         public DbSet<TestModel> Test { get; set; }
         public DbSet<ChatModel> Chats { get; set; }
         public DbSet<MessageModel> Messages { get; set; }
+        public DbSet<Connections> Connections { get; set; }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,7 +27,6 @@ namespace N_Chat.Server.Data
                 .HasForeignKey(i => i.UserId)
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.SetNull);
-
 
             // Restrict deletion of thread on message delete (set user to null instead)
             modelBuilder.Entity<MessageModel>()
