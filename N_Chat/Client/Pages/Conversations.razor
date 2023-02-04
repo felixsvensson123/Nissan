@@ -1,13 +1,15 @@
 ﻿@inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject IMessageService MessageService
+@inject IChatService ChatService
+
 @using Microsoft.AspNetCore.SignalR.Client
 @using Microsoft.AspNetCore.Connections
 
 @page "/conversations"
 
 
-@if (PageHasLoaded)
+@if (_pageloaded)
 {
 @if (!_isChatting)
 {
@@ -54,9 +56,10 @@ else
 }
 }
 
+
 @code {
-    bool PageHasLoaded = false;
     private bool _isChatting = false;
+    private bool _pageloaded = false;
     private UserModel? User { get; set; } // name of the user who will be chatting
     private MessageModel? DisplayMessage { get; set; } = new(); // on-screen message
     private MessageModel? InputMessage { get; set; } = new(); // new message input
@@ -65,6 +68,8 @@ else
     private string _hubUrl;
     private HubConnection _hubConnection;
     private string? _message;
+    private string? encryptedMessage;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -75,43 +80,46 @@ else
             if (User != null)
             {
                 User.Chats = await UserService.GetUserChats(User.Id);
-                PageHasLoaded = true;
+                _pageloaded = true;
                 StateHasChanged();
             }
+
+            StateHasChanged();
         }
     }
 
-    public async Task Chat(int id)
+    private async Task Chat(int id)
     {
-        _isChatting = true; // Start chatting and force refresh UI.
-        await Task.Delay(1);
-
-        _messages.Clear(); // remove old messages if any
-
-    // Create the chat client
-        _hubUrl = "/conversations";
-        _hubConnection = new HubConnectionBuilder()
-            .WithUrl(NavigationManager.ToAbsoluteUri(_hubUrl))
-            .WithAutomaticReconnect()
-            .Build();
-        _hubConnection.On<string, string, string>("Broadcast", BroadcastMessage);
-        await _hubConnection.StartAsync();
-
-        await SendAsync($"[Notice] {User.UserName} joined chat room.");
-    }
-
-    private async Task SendAsync(string message)
-    {
-        if (_isChatting && !string.IsNullOrWhiteSpace(message))
+        try
         {
-            await _hubConnection.SendAsync("SendMessage", User.UserName, message, User.Id);
-            message = string.Empty;
-            await InvokeAsync(StateHasChanged);
+            _isChatting = true; // Start chatting and force refresh UI.
+            await Task.Delay(1);
+
+            _messages.Clear(); // remove old messages if any
+            _hubUrl = "/conversations";
+
+            _hubConnection = new HubConnectionBuilder()
+                .WithUrl(NavigationManager.ToAbsoluteUri(_hubUrl))
+                .Build();
+
+            _hubConnection.On<string, string, string>("Broadcast", BroadcastMessage);
+    //_hubConnection.On<string, string, string, int, bool>("RecivePrivateChatMessage", SendPrivateChatMessage);
+
+            await _hubConnection.StartAsync();
+
+            await SendAsync($"[Notice] {User.UserName}: has joined the chat");
+        }
+        catch (Exception e)
+        {
+            DisplayMessage.Message = $"ERROR: Failed to start chat client: {e.Message}";
+            _isChatting = false;
         }
     }
 
     private async Task BroadcastMessage(string name, string message, string userId)
     {
+    // bool isMine = name.Equals(User.UserName, StringComparison.OrdinalIgnoreCase);
+
         _messages.Add(new MessageModel()
         {
             Id = +1,
@@ -121,7 +129,44 @@ else
         }
             );
 
-        InvokeAsync(StateHasChanged); // Inform blazor the UI needs updating
+    // Inform blazor the UI needs updating
+        InvokeAsync(StateHasChanged);
+    }
+
+    //skicka ett privat meddeland i en chat
+    private async Task SendAsync(string message)
+    {
+        if (_isChatting && !string.IsNullOrWhiteSpace(message))
+        {
+            await _hubConnection.SendAsync("Broadcast", User.UserName, message, User.Id);
+
+            message = string.Empty;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    //skicka ett privat meddeland i en chat-connectar till ett visst chatId-valbar med encrypt
+    private async Task SendPrivateChatMessage(string userId, string user, string message, int chatId, bool isChatEncrypted)
+    {
+        CurrentChat = (new ChatModel() //create chat
+        {
+            Id = CurrentChat.Id,
+            ChatCreated = DateTime.Now,
+            CreatorId = userId,
+            Name = CurrentChat.Name,
+            Messages = new List<MessageModel>()
+            {
+                new() //Message in chat
+                {
+                    Message = message,
+                    MessageCreated = DateTime.Now,
+                    UserId = User.Id,
+                }
+            }
+        }
+            );
+
+        InvokeAsync(StateHasChanged);
     }
 
     private async Task DisconnectAsync()
@@ -139,39 +184,5 @@ else
     }
 
 
-    //skicka ett privat meddeland i en chat
-    private async Task SendPrivateChatMessageAsync()
-    {
-        if (_hubConnection is not null)
-        {
-            await _hubConnection.SendAsync("SendPrivateChatMessage", _message, CurrentChat.Id, User.Id, User.UserName, CurrentChat.Name);
-        }
-    }
 
-    private async Task SendEncryptChatMessageAsync()
-    {
-        if (_hubConnection is not null)
-        {
-            await _hubConnection.SendAsync("EncryptChat", _message, CurrentChat.Id, User.Id, CurrentChat.Name, CurrentChat.IsChatEncrypted = true, User.UserName);
-        }
-    }
-
-
-    /*private class Message
-    {
-        public Message(string username, string body, bool mine)
-        {
-            Username = username;
-            Body = body;
-            Mine = mine;
-        }
-
-        public string Username { get; set; }
-        public string Body { get; set; }
-        public bool Mine { get; set; }
-
-        public bool IsNotice => Body.StartsWith("[Notice]");
-
-        public string CSS => Mine ? "sent" : "received";
-    }*/
 }
