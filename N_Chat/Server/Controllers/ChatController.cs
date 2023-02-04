@@ -9,7 +9,7 @@ namespace N_Chat.Server.Controllers
     {
 
         private readonly DataContext context;
-
+        
         public ChatController(DataContext context)
         {
             this.context = context;
@@ -50,21 +50,37 @@ namespace N_Chat.Server.Controllers
         [HttpPost("createchat")]
         public async Task<ActionResult> CreateChat(ChatModel chat)
         {
-            ChatModel chatToBeCreated = new ChatModel();
             if (!ModelState.IsValid)
             { return BadRequest(ModelState); }
-            chatToBeCreated.Name = chat.Name;
-            chatToBeCreated.Id = chat.Id;
-            chatToBeCreated.CreatorId = chat.CreatorId;
-            chatToBeCreated.IsChatEdited = chat.IsChatEdited;
-            chatToBeCreated.IsChatEnded = chat.IsChatEnded;
-            chatToBeCreated.IsChatEncrypted = chat.IsChatEncrypted;
-            chatToBeCreated.ChatCreated = chat.ChatCreated;
-            chatToBeCreated.ChatEnded = chat.ChatEnded;
-            chatToBeCreated.Messages = chat.Messages;
-            chatToBeCreated.Users = chat.Users;
-            chatToBeCreated.UserId = chat.UserId;
-            context.Add(chatToBeCreated);
+
+            var user = await context.Users.FirstOrDefaultAsync(x => x.Id == chat.UserId);
+            if (user != null)
+            {
+                ChatModel chatToBeCreated = new ()
+                {
+                    User = user,
+                    UserId = chat.UserId,
+                    Name = chat.Name,
+                    CreatorId = chat.CreatorId,
+                    IsChatEdited = chat.IsChatEdited,
+                    IsChatEnded = chat.IsChatEnded,
+                    IsChatEncrypted = chat.IsChatEncrypted,
+                    ChatCreated= chat.ChatCreated,
+                    ChatEnded = chat.ChatEnded,
+                    Messages = new List<MessageModel>()
+                    {
+                        new()
+                        {
+                            UserId = chat.UserId,
+                            Message = chat.Name,
+                            MessageCreated = chat.ChatCreated
+                        }
+                    },
+  
+                };
+               context.Chats.Add(chatToBeCreated);
+               user.Chats.Add(chatToBeCreated);
+            }
             await context.SaveChangesAsync();
             return Ok();
         }

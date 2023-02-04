@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace NChat.Server.Migrations
 {
     /// <inheritdoc />
-    public partial class newtest : Migration
+    public partial class InitialApp : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -88,11 +88,37 @@ namespace NChat.Server.Migrations
                 name: "UserRoles",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RoleId = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
+                    table.PrimaryKey("PK_UserRoles", x => x.RoleId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -117,7 +143,7 @@ namespace NChat.Server.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatorId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsChatEdited = table.Column<bool>(type: "bit", nullable: false),
-                    IsChatEnded = table.Column<bool>(type: "bit", nullable: false),
+                    IsChatEnded = table.Column<bool>(type: "bit", nullable: true),
                     IsChatEncrypted = table.Column<bool>(type: "bit", nullable: false),
                     ChatCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ChatEnded = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -126,37 +152,12 @@ namespace NChat.Server.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Chats", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Users",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ChatModelId = table.Column<int>(type: "int", nullable: true),
-                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NormalizedUserName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NormalizedEmail = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    AccessFailedCount = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Users", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Users_Chats_ChatModelId",
-                        column: x => x.ChatModelId,
-                        principalTable: "Chats",
-                        principalColumn: "Id");
+                        name: "FK_Chats_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -195,31 +196,40 @@ namespace NChat.Server.Migrations
             migrationBuilder.InsertData(
                 table: "Roles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "d153c726-e709-4946-824b-0ed63bbf136a", "8a0acbf7-8533-4b12-8b6c-c18a384c77e8", "Member", "MEMBER" });
+                values: new object[,]
+                {
+                    { "d1678ba6-7957-21a7-96b5-12b64c06bc25", "ef5ebfff-07ca-42ce-bc82-d79176141785", "Admin", "admin" },
+                    { "e02d359e-6bfb-47ed-9fbc-4c99e5d2db9b", "ff2e4058-5729-4ac1-89e5-66db1b28b543", "Member", "MEMBER" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "UserRoles",
+                columns: new[] { "RoleId", "UserId" },
+                values: new object[] { "d1678ba6-7957-21a7-96b5-12b64c06bc25", "d7fc4ba6-4957-41a7-96b5-52b65c06bc35" });
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "Id", "AccessFailedCount", "ChatModelId", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
+                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
                 values: new object[,]
                 {
-                    { "d7fc4ba6-4957-41a7-96b5-52b65c06bc35", 0, null, "35991a8a-4e90-42c5-8e5d-b4b5793645f0", "Admin@Mail.com", true, false, null, "ADMIN@MAIL.COM", "admin", "AQAAAAEAACcQAAAAEDSnrJtubOKtWh+AOpdaqDa7Iy+XWbqJ2StI3PmGKiXCy6eE7bbrywzxPcW/5B8aqA==", null, false, "182c5fc9-a9c6-4a2d-b9a1-df5d5264009f", false, "admin" },
-                    { "ded90182-7b04-41e0-aef6-8977a4d1c292", 0, null, "dcf28a6b-12b1-42c0-a1a9-d4557b638288", "Admin@Mail.com", true, false, null, "ADMIN@MAIL.COM", "admin", "AQAAAAEAACcQAAAAEKgColkytHwAZ28sQEfvP93JyG1VMoV3WU+7WRJjgK3bGmd8AVkGmk8ktyqSFMee/g==", null, false, "9afd0b68-e435-4e48-ba16-c9239131ebe0", false, "admin" }
+                    { "d7fc4ba6-4957-41a7-96b5-52b65c06bc35", 0, "e891dec1-b60b-43b9-b543-d645b4acfc62", "Css@live.se", true, false, null, "css@live.se", "felix", "AQAAAAEAACcQAAAAEATZR5vE9AA/3ar1CaGMqDASm8btP8ZaQPalrBUMaLr9ZEkkmbVRoO/tcId5OTTzcQ==", null, false, "fa2f380f-eda5-4dba-967a-fe1a41cff33c", false, "felix" },
+                    { "ded90182-7b04-41e0-aef6-8977a4d1c292", 0, "0e18ae57-a6a8-428d-99ad-fbece5eaffdf", "adminuser@gmail.com", true, false, null, "adminuser@gmail.com", "admin", "AQAAAAEAACcQAAAAEASTMOf7+cHBLJVaCI/Fbm/yVPRK6Pp77VRQg2sSj4is7nAoS8Rjkkr27RxSgpRmxA==", null, false, "f8c767fd-185f-4879-94d3-e88be9ae7e42", false, "admin" }
                 });
 
             migrationBuilder.InsertData(
                 table: "Chats",
                 columns: new[] { "Id", "ChatCreated", "ChatEnded", "CreatorId", "IsChatEdited", "IsChatEncrypted", "IsChatEnded", "Name", "UserId" },
-                values: new object[] { 5, new DateTime(2023, 1, 26, 16, 47, 25, 784, DateTimeKind.Local).AddTicks(6753), null, "d7fc4ba6-4957-41a7-96b5-52b65c06bc35", false, false, false, "CoolChat", "d7fc4ba6-4957-41a7-96b5-52b65c06bc35" });
+                values: new object[] { 5, new DateTime(2023, 2, 4, 10, 48, 59, 850, DateTimeKind.Local).AddTicks(3752), null, "d7fc4ba6-4957-41a7-96b5-52b65c06bc35", false, false, false, "CoolChat", "d7fc4ba6-4957-41a7-96b5-52b65c06bc35" });
 
             migrationBuilder.InsertData(
                 table: "Messages",
                 columns: new[] { "Id", "ChatId", "IsMessageDeleted", "IsMessageEdited", "IsMessageEncrypted", "Message", "MessageCreated", "MessageDeleted", "MessageEdited", "UserId" },
                 values: new object[,]
                 {
-                    { 2, 5, false, false, false, "This one admin message 1", new DateTime(2023, 1, 26, 16, 47, 25, 784, DateTimeKind.Local).AddTicks(6786), null, null, "d7fc4ba6-4957-41a7-96b5-52b65c06bc35" },
-                    { 3, 5, false, false, false, "This one admin message 2", new DateTime(2023, 1, 26, 21, 47, 25, 784, DateTimeKind.Local).AddTicks(6790), null, null, "d7fc4ba6-4957-41a7-96b5-52b65c06bc35" },
-                    { 4, 5, false, false, false, "This is felix message 1", new DateTime(2023, 1, 26, 16, 47, 25, 784, DateTimeKind.Local).AddTicks(6792), null, null, "ded90182-7b04-41e0-aef6-8977a4d1c292" },
-                    { 5, 5, false, false, false, "This is just a test message for the api's glhf", new DateTime(2023, 1, 26, 16, 47, 25, 784, DateTimeKind.Local).AddTicks(6794), null, null, "ded90182-7b04-41e0-aef6-8977a4d1c292" }
+                    { 2, 5, false, false, false, "This one admin message 1", new DateTime(2023, 2, 4, 10, 48, 59, 850, DateTimeKind.Local).AddTicks(3793), null, null, "d7fc4ba6-4957-41a7-96b5-52b65c06bc35" },
+                    { 3, 5, false, false, false, "This one admin message 2", new DateTime(2023, 2, 4, 15, 48, 59, 850, DateTimeKind.Local).AddTicks(3799), null, null, "d7fc4ba6-4957-41a7-96b5-52b65c06bc35" },
+                    { 4, 5, false, false, false, "This is felix message 1", new DateTime(2023, 2, 4, 10, 48, 59, 850, DateTimeKind.Local).AddTicks(3806), null, null, "ded90182-7b04-41e0-aef6-8977a4d1c292" },
+                    { 5, 5, false, false, false, "This is just a test message for the api's glhf", new DateTime(2023, 2, 4, 10, 48, 59, 850, DateTimeKind.Local).AddTicks(3809), null, null, "ded90182-7b04-41e0-aef6-8977a4d1c292" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -236,28 +246,11 @@ namespace NChat.Server.Migrations
                 name: "IX_Messages_UserId",
                 table: "Messages",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Users_ChatModelId",
-                table: "Users",
-                column: "ChatModelId");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Chats_Users_UserId",
-                table: "Chats",
-                column: "UserId",
-                principalTable: "Users",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.SetNull);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Chats_Users_UserId",
-                table: "Chats");
-
             migrationBuilder.DropTable(
                 name: "Messages");
 
@@ -283,10 +276,10 @@ namespace NChat.Server.Migrations
                 name: "UserTokens");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "Chats");
 
             migrationBuilder.DropTable(
-                name: "Chats");
+                name: "Users");
         }
     }
 }

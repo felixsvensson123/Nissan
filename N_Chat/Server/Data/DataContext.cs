@@ -32,8 +32,7 @@ namespace N_Chat.Server.Data
             modelBuilder.Entity<MessageModel>()
                 .HasOne(i => i.User)    
                 .WithMany(u => u.Messages)
-                .HasForeignKey(z => z.ChatId)
-                .HasForeignKey(i => i.UserId)
+                .HasForeignKey(i => i.UserId) //.HasForeignKey i.ChatId
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.SetNull);
 
@@ -76,7 +75,6 @@ namespace N_Chat.Server.Data
                 ChatCreated = DateTime.Now,
                 ChatEnded = null,
                 Messages = null,
-                Users = null,
                 UserId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",};
 
 

@@ -68,7 +68,11 @@ namespace N_Chat.Client.Services
                 }
             }
         }
-        
+
+        public async Task<List<ChatModel>> GetUserChats(string id)
+        {
+            return await httpClient.GetFromJsonAsync<List<ChatModel>>($"api/User/getchats/{id}");
+        }
     }
 
     public interface IUserService 
@@ -78,6 +82,7 @@ namespace N_Chat.Client.Services
         Task<UserModel> GetUserById(string id);  // Get user by id method
         Task<string> Signout(); // Signout user
         Task<(string Message, UserModel? user)> GetUserClaim(); //Gets user via claims
+        Task<List<ChatModel>> GetUserChats(string id);
     }
 }
  

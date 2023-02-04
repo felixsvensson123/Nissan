@@ -38,6 +38,10 @@ builder.Services.AddSignalR()
         options.ClientTimeoutInterval = TimeSpan.FromDays(155);
         options.EnableDetailedErrors = true;
     });
+builder.Services.AddControllersWithViews()
+    .AddNewtonsoftJson(options =>
+        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+    );
 /*builder.Services.AddResponseCompression(options => options.MimeTypes = 
     options.MimeTypes = ResponseCompressionDefaults.MimeTypes
         .Concat(new[] {"application/octet-stream"}));*/

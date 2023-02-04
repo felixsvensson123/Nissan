@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity;
 using N_Chat.Shared.dto;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using MongoDB.Driver.Linq;
+
 //using AutoMapper;
 
 namespace N_Chat.Server.Controllers
@@ -26,7 +28,23 @@ namespace N_Chat.Server.Controllers
             this.signInManager = signInManager;
             this.context = context;
         }
-        
+
+        [HttpGet("getchats/{id}")]
+        public async Task<IEnumerable<ChatModel>> GetUserChats(string id)
+        {
+            List<ChatModel> dbChats = await context.Chats.Where(x => x.UserId == id)
+                .Include(t => t.Messages)
+                .Include(t => t.User).ToListAsync();
+            return dbChats;
+        }
+        [HttpGet("getchat/{id}")]
+        public async Task<IEnumerable<UserModel>> getchat(string id)
+        {
+            List<UserModel> dbChats = await context.Users.Where(x => x.Id == id)
+                .Include(t => t.Chats)
+                .Include(t => t.Messages).ToListAsync();
+            return dbChats;
+        }
         //Get User by ID
         [Authorize]
         [HttpGet("get/{id}")]
@@ -53,7 +71,7 @@ namespace N_Chat.Server.Controllers
                 Email = user.Email,
                 NormalizedUserName = user.NormalizedUserName
             };
-            return Ok(dtoUser); //returns found user
+            return Ok(user); //returns found user
         }
         
         [HttpPost("login")]
@@ -221,7 +239,7 @@ namespace N_Chat.Server.Controllers
                     ChatCreated = chatModel.ChatCreated,
                     ChatEnded = chatModel.ChatEnded,
                     Messages = chatModel.Messages,
-                    Users = chatModel.Users,
+                   // Users = chatModel.Users,
                     UserId = chatModel.UserId
                 });
                 await context.SaveChangesAsync();
