@@ -41,7 +41,7 @@ namespace N_Chat.Server.Data
 
             modelBuilder.Entity<IdentityUserToken<string>>()
                 .HasNoKey();
-            modelBuilder.Entity<IdentityUserRole<string>>().HasKey(k => k.RoleId);
+            modelBuilder.Entity<IdentityUserRole<string>>().HasKey(i => new { i.UserId, i.RoleId });;
             var member = new IdentityRole()
                 {Name = "Member", NormalizedName = "MEMBER", Id = "e02d359e-6bfb-47ed-9fbc-4c99e5d2db9b" };
             var administrator = new IdentityRole()

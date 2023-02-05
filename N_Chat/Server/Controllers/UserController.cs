@@ -107,17 +107,11 @@ namespace N_Chat.Server.Controllers
         {
             if (ModelState.IsValid)
             {
-                var checkUser =
-                    await userManager.FindByNameAsync(registerModel.Username); //Checks if user already exists in DB
-                var roleStore = new RoleStore<IdentityRole>(context);
-                var role = await roleStore.FindByNameAsync("Member");
-
-                if (role == null)
+                var checkUser = await context.Users.FirstOrDefaultAsync(x => x.UserName == registerModel.Username); //Checks if user already exists in DB
+                if (checkUser != null)
                 {
-                    role = new IdentityRole("Member");
-                    await roleStore.CreateAsync(role);
+                    return BadRequest(("Username taken") + checkUser);
                 }
-
                 var user = new UserModel() // sets usermodel props to registerModel props
                 {
                     UserName = registerModel.Username,
@@ -129,9 +123,7 @@ namespace N_Chat.Server.Controllers
 
                 if (result.Succeeded) // Checks if createasync succeded
                 {
-                    // LoginModel login = registerModel;
-                    await userManager.AddToRoleAsync(user, role.Name); // sets register'd users role to "Member"
-                    // await LoginUser(login); //Signs in user after registering
+                    await userManager.AddToRoleAsync(user, "Member"); // sets register'd users role to "Member"
                     return Ok(result);
                 }
 
