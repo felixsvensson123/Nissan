@@ -22,7 +22,9 @@ namespace N_Chat.Server.Controllers
         private readonly DataContext context;
         private readonly UserManager<UserModel> userManager;
         private readonly SignInManager<UserModel> signInManager;
-        public UserController(UserManager<UserModel> userManager, SignInManager<UserModel> signInManager, DataContext context)
+
+        public UserController(UserManager<UserModel> userManager, SignInManager<UserModel> signInManager,
+            DataContext context)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
@@ -44,11 +46,11 @@ namespace N_Chat.Server.Controllers
         public async Task<ActionResult> GetUser(string id)
         {
             UserModel currentuser = await userManager.FindByNameAsync(id); //gets current user using recieved ID
-            if (currentuser != null) 
+            if (currentuser != null)
                 return Ok(currentuser);
             return BadRequest(currentuser);
         }
-        
+
         [Authorize]
         [HttpGet("getcurrent")] //get current user from claim
         public async Task<ActionResult> GetCurrentUser()
@@ -66,31 +68,32 @@ namespace N_Chat.Server.Controllers
             };
             return Ok(user); //returns found user
         }
-        
+
         [HttpPost("login")]
         public async Task<IActionResult> LoginUser(LoginModel user)
         {
-            if (ModelState.IsValid) //Checks if object is valid
+            if (ModelState.IsValid)
             {
                 var result = await signInManager
                     .PasswordSignInAsync(user.Username, user.Password, true, false); // signs in user.
-                if (result.Succeeded) // checks if signin succeded
+                if (result.Succeeded)
                 {
-                    UserModel currentUser = await signInManager.UserManager.FindByNameAsync(user.Username); // gets current user by username
+                    UserModel currentUser =
+                        await signInManager.UserManager.FindByNameAsync(user.Username); // gets current user by username
                     var claims = new List<Claim> //sets up userid claim
                     {
-                        new("userid", currentUser.Id),
-                        new(ClaimTypes.Name, currentUser.UserName)
+                        new(ClaimTypes.Name,
+                            currentUser.UserName) // Sets claimtype to name, with value: user's username
                     };
- 
-                    var claimsIdentity = new ClaimsIdentity(
-                        claims, CookieAuthenticationDefaults.AuthenticationScheme);
- 
+
+                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                     var authProperties = new AuthenticationProperties();
-                    await HttpContext.SignInAsync(              //sets claims principals and signs in use to HttpContext.
+
+                    await HttpContext.SignInAsync( //sets claims principals and signs in use to HttpContext.
                         CookieAuthenticationDefaults.AuthenticationScheme,
                         new ClaimsPrincipal(claimsIdentity),
                         authProperties);
+
                     return Ok(result);
                 }
 
@@ -105,7 +108,8 @@ namespace N_Chat.Server.Controllers
         {
             if (ModelState.IsValid)
             {
-                var checkUser = await userManager.FindByNameAsync(registerModel.Username); //Checks if user already exists in DB
+                var checkUser =
+                    await userManager.FindByNameAsync(registerModel.Username); //Checks if user already exists in DB
                 var roleStore = new RoleStore<IdentityRole>(context);
                 var role = await roleStore.FindByNameAsync("Member");
 
@@ -114,61 +118,66 @@ namespace N_Chat.Server.Controllers
                     role = new IdentityRole("Member");
                     await roleStore.CreateAsync(role);
                 }
+
                 var user = new UserModel() // sets usermodel props to registerModel props
                 {
-                    UserName = registerModel.Username, 
+                    UserName = registerModel.Username,
                     Email = registerModel.Email
                 };
-                
-                var result = await userManager.CreateAsync(user, registerModel.Password); // Creates user account sets after usermodel and registermodels password
+
+                var result = await userManager.CreateAsync(user, registerModel
+                    .Password); // Creates user account sets after usermodel and registermodels password
 
                 if (result.Succeeded) // Checks if createasync succeded
                 {
-                   // LoginModel login = registerModel;
-                    await userManager.AddToRoleAsync(user, role.Name);// sets register'd users role to "Member"
-                   // await LoginUser(login); //Signs in user after registering
+                    // LoginModel login = registerModel;
+                    await userManager.AddToRoleAsync(user, role.Name); // sets register'd users role to "Member"
+                    // await LoginUser(login); //Signs in user after registering
                     return Ok(result);
                 }
+
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError("", error.Description);
                 }
             }
+
             return BadRequest(ModelState);
         }
+
         [HttpPost("logout")]
         public async Task<IActionResult> LogoutAsync()
         {
-            
-            await HttpContext.SignOutAsync(); 
+            await HttpContext.SignOutAsync();
             await signInManager.SignOutAsync();
             return Ok("Successful sign out!");
         }
-        
-        
+
+
         // Update email for user
         [HttpPut("edituser")]
         public async Task<IActionResult> UpdateUsersMail(UserModel updateModel)
         {
             if (ModelState.IsValid)
             {
-                
-                var checkUser = await signInManager.UserManager.FindByIdAsync(updateModel.Id); // Gets current user using ID
+                var checkUser =
+                    await signInManager.UserManager.FindByIdAsync(updateModel.Id); // Gets current user using ID
 
-                if (checkUser == null) 
+                if (checkUser == null)
                 {
                     return BadRequest();
                 }
+
                 checkUser.Email = updateModel.Email;
                 context.Update(checkUser);
                 await context.SaveChangesAsync();
                 return Ok();
-
             }
-           
-                
+
+
             return BadRequest(updateModel);
         }
+
         [HttpPost("ListMessages")]
         public async Task<ActionResult<List<MessageModel>>> GetMessages(MessageModel messageModel)
         {
@@ -180,15 +189,15 @@ namespace N_Chat.Server.Controllers
 
                 foreach (var message in messages)
                 {
-                    CurrentUser.Messages.Add(message); 
+                    CurrentUser.Messages.Add(message);
                 }
-                db.SaveChanges();
 
+                db.SaveChanges();
             }
-           
+
             return Ok();
         }
-        
+
         [HttpPost("ChatList")]
         public async Task<ActionResult<List<ChatModel>>> AddChatsToUser(string userId)
         {
@@ -196,47 +205,41 @@ namespace N_Chat.Server.Controllers
 
             List<ChatModel> chats = new();
 
-            using(var db = context) 
-            { 
+            await using (var db = context)
+            {
                 chats = await db.Chats.Where(c => c.UserId == userId).ToListAsync();
 
                 foreach (var chat in chats)
                 {
-                    CurrentUser.Chats.Add(chat);   
+                    CurrentUser.Chats.Add(chat);
                 }
 
-                db.SaveChanges();
-            
+                await db.SaveChangesAsync();
             }
 
             return Ok();
-
         }
 
-        [HttpPost("addchat")]
-        public async Task<ActionResult<ChatModel>> AddChat(ChatModel chatModel)
+        [HttpPut("chatrequest/{chatId}")]
+        public async Task<ActionResult> RequestChat(int chatId, string userName)
         {
-            if (!ModelState.IsValid)
-                return BadRequest();
-            
-            var current = await userManager.FindByIdAsync(chatModel.UserId);
-            
-                current.Chats.Add(new ChatModel()
+            await using (var db = context)
+            {
+                var user = await userManager.FindByNameAsync(userName); //finds user with username recieved
+                if (user != null)
                 {
-                    Name = chatModel.Name,
-                    Id = chatModel.Id,
-                    CreatorId = chatModel.CreatorId,
-                    IsChatEdited = chatModel.IsChatEdited,
-                    IsChatEnded = chatModel.IsChatEnded,
-                    IsChatEncrypted = chatModel.IsChatEncrypted,
-                    ChatCreated = chatModel.ChatCreated,
-                    ChatEnded = chatModel.ChatEnded,
-                    Messages = chatModel.Messages,
-                   // Users = chatModel.Users,
-                    UserId = chatModel.UserId
-                });
-                await context.SaveChangesAsync();
-                return Ok(current);
+                    var chat = await db.Chats.FirstOrDefaultAsync(c => c.Id == chatId); //finds chat using id recieved
+                    if (chat != null)
+                    {
+                        chat.Users.Add(user); //adds recieved user to chat
+                        return Ok(chat);
+                    }
+
+                    return BadRequest(chat);
+                }
+
+                return BadRequest(user);
             }
         }
+    }
 }

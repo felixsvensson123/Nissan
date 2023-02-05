@@ -7,6 +7,7 @@
 <EditForm Model="Chat" OnValidSubmit="CreateChat">
     <InputText @bind-Value="Chat.Name" placeholder="Chat name"></InputText>
 </EditForm>
+
 @foreach (var item in Chats)
 {
     <h1>@item.Name</h1>
@@ -16,7 +17,7 @@
     UserModel User { get; set; } = new();
     List<ChatModel> Chats { get; set; } = new();
     UserModel UserToAdd { get; set; } = new();
-    public async Task CreateChat()
+    private async Task CreateChat()
     {
         var getuser = await UserService.GetUserClaim();
         if (getuser.Message == "Success")

@@ -20,7 +20,6 @@
             <col style="width: 60px;"/>
             <col/>
             <col style="width: 60%;"/>
-            <col style="width: 60px;"/>
             <col/>
         </ColGroup>
         <HeaderContent>
@@ -31,9 +30,24 @@
             <MudTd DataLabel="Name">@context.Name</MudTd>
             <MudTd>
                 <MudButton Color="Color.Dark" @onclick="(() => Chat(context.Name))">Enter</MudButton>
+                <MudButton Color="Color.Dark" @onclick="(() => AddUserToChat(context.Id))">Manage Chat</MudButton>
             </MudTd>
         </RowTemplate>
     </MudTable>
+    @if (_invitingUser)
+    {
+        <MudTable SelectedItem="@CurrentChat">
+            <HeaderContent>
+                <MudTh>Chat</MudTh>
+                <MudTh>Current</MudTh>
+                <MudTh>New</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>Chat</MudTd>
+                <MudTd>Current</MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
 }
 else
 {
@@ -64,6 +78,7 @@ else
 @code {
     private bool _isChatting = false;
     private bool _pageloaded = false;
+    private bool _invitingUser = false;
     private UserModel? User { get; set; } // name of the user who will be chatting
     private MessageModel? DisplayMessage { get; set; } = new(); // on-screen message
     private MessageModel? InputMessage { get; set; } = new(); // new message input
@@ -164,7 +179,12 @@ else
         }
     }
 
-
+    private async Task AddUserToChat(int chatId)
+    {
+        CurrentChat = await ChatService.GetChatById(chatId);
+        _invitingUser = true;
+        
+    }
     /*//skicka ett privat meddeland i en chat-connectar till ett visst chatId-valbar med encrypt
     private async Task SendPrivateChatMessage(string userId, string user, string message, int chatId, bool isChatEncrypted)
     {

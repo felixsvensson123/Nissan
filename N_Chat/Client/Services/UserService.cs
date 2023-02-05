@@ -73,6 +73,16 @@ namespace N_Chat.Client.Services
         {
             return await httpClient.GetFromJsonAsync<List<ChatModel>>($"api/User/getchats/{id}");
         }
+
+        public async Task<string> AddUserToChat(string userName, int chatId)
+        {
+            var result = await httpClient.PutAsJsonAsync($"api/user/chatrequest/{chatId}", userName);
+            if (result.IsSuccessStatusCode)
+            {
+                return "Success!";
+            }
+            return "Failed";
+        }
     }
 
     public interface IUserService 
@@ -83,6 +93,7 @@ namespace N_Chat.Client.Services
         Task<string> Signout(); // Signout user
         Task<(string Message, UserModel? user)> GetUserClaim(); //Gets user via claims
         Task<List<ChatModel>> GetUserChats(string id);
+        Task<string> AddUserToChat(string userName, int chatId);
     }
 }
  
