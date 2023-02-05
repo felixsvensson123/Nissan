@@ -71,7 +71,7 @@ namespace N_Chat.Client.Services
 
         public async Task<List<ChatModel>> GetUserChats(string id)
         {
-            return await httpClient.GetFromJsonAsync<List<ChatModel>>($"api/User/getchats/{id}");
+            return await httpClient.GetFromJsonAsync<List<ChatModel>>($"api/user/userchats/{id}");
         }
 
         public async Task<string> AddUserToChat(string userName, int chatId)

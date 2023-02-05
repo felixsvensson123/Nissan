@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity;
 using N_Chat.Shared.dto;
@@ -31,7 +30,7 @@ namespace N_Chat.Server.Controllers
             this.context = context;
         }
 
-        [HttpGet("getchats/{id}")]
+        [HttpGet("userchats/{id}")]
         public async Task<IEnumerable<ChatModel>> GetUserChats(string id)
         {
             List<ChatModel> dbChats = await context.Chats.Where(x => x.UserId == id)
