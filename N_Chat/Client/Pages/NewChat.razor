@@ -1,5 +1,7 @@
 ﻿@page "/new_chat"
 @layout Loginlayout
+@inject NavigationManager NavigationManager
+
 <AuthorizeView>
 	<Authorized>
 		<div class="main">
@@ -8,19 +10,28 @@
 
 			<div class="New-Chat">
 				<form>
-					<button class="oi oi-x" aria-hidden="true" id="cross"></button>
+					<button class="oi oi-x" aria-hidden="true" id="cross" @onclick=@(() => NavigationManager.NavigateTo("/StartPage")) ></button>
 					<label for="chk" aria-hidden="true">Singel Chat</label>
-					<input type="text" name="txt" placeholder="Username" required="">
-					<button class="create">Create New Chat</button>
+					<input type="text" id="singleChatMember" name="txt" placeholder="Username" required="">
+					<input type="text" name="txt" placeholder="Chatname" required="">
+					<input type="checkbox" name="isEncrypted"/>
+                    <center>
+                        <p>I want the chat encrypted </p>
+					</center>
+					<button class="create" @onclick=@(() => createNewChat())>Start Chat</button>
 				</form>
 			</div>
 
 			<div class="New-Group-Chat">
 				<form>
 					<label for="chk" aria-hidden="true">Group Chat</label>
-					<input type="text" name="txt" placeholder="Username 1" required="">
-					<input type="text" name="txt" placeholder="Username 2" required="">
-					<button class="create">Create New Group Chat</button>
+					<input type="text" id="chatMember1" name="txt" placeholder="Username 1" required="">
+					<input type="text" name="txt" id="chatMember2" placeholder="Username 2" required="">
+					<input type="checkbox" name="isEncrypted"/>
+                    <center>
+                        <p>I want the chat encrypted </p>
+					</center>
+					<button class="create"@onclick=@(() => createNewChat()) >Start Group Chat</button>
 				</form>
 			</div>
 		</div>
@@ -31,5 +42,15 @@
 </AuthorizeView>
 
 @code {
+	public ChatModel createNewChat()
+	{
+
+
+
+
+
+		//todo create method
+		return null;
+	}
 
 }

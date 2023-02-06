@@ -1,0 +1,56 @@
+@*@using N_Chat.Shared;
+@inject IUserService UserService
+
+
+//display all the chats of the user
+<div class="display-users-chat-conversations">
+   <h2>Chats </h2>
+   //for each chat, display the chat name and the participants
+   @foreach (var chat in Chats){
+      <div class="chat">
+         <div class="chat-name">
+            <h3>@chat.Name</h3>
+         </div>
+         <div class="chat-participants">
+            <h4>Participants:</h4>
+            <p>@chat.UserId</p>
+            $1$<ul>
+               @foreach (var participant in chat.JoinerIds){
+                  <li>@participant.JoinerIds</li>
+               }
+            </ul>#1#
+         </div>
+      </div>
+   }
+</div>
+
+@code {
+
+   [Parameter]
+   public UserModel User { get; set; } = new();
+
+   private List<ChatModel> Chats { get; set; } = new();
+
+   /*get the logged in user, if success then we call the method GetTheChats*/
+
+   protected override async Task OnInitializedAsync(){
+      var currentuser = await UserService.GetUserClaim();
+      if (currentuser.Message == "Success"){
+         User = currentuser.user;
+         StateHasChanged();
+         GetTheChats();
+      }
+   }
+
+
+   private async void GetTheChats(){
+   //call method GetAll in class ChatController
+
+      ChatService chatService = new ChatService();
+      var allChats = await chatService.GetChats();
+      Chats = allChats.ToList();
+   }
+
+
+
+}*@

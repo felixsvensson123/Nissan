@@ -7,60 +7,68 @@
 @page "/Login"
 
 <div class="main">
-	<input type="checkbox" id="chk" aria-hidden="true">
-	<div class="login">
-		<EditForm Model="LoginModel" OnValidSubmit="LoginUser">
-			<label for="chk" aria-hidden="true">Login</label>
-			<input @bind-value="LoginModel.Username" type="Username" placeholder="Username" required="">
-			<input @bind-value="LoginModel.Password" type="password" placeholder="Password" required="">
-			<div class="rememberlogin">
-				<input type="checkbox" id="RememberMe" />
-				<label class="rememberme" for="RememberMe">Remember Me</label>
-			</div>
-			<button type="submit" href="/">Login</button>
-		</EditForm>
-	</div>
+   <input type="checkbox" id="chk" aria-hidden="true">
+   <div class="login">
+      <EditForm Model="LoginModel" OnValidSubmit="LoginUser">
+         <label for="chk" aria-hidden="true">Login</label>
+         <input @bind-value="LoginModel.Username" type="Username" placeholder="Username" required="">
+         <input @bind-value="LoginModel.Password" type="password" placeholder="Password" required="">
+         <div class="rememberlogin">
+            <input type="checkbox" id="RememberMe"/>
+            <label class="rememberme" for="RememberMe">Remember Me</label>
+         </div>
+         <button type="submit" href="/">Login</button>
+      </EditForm>
+   </div>
 
-	<div class="signup">
-		<EditForm Model="RegisterModel" OnValidSubmit="RegisterUser">
-			<label for="chk" aria-hidden="true">Sign up</label>
-			<input @bind-value="RegisterModel.Username" type="text" name="txt" placeholder="Username" required="">
-			<input @bind-value="RegisterModel.Email" type="email" name="email" placeholder="Email" required="">
-			<input @bind-value="RegisterModel.Password" type="password" name="pswd" placeholder="Password" required="">
-			<input @bind-value="RegisterModel.ConfirmPassword" type="password" name="pswd" placeholder="Password" required="">
-			<div class="termsofserviceregister">
-				<input type="checkbox" id="TermsOfService" />
-				<label class="termsofservice" for="TermsOfService">Terms Of Service</label>
-			</div>
-			<button type="submit" href="/">Sign up</button>
-		</EditForm>
-	</div>
+   <div class="signup">
+      <EditForm Model="RegisterModel" OnValidSubmit="RegisterUser">
+         <label for="chk" aria-hidden="true">Sign up</label>
+         <input @bind-value="RegisterModel.Username" type="text" name="txt" placeholder="Username" required="">
+         <input @bind-value="RegisterModel.Email" type="email" name="email" placeholder="Email" required="">
+         <input @bind-value="RegisterModel.Password" type="password" name="pswd" placeholder="Password" required="">
+         <input @bind-value="RegisterModel.ConfirmPassword" type="password" name="pswd" placeholder="Password" required="">
+         <div class="termsofserviceregister">
+            <input type="checkbox" id="TermsOfService"/>
+            <label class="termsofservice" for="TermsOfService">Terms Of Service</label>
+         </div>
+         <button type="submit" href="/">Sign up</button>
+      </EditForm>
+   </div>
 </div>
 
 @code {
-	[Parameter]
-	public LoginModel LoginModel { get; set; } = new();
 
-	[Parameter]
-	public RegisterModel RegisterModel { get; set; } = new();
-	
-	
-	public async Task LoginUser()
-	{
-		string result = await UserService.LoginUser(LoginModel);
-		Console.WriteLine(result);
-		if (result == "Success") 
-		{
-			await LocalStorageService.SetItemAsStringAsync("isauthenticated", "true");
-			NavigationManager.NavigateTo("/");
-			StateHasChanged();
-		}
-		StateHasChanged();
-	}	public async Task RegisterUser()
-	{
-		string result = await UserService.SignUp(RegisterModel);
-		Console.WriteLine(result);
-		NavigationManager.NavigateTo("/");
-		StateHasChanged();
-	}
+   [Parameter]
+   public LoginModel LoginModel { get; set; } = new();
+
+   [Parameter]
+   public RegisterModel RegisterModel { get; set; } = new();
+
+
+   public async Task LoginUser(){
+      try{
+         string result = await UserService.LoginUser(LoginModel);
+         Console.WriteLine("LoginUser()  result ="+result);
+
+         await LocalStorageService.SetItemAsStringAsync("isauthenticated", "true");
+         NavigationManager.NavigateTo("/");
+         StateHasChanged();
+      }
+      catch (Exception e){
+         Console.WriteLine(e);
+         Console.WriteLine("Login Failed");
+         Console.WriteLine(e.Message);
+         Console.WriteLine(e.StackTrace);
+      }
+      
+}
+
+   public async Task RegisterUser(){
+      string result = await UserService.SignUp(RegisterModel);
+      Console.WriteLine(result);
+      NavigationManager.NavigateTo("/");
+      StateHasChanged();
+   }
+
 }
