@@ -11,7 +11,7 @@
 @page "/conversations"
 
 
-@if (_pageloaded)
+@if (_pageLoaded)
 {
 @if (!_isChatting)
 {
@@ -77,7 +77,7 @@ else
 
 @code {
     private bool _isChatting = false;
-    private bool _pageloaded = false;
+    private bool _pageLoaded = false;
     private bool _invitingUser = false;
     private UserModel? User { get; set; } // name of the user who will be chatting
     private MessageModel? DisplayMessage { get; set; } = new(); // on-screen message
@@ -99,7 +99,7 @@ else
             if (User != null)
             {
                 User.Chats = await UserService.GetUserChats(User.Id);
-                _pageloaded = true;
+                _pageLoaded = true;
                 StateHasChanged();
             }
 
@@ -109,29 +109,21 @@ else
 
     private async Task Chat(string chatName)
     {
-        try
-        {
-            _isChatting = true; // Start chatting and force refresh UI.
-            await Task.Delay(1);
+        _isChatting = true; // Start chatting and force refresh UI.
+        await Task.Delay(1);
 
-            _messages.Clear(); // remove old messages if any
+        _messages.Clear(); // remove old messages if any
 
-            _hubConnection = new HubConnectionBuilder()
-                .WithUrl(NavigationManager.ToAbsoluteUri("/conversations"))
-                .Build();
+        _hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/conversations"))
+            .Build();
 
-            _hubConnection.On<string, string, string>("SendGroupMessage", BroadcastMessage);
-            _chatName = chatName; // Sets chatname after chosen item in list
+        _hubConnection.On<string, string, string>("SendGroupMessage", BroadcastMessage);
+        _chatName = chatName; // Sets chatname after chosen item in list
 
-            await _hubConnection.StartAsync();
+        await _hubConnection.StartAsync();
 
-            await SendAsync($"[Notice] {User.UserName}: has joined the chat", chatName);
-        }
-        catch (Exception e)
-        {
-            DisplayMessage.Message = $"ERROR: Failed to start chat client: {e.Message}";
-            _isChatting = false;
-        }
+        await SendAsync($"[Notice] {User.UserName}: has joined the chat", chatName);
     }
 
     private async Task BroadcastMessage(string name, string message, string chatName)
@@ -183,8 +175,8 @@ else
     {
         CurrentChat = await ChatService.GetChatById(chatId);
         _invitingUser = true;
-        
     }
+
     /*//skicka ett privat meddeland i en chat-connectar till ett visst chatId-valbar med encrypt
     private async Task SendPrivateChatMessage(string userId, string user, string message, int chatId, bool isChatEncrypted)
     {

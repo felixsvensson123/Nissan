@@ -14,7 +14,6 @@ public class SignalRController : Hub
     public SignalRController(DataContext context)
     {
         this.context = context;
-
     }
     public override Task OnConnectedAsync()
     {
@@ -74,10 +73,7 @@ public class SignalRController : Hub
     {
         await Clients.Groups(chatName).SendAsync("SendGroupMessage",user, message, chatName);
     }
-    public async Task Broadcast(string user, string message, string userId)
-    {
-        await Clients.All.SendAsync("Broadcast", user, message, userId);
-    }
+     
 
     /*
     //OneonOne-ChatConveration
