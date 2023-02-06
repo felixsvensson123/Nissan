@@ -44,7 +44,18 @@ namespace N_Chat.Server.Controllers{
                 return Ok(currentuser);
             return BadRequest(currentuser);
         }
-        
+
+        [HttpGet("getbyname/{userName}")]
+        public async Task<ActionResult> GetUserByName(string userName)
+        {
+            UserModel foundUser = await context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
+            if (foundUser != null)
+            {
+                return Ok(foundUser);
+            }
+            
+            return BadRequest("Failed");
+        }
         [Authorize]
         [HttpGet("getcurrent")] //get current user from claim
         public async Task<ActionResult> GetCurrentUser()
