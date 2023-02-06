@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using System.Collections;
+using Microsoft.AspNetCore.SignalR;
 
 
 namespace N_Chat.Server.Controllers;
@@ -7,44 +8,82 @@ public class SignalRController : Hub
 
 {
     public const string HubUrl = "/conversations";
-    /*
-    private MessageController messageController { get; set; }
-    private EncryptionController encryptionController { get; set; }
-    */
-
+    
     private readonly DataContext context;
-
-    //private IPasswordHasher<UserModel> hash;
-    //private HashAlgorithm hash;
-
+    private readonly static UserController userController;
     public SignalRController(DataContext context)
     {
         this.context = context;
-        //this.messageController = messageController;
-        //this.hash = hash;
-        // this.encryptionController = encryptionController;
     }
-
-    public async Task SendMessage(string user, string message)
-    {
-        await Clients.All.SendAsync("BroadCast", user, message);
-        //  encryptionController.Encrypt(message);
-        //  await messageController.PostMessage(messageModel);
-    }
-
     public override Task OnConnectedAsync()
     {
+        //Get users
+        var user = context.Users.Include(u => u.Chats).SingleOrDefault(x => x.UserName == Context.User.Identity.Name);
+        //Add user to each assigned group
+        foreach (var item in user.Chats)
+        {
+            Groups.AddToGroupAsync(Context.ConnectionId, item.Name);
+        }
         Console.WriteLine($"{Context.ConnectionId} connected");
         return base.OnConnectedAsync();
     }
 
-    public override async Task OnDisconnectedAsync(Exception e)
+    public override Task OnDisconnectedAsync(Exception e)
     {
         Console.WriteLine($"Disconnected {e?.Message} {Context.ConnectionId}");
-        await base.OnDisconnectedAsync(e);
+        return base.OnDisconnectedAsync(e);
     }
-    //hash.HashPassword(userModel, messageModel.Message);
-    /*public async Task<ActionResult> Test()
+
+    public async Task AddToRoom(string chatName)
     {
-    }*/
+        await using (var db = context)
+        {
+            //Find chat in db
+            var chat = db.Chats.Find(chatName);
+            if (chat != null)
+            {
+                var user = new UserModel() {UserName = Context.User.Identity.Name};
+                db.Users.Attach(user);
+                
+                chat.Users.Add(user);
+                db.SaveChanges();
+                await Groups.AddToGroupAsync(Context.ConnectionId, chatName);
+            }
+        }
+    }
+    public async Task RemoveFromRoom(string chatName)
+    {
+        using (var db = context)
+        {
+            // Retrieve room.
+            var chat = db.Chats.Find(chatName);
+            if (chat != null)
+            {
+                var user = new UserModel() { UserName = Context.User.Identity.Name };
+                db.Users.Attach(user);
+
+                chat.Users.Remove(user);
+                db.SaveChanges();
+                    
+                Groups.RemoveFromGroupAsync(Context.ConnectionId, chatName);
+            }
+        }
+    }
+    public async Task SendGroupMessage(string user,string message, string chatName)
+    {
+        await Clients.Groups(chatName).SendAsync("SendGroupMessage",user, message, chatName);
+    }
+     
+
+    /*
+    //OneonOne-ChatConveration
+    public async Task SendPrivateChatMessage(string userId, string user, string message, int chatId,
+        bool isChatEncrypted)
+    {
+        await Clients.Client(userId)
+            .SendAsync("RecivePrivateChatMessage", message, user, userId, chatId, isChatEncrypted);
+    }
+    */
+
+
 }

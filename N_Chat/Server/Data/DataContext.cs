@@ -16,6 +16,7 @@ namespace N_Chat.Server.Data
         public DbSet<TestModel> Test { get; set; }
         public DbSet<ChatModel> Chats { get; set; }
         public DbSet<MessageModel> Messages { get; set; }
+        public DbSet<Connections> Connections { get; set; }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,24 +28,22 @@ namespace N_Chat.Server.Data
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.SetNull);
 
-
             // Restrict deletion of thread on message delete (set user to null instead)
             modelBuilder.Entity<MessageModel>()
-                .HasOne(i => i.User)
+                .HasOne(i => i.User)    
                 .WithMany(u => u.Messages)
-                .HasForeignKey(z => z.ChatId)
-                .HasForeignKey(i => i.UserId)
+                .HasForeignKey(i => i.UserId) //.HasForeignKey i.ChatId
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<IdentityUserLogin<string>>()
                 .HasNoKey();
-            modelBuilder.Entity<IdentityUserRole<string>>().HasKey(k => k.UserId);
+
             modelBuilder.Entity<IdentityUserToken<string>>()
                 .HasNoKey();
-
+            modelBuilder.Entity<IdentityUserRole<string>>().HasKey(i => new { i.UserId, i.RoleId });;
             var member = new IdentityRole()
-                {Name = "Member", NormalizedName = "MEMBER", Id = "d153c726-e709-4946-824b-0ed63bbf136a"};
+                {Name = "Member", NormalizedName = "MEMBER", Id = "e02d359e-6bfb-47ed-9fbc-4c99e5d2db9b" };
             var administrator = new IdentityRole()
                 {Name = "Admin", NormalizedName = "admin", Id = "d1678ba6-7957-21a7-96b5-12b64c06bc25"};
             var hasher = new PasswordHasher<UserModel>();
@@ -76,7 +75,6 @@ namespace N_Chat.Server.Data
                 ChatCreated = DateTime.Now,
                 ChatEnded = null,
                 Messages = null,
-                Users = null,
                 UserId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",};
 
 
