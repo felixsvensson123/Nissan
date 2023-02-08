@@ -69,9 +69,9 @@ public class SignalRController : Hub
             }
         }
     }
-    public async Task SendGroupMessage(string user,string message, string chatName)
+    public async Task SendGroupMessage(string userName,string message, string chatName)
     {
-        await Clients.Groups(chatName).SendAsync("SendGroupMessage",user, message, chatName);
+        await Clients.Groups(chatName).SendAsync("SendGroupMessage",userName, message, chatName);
     }
      
 

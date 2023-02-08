@@ -6,9 +6,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity;
+using MongoDB.Driver.Linq;
 using N_Chat.Shared.dto;
-
-//using AutoMapper;
 
 namespace N_Chat.Server.Controllers{
     [Route("api/[controller]")]
@@ -28,18 +27,28 @@ namespace N_Chat.Server.Controllers{
         [HttpGet("userchats/{id}")]
         public async Task<IEnumerable<ChatModel>> GetUserChats(string id)
         {
-            List<ChatModel> dbChats = await context.Chats.Where(x => x.UserId == id)
+            List<ChatModel> dbChats = await context.Chats
+                .Include(u => u.Users)
+                .Where(x=> x.UserName == id)
                 .Include(t => t.Messages)
                 .Include(t => t.User).ToListAsync();
             return dbChats;
         }
+        [HttpGet("getthechats/{id}")]
+        public async Task<List<UserModel>> UserChats(string id)
+        {
+            List<UserModel> dbChats = await context.Users
+                .Where(x => x.UserName == id)
+                .Include(u => u.Chats)
+                .Include(t => t.Messages).ToListAsync();
+            return dbChats;
+        }
 
         //Get User by ID
-        [Authorize]
-        [HttpGet("get/{id}")]
-        public async Task<ActionResult> GetUser(string id)
+        [HttpGet("get/{userName}")]
+        public async Task<ActionResult> GetUser(string userName)
         {
-            UserModel currentuser = await userManager.FindByNameAsync(id); //gets current user using recieved ID
+            UserModel currentuser = await userManager.FindByNameAsync(userName); //gets current user using recieved ID
             if (currentuser != null)
                 return Ok(currentuser);
             return BadRequest(currentuser);
@@ -204,7 +213,7 @@ namespace N_Chat.Server.Controllers{
 
             await using (var db = context)
             {
-                chats = await db.Chats.Where(c => c.UserId == userId).ToListAsync();
+                chats = await db.Chats.Where(c => c.UserName == userId).ToListAsync();
 
                 foreach (var chat in chats)
                 {

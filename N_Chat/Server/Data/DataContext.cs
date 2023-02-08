@@ -24,7 +24,7 @@ namespace N_Chat.Server.Data
             modelBuilder.Entity<ChatModel>()
                 .HasOne(i => i.User)
                 .WithMany(u => u.Chats)
-                .HasForeignKey(i => i.UserId)
+                .HasForeignKey(i => i.UserName)
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.SetNull);
 
@@ -35,7 +35,8 @@ namespace N_Chat.Server.Data
                 .HasForeignKey(i => i.UserId) //.HasForeignKey i.ChatId
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.SetNull);
-
+            
+            modelBuilder.Entity<UserModel>().HasKey(u => u.Id);
             modelBuilder.Entity<IdentityUserLogin<string>>()
                 .HasNoKey();
 
@@ -64,74 +65,11 @@ namespace N_Chat.Server.Data
                 NormalizedUserName = "felix",
                 EmailConfirmed = true,
                 PasswordHash = hasher.HashPassword(null!, "qwe123"),};
-
-            var seedChat = new ChatModel() {
-                Id = 5,
-                Name = "CoolChat",
-                CreatorId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",
-                IsChatEncrypted = false,
-                IsChatEnded = false,
-                IsChatEdited = false,
-                ChatCreated = DateTime.Now,
-                ChatEnded = null,
-                Messages = null,
-                UserId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",};
-
-
-            var seedMessage1 = new MessageModel() {
-                Id = 2,
-                Message = "This one admin message 1",
-                UserId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35", //admin qwe123
-                MessageCreated = DateTime.Now,
-                MessageDeleted = null,
-                MessageEdited = null,
-                IsMessageEncrypted = false,
-                IsMessageEdited = false,
-                IsMessageDeleted = false,
-                ChatId = 5,};
-
-            var seedMessage2 = new MessageModel() {
-                Id = 3,
-                Message = "This one admin message 2",
-                UserId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35", //admin qwe123
-                MessageCreated = DateTime.Now.AddHours(5),
-                MessageDeleted = null,
-                MessageEdited = null,
-                IsMessageEncrypted = false,
-                IsMessageEdited = false,
-                IsMessageDeleted = false,
-                ChatId = 5,};
-
-            var seedMessage3 = new MessageModel() {
-                Id = 4,
-                Message = "This is felix message 1",
-                UserId = "ded90182-7b04-41e0-aef6-8977a4d1c292", //felix qwe123
-                ChatId = 5,
-                MessageCreated = DateTime.Now,
-                MessageDeleted = null,
-                MessageEdited = null,
-                IsMessageEncrypted = false,
-                IsMessageEdited = false,
-                IsMessageDeleted = false,};
             
-            var seedMessage4 = new MessageModel() {
-                Id = 5,
-                Message = "This is just a test message for the api's glhf",
-                UserId = "ded90182-7b04-41e0-aef6-8977a4d1c292", //felix qwe123
-                ChatId = 5,
-                MessageCreated = DateTime.Now,
-                MessageDeleted = null,
-                MessageEdited = null,
-                IsMessageEncrypted = false,
-                IsMessageEdited = false,
-                IsMessageDeleted = false,};
-
             modelBuilder.Entity<IdentityRole>().HasData(member, administrator);
             modelBuilder.Entity<UserModel>().HasData(adminSeed, chatAdminSeed);
             modelBuilder.Entity<IdentityUserRole<string>>().HasData(new IdentityUserRole<string>
                 {UserId = chatAdminSeed.Id, RoleId = administrator.Id});
-            modelBuilder.Entity<MessageModel>().HasData(seedMessage1, seedMessage2, seedMessage3, seedMessage4);
-            modelBuilder.Entity<ChatModel>().HasData(seedChat);
         }
     }
 }

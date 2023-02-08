@@ -29,7 +29,7 @@ namespace N_Chat.Shared
 
         //Relationer-One to Many
         [ForeignKey(nameof(User))]
-        public string? UserId { get; set; }
+        public string? UserName { get; set; }
         public UserModel? User { get; set; }
 
     }
