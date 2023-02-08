@@ -36,6 +36,10 @@ namespace N_Chat.Server.Controllers
                 return Ok(currentuser);
             return BadRequest(currentuser);
         }
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
         [Authorize]
         [HttpGet("getcurrent")] //get current user from claim
         public async Task<ActionResult> GetCurrentUser()
