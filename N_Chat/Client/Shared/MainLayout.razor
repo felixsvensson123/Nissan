@@ -39,11 +39,14 @@
 </div>
 @code{
 
-    //public string? userName{ get; set; }
-    //public List<UserModel> userList { get; set; }
-    //public List<UserModel> search()
-    //{
-        
+    public string? userName{ get; set; }
+    public string? newUserName { get; set; }
+
+    public async List<UserModel> search()
+    {
+        var newUser = await UserService.GetUserByName(userName);
+        newUserName = newUser.UserName;
+        return newUserName;
     }
 
     
