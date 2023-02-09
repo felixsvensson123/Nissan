@@ -45,6 +45,16 @@ namespace N_Chat.Server.Controllers{
             return BadRequest(currentuser);
         }
 
+        [Authorize(Roles = "Admin")]
+        [HttpGet("getallusers")]
+        public async Task<List<UserModel>> getAllUsers()
+        {
+            List<UserModel> users = await context.Users
+                .Include(u => u.Chats)
+                .Include(t => t.Messages).ToListAsync();
+            return users;
+        }
+
         [HttpGet("getbyname/{userName}")]
         public async Task<ActionResult> GetUserByName(string userName)
         {

@@ -49,6 +49,12 @@ namespace N_Chat.Client.Services
             return result;
         }
 
+        public async Task<List<UserModel>> GetUsers()
+        {
+            var result = await httpClient.GetFromJsonAsync<List<UserModel>>($"api7user/getallusers");
+            return result;
+        }
+
         public async Task<(string Message, UserModel? user)> GetUserClaim()
         {
             var response = await httpClient.GetAsync("api/user/getcurrent");
@@ -90,6 +96,7 @@ namespace N_Chat.Client.Services
         Task<string> LoginUser(LoginModel loginModel); // Login User Method
         Task<string> SignUp(RegisterModel registerModel); // Signup User Method
         Task<UserModel> GetUserById(string id);  // Get user by id method
+        Task<UserModel> GetAllUsers(); // Get a list of all users
         Task<string> Signout(); // Signout user
         Task<(string Message, UserModel? user)> GetUserClaim(); //Gets user via claims
         Task<List<ChatModel>> GetUserChats(string id);
