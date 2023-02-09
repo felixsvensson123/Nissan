@@ -7,7 +7,7 @@ public class TestLoginUI{
     
     
     [Test]
-    public async Task TestNotExistingLogin(){
+    public async Task TestNotExistingUserTriesToLogin(){
         //Playwright 
         using var playwright = await Playwright.CreateAsync();
 
@@ -59,7 +59,7 @@ public class TestLoginUI{
 
 
     [Test]
-    public async Task TestAnExistingLogin(){
+    public async Task TestUserLogin(){
         //Playwright 
         using var playwright = await Playwright.CreateAsync();
 
