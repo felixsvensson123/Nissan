@@ -1,7 +1,6 @@
 @inject NavigationManager navigationManager
 @inherits LayoutComponentBase
-@inject NavigationManager NavManager
-@inject IUserService UserService 
+@inject UserService UserService 
 
 <MudThemeProvider/>
 <MudDialogProvider/>
@@ -17,8 +16,10 @@
     </AuthorizeView>
     <main>
         <div class="top-row px-4">
-            <input class="Searchbar" name="searchInputField" placeholder="Search" @bind="userName" required="">
-            <button class="btn btn-primary" name="searchButton" @onclick="search" ></button>
+    public string userName{ get; set; }
+    public string userName{ get; set; }
+            <input class="Searchbar" name="txt" placeholder="Search" @bind="userName" required="">
+            <button class="btn btn-primary btn-sm" @onclick="search" ></button>
             <button class="oi oi-person" aria-hidden="true" @onclick="@(() => navigationManager.NavigateTo("/Register"))"></button>
             <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
         </div>
@@ -37,21 +38,17 @@
     </main>
 </div>
 @code{
-    bool errorCheck = false;
-    string error;
+
     public string? userName{ get; set; }
     public string? newUserName { get; set; }
 
-    public async void search()
+    public async List<UserModel> search()
     {
         var newUser = await UserService.GetUserByName(userName);
-        if(newUser == null)
-        {
-            error = "User is not found";
-            errorCheck = true;
-        }
         newUserName = newUser.UserName;
-        NavManager.NavigateTo($"/profile/{newUserName}");
+        return newUserName;
     }
+
+    
 
 }
