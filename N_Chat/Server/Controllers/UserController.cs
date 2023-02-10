@@ -23,13 +23,14 @@ namespace N_Chat.Server.Controllers{
             this.signInManager = signInManager;
             this.context = context;
         }
-        
-        [HttpGet("userchats/{id}")]
-        public async Task<IEnumerable<ChatModel>> GetUserChats(string id)
+                
+
+        [HttpGet("userchats/{userName}")]
+        public async Task<IEnumerable<ChatModel>> GetUserChats(string userName)
         {
             List<ChatModel> dbChats = await context.Chats
-                .Include(u => u.Users)
-                .Where(x=> x.UserName == id)
+                .Include(u => u.Users.Where(x=> x.UserName == userName))
+                .Where(u=>u.UserName == userName)
                 .Include(t => t.Messages)
                 .Include(t => t.User).ToListAsync();
             return dbChats;
@@ -37,11 +38,10 @@ namespace N_Chat.Server.Controllers{
         [HttpGet("getthechats/{id}")]
         public async Task<List<UserModel>> UserChats(string id)
         {
-            List<UserModel> dbChats = await context.Users
-                .Where(x => x.UserName == id)
+            List<UserModel> userChats = await context.Users
                 .Include(u => u.Chats)
                 .Include(t => t.Messages).ToListAsync();
-            return dbChats;
+            return userChats;
         }
 
         //Get User by ID
@@ -51,6 +51,7 @@ namespace N_Chat.Server.Controllers{
             UserModel currentuser = await userManager.FindByNameAsync(userName); //gets current user using recieved ID
             if (currentuser != null)
                 return Ok(currentuser);
+            
             return BadRequest(currentuser);
         }
 
@@ -73,7 +74,8 @@ namespace N_Chat.Server.Controllers{
 
             UserModel? user = await context.Users //finds user that matches claim
                 .FirstOrDefaultAsync(u => u.UserName == uid);
-            UserModel dtoUser = new UserModel()
+            
+            UserModel dtoUser = new UserModel() 
             {
                 Id = user.Id,
                 UserName = user.UserName,
@@ -113,12 +115,12 @@ namespace N_Chat.Server.Controllers{
 
                 ModelState.AddModelError(string.Empty, "Invalid Login Attempt"); // Error Message if string is empty
             }
-
+            
             return BadRequest(user);
+            
         }
 
         [HttpPost("signup")]
-
         public async Task<IActionResult> SignupUser(RegisterModel registerModel)
         {
             if (ModelState.IsValid)
@@ -226,25 +228,36 @@ namespace N_Chat.Server.Controllers{
             return Ok();
         }
 
-        [HttpPut("chatrequest/{chatId}")]
-        public async Task<ActionResult> RequestChat(int chatId, string userName)
+        [HttpGet("getfullinclude/{userName}")]
+        public async Task<UserModel> GetUserWithLists(string userName)
+        {
+            var result = context.Users
+                .Include(c => c.Chats)
+                .Include(m => m.Messages);
+               
+                return await result.SingleOrDefaultAsync(x => x.UserName == userName);
+            
+        }
+
+        [HttpPost("chatrequest/{id}")]
+        public async Task<IActionResult> RequestChat(string userName, int id)
         {
             await using (var db = context)
             {
-                var user = await userManager.FindByNameAsync(userName); //finds user with username recieved
+                var user = await GetUserWithLists(userName);
                 if (user != null)
                 {
-                    var chat = await db.Chats.FirstOrDefaultAsync(c => c.Id == chatId); //finds chat using id recieved
+                    var chat = await db.Chats.FirstOrDefaultAsync(c => c.Id == id); //finds chat using id recieved
                     if (chat != null)
                     {
-                        chat.Users.Add(user); //adds recieved user to chat
-                        return Ok(chat);
+                        user.Chats.Add(chat);
+                        return Ok(user);
                     }
 
                     return BadRequest(chat);
                 }
-
                 return BadRequest(user);
+                
             }
         }
     }

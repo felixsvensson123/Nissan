@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver.Linq;
 
@@ -53,25 +53,26 @@ namespace N_Chat.Server.Controllers
         {
             if (!ModelState.IsValid)
             { return BadRequest(ModelState); }
-            ChatModel chatToBeCreated = new ()
+
+            ChatModel chatToBeCreated = new()
+            {
+                Name = chat.Name,
+                CreatorId = chat.CreatorId,
+                IsChatEdited = chat.IsChatEdited,
+                IsChatEnded = chat.IsChatEnded,
+                IsChatEncrypted = chat.IsChatEncrypted,
+                ChatCreated = chat.ChatCreated,
+                ChatEnded = chat.ChatEnded,
+                Messages = new List<MessageModel>()
                 {
-                    Name = chat.Name,
-                    CreatorId = chat.CreatorId,
-                    IsChatEdited = chat.IsChatEdited,
-                    IsChatEnded = chat.IsChatEnded,
-                    IsChatEncrypted = chat.IsChatEncrypted,
-                    ChatCreated= chat.ChatCreated,
-                    ChatEnded = chat.ChatEnded,
-                    Messages = new List<MessageModel>()
+                    new()
                     {
-                        new()
-                        {
-                            Message = "Chat was created!",
-                            MessageCreated = chat.ChatCreated
-                        }
-                    },
-  
-                };
+                        Message = "Chat was created!",
+                        MessageCreated = chat.ChatCreated
+                    }
+                },
+
+            };
             var userInclude = await context.Users.Include(c => c.Chats)
                 .FirstOrDefaultAsync(x => x.UserName == User.Identity.Name);
             userInclude.Chats.Add(chatToBeCreated);

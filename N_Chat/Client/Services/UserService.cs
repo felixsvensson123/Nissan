@@ -48,6 +48,11 @@ namespace N_Chat.Client.Services
             var result = await httpClient.GetFromJsonAsync<UserModel>($"api/user/get/{userName}");
             return result;
         }
+        public async Task<UserModel> GetUserWithLists(string userName)
+        {
+            var result = await httpClient.GetFromJsonAsync<UserModel>($"api/user/{userName}");
+            return result;
+        }
 
         public async Task<(string Message, UserModel? user)> GetUserClaim()
         {
@@ -69,9 +74,9 @@ namespace N_Chat.Client.Services
             }
         }
         //CHATS WITH USERS
-        public async Task<List<ChatModel>> GetUserChats(string id)
+        public async Task<List<ChatModel>> GetUserChats(string userName)
         {
-            return await httpClient.GetFromJsonAsync<List<ChatModel>>($"api/user/userchats/{id}");
+            return await httpClient.GetFromJsonAsync<List<ChatModel>>($"api/user/userchats/{userName}");
         }
         
         
@@ -80,15 +85,16 @@ namespace N_Chat.Client.Services
         {
             return await httpClient.GetFromJsonAsync<List<UserModel>>($"api/user/getthechats/{id}");
         }
-        public async Task<string> AddUserToChat(string userName, int chatId)
+        public async Task<string> AddUserToChat(string userName, int id)
         {
-            var result = await httpClient.PutAsJsonAsync($"api/user/chatrequest/{chatId}", userName);
+            var result = await httpClient.PostAsJsonAsync($"api/user/chatrequest/{id}", userName);
             if (result.IsSuccessStatusCode)
             {
-                return "Success!";
+                return await result.Content.ReadFromJsonAsync<string>();
             }
-            return "Failed";
+            return result.ReasonPhrase;
         }
+        
     }
 
     public interface IUserService 
@@ -98,9 +104,10 @@ namespace N_Chat.Client.Services
         Task<UserModel> GetUserByName(string userName);  // Get user by id method
         Task<string> Signout(); // Signout user
         Task<(string Message, UserModel? user)> GetUserClaim(); //Gets user via claims
-        Task<List<ChatModel>> GetUserChats(string id);
+        Task<List<ChatModel>> GetUserChats(string userName);
         Task<List<UserModel>> UserChats(string id);
-        Task<string> AddUserToChat(string userName, int chatId);
+        Task<string> AddUserToChat(string userName, int id);
+        Task<UserModel> GetUserWithLists(string userName);
     }
 }
  

@@ -31,7 +31,7 @@
             <MudTd DataLabel="Name">@context.Name</MudTd>
             <MudTd>
                 <MudButton Color="Color.Dark" @onclick="(() => Chat(context.Name))">Enter</MudButton>
-                <MudButton Color="Color.Dark" >Manage Chat</MudButton>
+                <MudButton Color="Color.Dark">Manage Chat</MudButton>
             </MudTd>
         </RowTemplate>
     </MudTable>
@@ -98,10 +98,10 @@ else
         var currentUser = await UserService.GetUserClaim();
         if (currentUser.Message == "Success")
         {
-            User = currentUser.user;
+            User = await UserService.GetUserWithLists(currentUser.user.UserName);
             if (User != null)
             {
-                User.Chats = await UserService.GetUserChats(User.Id);
+                
                 //UserModelChats = await UserService.UserChats(User.Id);
                 //UserChats = await UserService.UserChats(User.Id);
                 //User.Chats = UserChats.Where(x => x.Users.SingleOrDefault(x => x.UserName == User.UserName);
