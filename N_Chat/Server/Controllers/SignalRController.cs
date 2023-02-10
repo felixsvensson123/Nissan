@@ -15,17 +15,20 @@ public class SignalRController : Hub
     {
         this.context = context;
     }
-    public override Task OnConnectedAsync()
+    public override async Task OnConnectedAsync()
     {
         //Get users
-        var user = context.Users.Include(u => u.Chats).SingleOrDefault(x => x.UserName == Context.User.Identity.Name);
+        var user = await context.Users.Include(u => u.Chats).FirstOrDefaultAsync(x => x.UserName == Context.User.Identity.Name);
         //Add user to each assigned group
-        foreach (var item in user.Chats)
+        if (user != null)
         {
-            Groups.AddToGroupAsync(Context.ConnectionId, item.Name);
+            foreach (var item in user.Chats)
+            {
+                await Groups.AddToGroupAsync(Context.ConnectionId, item.Name);
+            }
+            Console.WriteLine($"{Context.ConnectionId} connected");
+            await base.OnConnectedAsync();
         }
-        Console.WriteLine($"{Context.ConnectionId} connected");
-        return base.OnConnectedAsync();
     }
 
     public override Task OnDisconnectedAsync(Exception e)

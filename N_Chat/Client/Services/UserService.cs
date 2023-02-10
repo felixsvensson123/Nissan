@@ -42,13 +42,7 @@ namespace N_Chat.Client.Services
 
             return null;
         }
-
-        public async Task<UserModel> GetUserByName(string userName)
-        {
-            var result = await httpClient.GetFromJsonAsync<UserModel>($"api/user/get/{userName}");
-            return result;
-        }
-        public async Task<UserModel> GetUserWithLists(string userName)
+        public async Task<UserModel> GetUser(string userName)
         {
             var result = await httpClient.GetFromJsonAsync<UserModel>($"api/user/{userName}");
             return result;
@@ -73,18 +67,12 @@ namespace N_Chat.Client.Services
                 }
             }
         }
-        //CHATS WITH USERS
+
         public async Task<List<ChatModel>> GetUserChats(string userName)
         {
             return await httpClient.GetFromJsonAsync<List<ChatModel>>($"api/user/userchats/{userName}");
         }
         
-        
-        //USER CHATS
-        public async Task<List<UserModel>> UserChats(string id)
-        {
-            return await httpClient.GetFromJsonAsync<List<UserModel>>($"api/user/getthechats/{id}");
-        }
         public async Task<string> AddUserToChat(string userName, int id)
         {
             var result = await httpClient.PostAsJsonAsync($"api/user/chatrequest/{id}", userName);
@@ -101,13 +89,11 @@ namespace N_Chat.Client.Services
     {
         Task<string> LoginUser(LoginModel loginModel); // Login User Method
         Task<string> SignUp(RegisterModel registerModel); // Signup User Method
-        Task<UserModel> GetUserByName(string userName);  // Get user by id method
+        Task<UserModel> GetUser(string userName);
         Task<string> Signout(); // Signout user
         Task<(string Message, UserModel? user)> GetUserClaim(); //Gets user via claims
         Task<List<ChatModel>> GetUserChats(string userName);
-        Task<List<UserModel>> UserChats(string id);
         Task<string> AddUserToChat(string userName, int id);
-        Task<UserModel> GetUserWithLists(string userName);
     }
 }
  

@@ -37,7 +37,7 @@
     </MudTable>
     @if (_invitingUser)
     {
-        <MudTable SelectedItem="@CurrentChat">
+        <MudTable SelectedItem="@SelectedChat">
             <HeaderContent>
                 <MudTh>Chat</MudTh>
                 <MudTh>Current</MudTh>
@@ -56,10 +56,10 @@ else
     <div class="alert alert-secondary mt-4" role="alert">
         <span class="oi oi-person mr-2" aria-hidden="true"></span>
         <span>You are connected as <b>@User.UserName</b></span>
-        @foreach (var item in CurrentChat.Messages)
+        @foreach (var item in SelectedChat.Messages)
         {
             <div class="scrollbox">
-                <div class="msg">@item.User.UserName.ToUpper(): @item.Message</div>
+                <div class="msg">@*@item.User.UserName.ToUpper(): ska fixas senare*@ @item.Message</div>
             </div>
         }
 
@@ -68,7 +68,7 @@ else
         <input @bind="_message" class="messageinput" type="text" name="txt" placeholder="Write something..." wrap="hard" rows="5" cols="30" required="">
         <button class="oi oi-pencil" aria-hidden="true" id="Pencil"></button>
         <button class="oi oi-trash" aria-hidden="true" id="Trash"></button>
-        <button @onclick="@(() => SendAsync(User.UserName, _message, CurrentChat.Name))" class="oi oi-location" aria-hidden="true" id="Send"></button>
+        <button @onclick="@(() => SendAsync(User.UserName, _message, _chatName))" class="oi oi-location" aria-hidden="true" id="Send"></button>
     </div>
     </body>
 }
@@ -79,13 +79,8 @@ else
     private bool _isChatting = false;
     private bool _pageLoaded = false;
     private bool _invitingUser = false;
-    private UserModel? User { get; set; } // name of the user who will be chatting
-    private MessageModel? DisplayMessage { get; set; } = new(); // on-screen message
-    private MessageModel? InputMessage { get; set; } = new(); // new message input
-    private ChatModel? CurrentChat { get; set; } = new(); // Current Chat
-    private List<MessageModel> _messages = new(); // list of messages in chat
-    public List<ChatModel> UserChats { get; set; } = new();
-    public List<UserModel> UserModelChats { get; set; } = new();
+    private UserModel? User { get; set; }// name of the user who will be chatting
+    private ChatModel? SelectedChat { get; set; } = new(); // Current Chat
     private string _hubUrl;
     private HubConnection _hubConnection;
     private string? _message;
@@ -96,32 +91,26 @@ else
     protected override async Task OnInitializedAsync()
     {
         var currentUser = await UserService.GetUserClaim();
+        
         if (currentUser.Message == "Success")
         {
-            User = await UserService.GetUserWithLists(currentUser.user.UserName);
+            User = await UserService.GetUser(currentUser.user.UserName);
+            
             if (User != null)
             {
-                
-                //UserModelChats = await UserService.UserChats(User.Id);
-                //UserChats = await UserService.UserChats(User.Id);
-                //User.Chats = UserChats.Where(x => x.Users.SingleOrDefault(x => x.UserName == User.UserName);
-                //User.Chats = UserChats.SelectMany(x => x.Chats).ToList();
                 _pageLoaded = true;
                 StateHasChanged();
             }
-
-            StateHasChanged();
         }
     }
 
     private async Task Chat(string chatName)
     {
-        CurrentChat = User.Chats.FirstOrDefault(c => c.Name == chatName);
+        SelectedChat = User.Chats.FirstOrDefault(c => c.Name == chatName);
+        _userName = User.UserName;
         _chatName = chatName; // Sets chatname after chosen item in list
         _isChatting = true; // Start chatting and force refresh UI.
         await Task.Delay(1);
-
-        _messages.Clear(); // remove old messages if any
 
         _hubConnection = new HubConnectionBuilder()
             .WithUrl(NavigationManager.ToAbsoluteUri("/conversations"))
@@ -132,7 +121,7 @@ else
 
         await _hubConnection.StartAsync();
 
-        await SendAsync($"[Notice] {User.UserName}: has joined the chat", "", chatName);
+        await SendAsync( _userName, "Has joined the chat" ,chatName);
     }
 
     private async Task BroadcastMessage(string userName, string message, string chatName)
@@ -141,14 +130,14 @@ else
         var currentUser = User;
         if (currentUser != null)
         {
-            CurrentChat.Messages.Add(new MessageModel()
+            SelectedChat.Messages.Add(new MessageModel()
             {
                 Message = message,
                 MessageCreated = DateTime.Now,
                 UserId = currentUser.Id,
                 User = currentUser,
-                Chat = CurrentChat,
-                ChatId = CurrentChat.Id,
+                Chat = SelectedChat,
+                ChatId = SelectedChat.Id,
             });
         }
         await InvokeAsync(StateHasChanged); // update ui
@@ -166,8 +155,8 @@ else
                 MessageCreated = DateTime.Now,
                 UserId = User.Id,
                 User = User,
-                Chat = CurrentChat,
-                ChatId = CurrentChat.Id,
+                Chat = SelectedChat,
+                ChatId = SelectedChat.Id,
             };
             await MessageService.PostMessage(messageModel);
             message = string.Empty;

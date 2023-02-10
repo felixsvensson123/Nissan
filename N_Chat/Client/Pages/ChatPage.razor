@@ -4,22 +4,21 @@
 
 
 <h3>ChatPage</h3>
-@*<EditForm Model="@Chat" OnSubmit="HandleSubmit">
+<EditForm Model="@Chat" OnSubmit="HandleSubmit">
     <MudTextField @bind-Value="@Chat.Name" placeholder="Chat name"></MudTextField>
     <MudTextField @bind-Value="@_userName" placeholder="UserToAdd"></MudTextField>
     <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary" Variant="Variant.Outlined">Submit</MudButton>
-</EditForm>*@
+</EditForm>
 <p>@User.UserName is logged in</p>
-<EditForm Model="UserToAdd" OnSubmit="RequestChat">
+@*<EditForm Model="UserToAdd" OnSubmit="RequestChat">
     <MudText>ADD USER TO YOUR CHAT</MudText>
     <MudTextField @bind-Value="_userName" placeholder="Username"></MudTextField>
     <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary" Variant="Variant.Outlined">AddFelix</MudButton>
-</EditForm>
+</EditForm>*@
 
 @code {
     ChatModel Chat { get; set; } = new();
     UserModel User { get; set; } = new();
-    List<ChatModel> Chats { get; set; } = new();
     UserModel UserToAdd { get; set; } = new();
     private string _userName;
     private string _userNameAdd;
@@ -32,14 +31,14 @@
     private async Task HandleSubmit(EditContext context)
     {
         var getuser = await UserService.GetUserClaim();
-        var userToAdd = await UserService.GetUserByName(_userName);
+        var userToAdd = await UserService.GetUser(_userName);
         if (getuser.Message == "Success")
         {
             User = getuser.user;
             if (User != null)
             {
                 Chat.ChatCreated = DateTime.Now;
-                Chat.UserName = User.UserName;
+                Chat.UserId = User.Id;
                 Chat.CreatorId = User.Id;
                 Chat.Users = new List<UserModel>()
                 {

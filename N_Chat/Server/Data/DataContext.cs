@@ -24,7 +24,7 @@ namespace N_Chat.Server.Data
             modelBuilder.Entity<ChatModel>()
                 .HasOne(i => i.User)
                 .WithMany(u => u.Chats)
-                .HasForeignKey(i => i.UserName)
+                .HasForeignKey(i => i.UserId)
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.SetNull);
 
