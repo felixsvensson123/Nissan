@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using N_Chat.Server.Data;
 
@@ -11,9 +12,11 @@ using N_Chat.Server.Data;
 namespace NChat.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230207201906_changedPkForChat")]
+    partial class changedPkForChat
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,14 +47,14 @@ namespace NChat.Server.Migrations
                         new
                         {
                             Id = "e02d359e-6bfb-47ed-9fbc-4c99e5d2db9b",
-                            ConcurrencyStamp = "b7aff65a-7ef1-4f8c-9fc7-8ba11b938b31",
+                            ConcurrencyStamp = "84579cc5-d384-4672-a383-d9488393e6fa",
                             Name = "Member",
                             NormalizedName = "MEMBER"
                         },
                         new
                         {
                             Id = "d1678ba6-7957-21a7-96b5-12b64c06bc25",
-                            ConcurrencyStamp = "ac0d9673-b2fb-4f66-8ec9-fc990de485ae",
+                            ConcurrencyStamp = "e0dba9cb-103b-4958-9699-652fae3646d4",
                             Name = "Admin",
                             NormalizedName = "admin"
                         });
@@ -185,12 +188,12 @@ namespace NChat.Server.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
+                    b.Property<string>("UserName")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserName");
 
                     b.ToTable("Chats");
                 });
@@ -336,15 +339,15 @@ namespace NChat.Server.Migrations
                         {
                             Id = "ded90182-7b04-41e0-aef6-8977a4d1c292",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "5c9892d3-713f-46cb-af57-b58ba70fe69c",
+                            ConcurrencyStamp = "de3eee2e-030a-4810-9d23-0fb35b319405",
                             Email = "adminuser@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "adminuser@gmail.com",
                             NormalizedUserName = "admin",
-                            PasswordHash = "AQAAAAEAACcQAAAAEGDu4z4wh/ZAw1e8g5Oqzh/23esTPaA8CAb7bFvFI/WAC4uDfbySUWrqOUm20pgRHA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEAKk2rY6IAUhxdyP09tCTzUrV17O4bGzK31iOd0e75JFvot6GM57Qo15eXNSJCJohA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "6f698773-5047-43b2-826a-ee490afd614b",
+                            SecurityStamp = "9b62c7c4-772b-40e9-8b3f-6e9c5372ff71",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         },
@@ -352,15 +355,15 @@ namespace NChat.Server.Migrations
                         {
                             Id = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "11500ebb-89f7-4c8f-a6dd-b370cd889bb2",
+                            ConcurrencyStamp = "fc3762ba-9481-44c3-a2a8-fc520ebd8119",
                             Email = "Css@live.se",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "css@live.se",
                             NormalizedUserName = "felix",
-                            PasswordHash = "AQAAAAEAACcQAAAAEGU9DYnFMDfllh95TFDUQjIJL9la6pmuYqMSKseKo1LsnN4W9h6f5QpEAj4Bay4IAQ==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEC1AG345F6uDAAfeVOWtA4qvyUgNyUHaXuHHEHyEfOg7oP6MGiHBBfDYUduEC3qOug==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "d91baa38-e951-4950-99c5-75112540c41a",
+                            SecurityStamp = "e72a4ad3-f55c-4c78-9820-3956874f336c",
                             TwoFactorEnabled = false,
                             UserName = "felix"
                         });
@@ -370,7 +373,7 @@ namespace NChat.Server.Migrations
                 {
                     b.HasOne("N_Chat.Shared.UserModel", "User")
                         .WithMany("Chats")
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("UserName")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("User");

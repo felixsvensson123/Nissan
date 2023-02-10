@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver.Linq;
 
 namespace N_Chat.Server.Controllers
 {
@@ -53,42 +54,33 @@ namespace N_Chat.Server.Controllers
             if (!ModelState.IsValid)
             { return BadRequest(ModelState); }
 
-            var user = await context.Users.FirstOrDefaultAsync(x => x.Id == chat.UserId);
-            var user2 = await context.Users.FirstOrDefaultAsync(x => x.UserName == "admin");
-            if (user != null)
+            ChatModel chatToBeCreated = new()
             {
-                ChatModel chatToBeCreated = new ()
+                Name = chat.Name,
+                CreatorId = chat.CreatorId,
+                IsChatEdited = chat.IsChatEdited,
+                IsChatEnded = chat.IsChatEnded,
+                IsChatEncrypted = chat.IsChatEncrypted,
+                ChatCreated = chat.ChatCreated,
+                ChatEnded = chat.ChatEnded,
+                Messages = new List<MessageModel>()
                 {
-                    User = user,
-                    UserId = chat.UserId,
-                    Name = chat.Name,
-                    CreatorId = chat.CreatorId,
-                    IsChatEdited = chat.IsChatEdited,
-                    IsChatEnded = chat.IsChatEnded,
-                    IsChatEncrypted = chat.IsChatEncrypted,
-                    ChatCreated= chat.ChatCreated,
-                    ChatEnded = chat.ChatEnded,
-                    Users = new List<UserModel>()
+                    new()
                     {
-                        user,
-                        user2
-                    },
-                    Messages = new List<MessageModel>()
-                    {
-                        new()
-                        {
-                            UserId = chat.UserId,
-                            Message = chat.Name,
-                            MessageCreated = chat.ChatCreated
-                        }
-                    },
-  
-                };
-               context.Chats.Add(chatToBeCreated);
-               user.Chats.Add(chatToBeCreated);
-            }
-            await context.SaveChangesAsync();
-            return Ok();
+                        Message = "Chat was created!",
+                        MessageCreated = chat.ChatCreated
+                    }
+                },
+
+            };
+            var userInclude = await context.Users.Include(c => c.Chats)
+                .FirstOrDefaultAsync(x => x.UserName == User.Identity.Name);
+            userInclude.Chats.Add(chatToBeCreated);
+            //context.Chats.Attach(chatToBeCreated).Entity.User.Chats.Add(chatToBeCreated);
+            // user.Chats.Add(chatToBeCreated);
+              await context.SaveChangesAsync(); 
+              
+              return Ok();
         }
     }
 }

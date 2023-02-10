@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using N_Chat.Server.Data;
 
@@ -11,9 +12,11 @@ using N_Chat.Server.Data;
 namespace NChat.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230207141355_setkeyforusermodel")]
+    partial class setkeyforusermodel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,14 +47,14 @@ namespace NChat.Server.Migrations
                         new
                         {
                             Id = "e02d359e-6bfb-47ed-9fbc-4c99e5d2db9b",
-                            ConcurrencyStamp = "b7aff65a-7ef1-4f8c-9fc7-8ba11b938b31",
+                            ConcurrencyStamp = "1bfc8557-2b77-4e3e-becf-cd712005a9eb",
                             Name = "Member",
                             NormalizedName = "MEMBER"
                         },
                         new
                         {
                             Id = "d1678ba6-7957-21a7-96b5-12b64c06bc25",
-                            ConcurrencyStamp = "ac0d9673-b2fb-4f66-8ec9-fc990de485ae",
+                            ConcurrencyStamp = "c9884d83-76d4-4bd3-895e-be3dd2d5da29",
                             Name = "Admin",
                             NormalizedName = "admin"
                         });
@@ -336,15 +339,15 @@ namespace NChat.Server.Migrations
                         {
                             Id = "ded90182-7b04-41e0-aef6-8977a4d1c292",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "5c9892d3-713f-46cb-af57-b58ba70fe69c",
+                            ConcurrencyStamp = "d919fa53-fac7-4d1a-827c-7556365f55bf",
                             Email = "adminuser@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "adminuser@gmail.com",
                             NormalizedUserName = "admin",
-                            PasswordHash = "AQAAAAEAACcQAAAAEGDu4z4wh/ZAw1e8g5Oqzh/23esTPaA8CAb7bFvFI/WAC4uDfbySUWrqOUm20pgRHA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAELfooTiytAJMB9WOJXk1JbJQZp5qDtqOfecBuV7isLr/NvURiXNKehGSQWZeVYg1tw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "6f698773-5047-43b2-826a-ee490afd614b",
+                            SecurityStamp = "6eb64cb1-7b22-4a59-8a49-f3c548711351",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         },
@@ -352,15 +355,15 @@ namespace NChat.Server.Migrations
                         {
                             Id = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "11500ebb-89f7-4c8f-a6dd-b370cd889bb2",
+                            ConcurrencyStamp = "ca7cb98a-8b29-4473-8614-6c059f124c7a",
                             Email = "Css@live.se",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "css@live.se",
                             NormalizedUserName = "felix",
-                            PasswordHash = "AQAAAAEAACcQAAAAEGU9DYnFMDfllh95TFDUQjIJL9la6pmuYqMSKseKo1LsnN4W9h6f5QpEAj4Bay4IAQ==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEN2WhG21bAqw+G1ysZNNGrXt/KxMH/W09IC9S0atao4GAR7yxANy+4LODm+KGJbtxg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "d91baa38-e951-4950-99c5-75112540c41a",
+                            SecurityStamp = "ee48205b-c900-4945-9626-7cf57285b022",
                             TwoFactorEnabled = false,
                             UserName = "felix"
                         });
