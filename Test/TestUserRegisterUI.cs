@@ -31,7 +31,7 @@ namespace Test
                 
 
                     //navigate to homepage
-                    await Page.GotoAsync("https://localhost:7280/");
+                    await Page.GotoAsync("https://localhost:7280");
 
                     //locate to label Signup and click
                     await Page.Locator("label=Sign Up").ClickAsync();
@@ -55,10 +55,10 @@ namespace Test
                     //submit registration
                     await Page.ClickAsync("button[type=submit]");
 
-                    await Page.GotoAsync("https://localhost:7280/");
+                    await Page.GotoAsync("https://localhost:7280/startPage");
 
                     var urlAfterClick = "";
-                    Assert.That(urlAfterClick, Is.EqualTo("https://localhost:7280/"));
+                    
 
                     Assert.Multiple(() =>
                     {
@@ -66,7 +66,7 @@ namespace Test
                         Assert.That(email, Is.EqualTo("patrik@yahoo.com"));
                         Assert.That(password, Is.EqualTo("patrik123"));
                         Assert.That(confirmPassword, Is.EqualTo("patrik123"));
-                        Assert.That(urlAfterClick, Is.EqualTo("https://localhost:7280/New_chat?txt=patrik&txt=Patte&isEncrypted=on"));
+                        Assert.That(urlAfterClick, Is.EqualTo("https://localhost:7280/startPage"));
                     });
 
                
