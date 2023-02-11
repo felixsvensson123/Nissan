@@ -7,10 +7,10 @@ using Microsoft.Playwright;
 
 namespace Test
 {
-    public class UserChatGroupMessage
+    public class UserChatGroupMessageEncrypt
     {
         [Test]
-        public async Task TestSendingEncryptGrouplChatMessage()
+        public async Task TestSendingEncryptGroupChatMessage()
         {
 
             try

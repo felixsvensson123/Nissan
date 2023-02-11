@@ -4,7 +4,7 @@ using Microsoft.Playwright;
 
 namespace Test.UITests_Playwright
 {
-    public class UserChatSingelMessage
+    public class UserChatSingelMessageEncrypt
     {
         [Test]
         public async Task TestSendingEncryptSingelChatMessage()
