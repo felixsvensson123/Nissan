@@ -10,23 +10,37 @@ namespace N_Chat.Server.Controllers
     {
 
         private readonly DataContext context;
-        
+
         public ChatController(DataContext context)
         {
             this.context = context;
         }
 
+        /*
         [HttpGet("getall")]
         public async Task<IEnumerable<ChatModel>> GetAll()
         {
             List<ChatModel> chatList = await context.Chats.OfType<ChatModel>().Where(c => c.IsChatEnded != true).ToListAsync();
             return chatList;
         }
+        */
+        
+        [HttpGet("getall")] 
+        public async Task<ICollection<ChatModel>> GetIncludedChats()
+        {
+            var dbChats = await context.Chats
+                .Include(u => u.Users)
+                .ThenInclude(uc => uc.User)
+                .ThenInclude(u => u.Messages)
+                .ThenInclude(m => m.Chat)
+                .ToListAsync();
+            return dbChats;
+        }
 
         [HttpGet("getchatbyid/{id}")]
         public async Task<ChatModel> GetById(int id)
         {
-            var result = await GetAll(); 
+            var result = await GetIncludedChats(); 
             return result.FirstOrDefault(x => x.Id == id);
         }
 
@@ -47,8 +61,41 @@ namespace N_Chat.Server.Controllers
             await context.SaveChangesAsync();
             return Ok(chatToBeUpdated);
         }
+        
+        [HttpPost("createchat")] //posts chat
+        public async Task<ActionResult> CreateChat(ChatModel chat)
+        {
+            if (!ModelState.IsValid)
+            { return BadRequest(ModelState); }
+            
+            ChatModel chatToBeCreated = new()
+            {
+                Name = chat.Name,
+                CreatorId = chat.CreatorId,
+                IsChatEdited = chat.IsChatEdited,
+                IsChatEnded = chat.IsChatEnded,
+                IsChatEncrypted = chat.IsChatEncrypted,
+                ChatCreated = chat.ChatCreated,
+                ChatEnded = chat.ChatEnded,
+                Users = chat.Users,
+                Messages = new List<MessageModel>()
+                {
+                    new()
+                    {
+                        Message = "",
+                        MessageCreated = chat.ChatCreated
+                    }
+                },
+            };
+            await context.Chats.AddAsync(chatToBeCreated);
+            await context.SaveChangesAsync();
+            
+            return Ok();
+        }
 
-        [HttpPost("createchat")]
+
+
+        /*[HttpPost("createchat")]
         public async Task<ActionResult> CreateChat(ChatModel chat)
         {
             if (!ModelState.IsValid)
@@ -63,6 +110,7 @@ namespace N_Chat.Server.Controllers
                 IsChatEncrypted = chat.IsChatEncrypted,
                 ChatCreated = chat.ChatCreated,
                 ChatEnded = chat.ChatEnded,
+                Users = chat.Users,
                 Messages = new List<MessageModel>()
                 {
                     new()
@@ -73,14 +121,13 @@ namespace N_Chat.Server.Controllers
                 },
 
             };
-            var userInclude = await context.Users.Include(c => c.Chats)
+            /*var userInclude = await context.Users.Include(c => c.Chats)
                 .FirstOrDefaultAsync(x => x.UserName == User.Identity.Name);
-            userInclude.Chats.Add(chatToBeCreated);
-            //context.Chats.Attach(chatToBeCreated).Entity.User.Chats.Add(chatToBeCreated);
-            // user.Chats.Add(chatToBeCreated);
-              await context.SaveChangesAsync(); 
-              
-              return Ok();
-        }
+            userInclude.Chats.Add(chatToBeCreated);#1#
+            
+            await context.Chats.AddAsync(chatToBeCreated);
+            await context.SaveChangesAsync();
+            return Ok();
+        }*/
     }
 }

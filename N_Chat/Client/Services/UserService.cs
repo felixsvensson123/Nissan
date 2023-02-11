@@ -73,14 +73,14 @@ namespace N_Chat.Client.Services
             return await httpClient.GetFromJsonAsync<List<ChatModel>>($"api/user/userchats/{userName}");
         }
         
-        public async Task<string> AddUserToChat(string userName, int id)
+        public async Task<string> AddUserToChat(UserModel user, int id)
         {
-            var result = await httpClient.PostAsJsonAsync($"api/user/chatrequest/{id}", userName);
+            var result = await httpClient.PostAsJsonAsync($"api/user/chatrequest/{id}", user);
             if (result.IsSuccessStatusCode)
             {
-                return await result.Content.ReadFromJsonAsync<string>();
+                return await result.Content.ReadAsStringAsync();
             }
-            return result.ReasonPhrase;
+            return null;
         }
         
     }
@@ -93,7 +93,7 @@ namespace N_Chat.Client.Services
         Task<string> Signout(); // Signout user
         Task<(string Message, UserModel? user)> GetUserClaim(); //Gets user via claims
         Task<List<ChatModel>> GetUserChats(string userName);
-        Task<string> AddUserToChat(string userName, int id);
+        Task<string> AddUserToChat(UserModel user, int id);
     }
 }
  

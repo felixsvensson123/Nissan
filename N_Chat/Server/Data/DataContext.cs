@@ -17,26 +17,54 @@ namespace N_Chat.Server.Data
         public DbSet<ChatModel> Chats { get; set; }
         public DbSet<MessageModel> Messages { get; set; }
         public DbSet<Connections> Connections { get; set; }
+        public DbSet<UserChat> UserChats { get; set; }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+                    
+            /*modelBuilder.Entity<UserModel>(entity =>
+            {
+                entity.HasMany(u => u.Chats)
+                    .WithOne(uc => uc.User)
+                    .HasForeignKey(uc => uc.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<ChatModel>()
-                .HasOne(i => i.User)
-                .WithMany(u => u.Chats)
-                .HasForeignKey(i => i.UserId)
-                .IsRequired(false)
-                .OnDelete(DeleteBehavior.SetNull);
+                entity.HasMany(u => u.Messages)
+                    .WithOne(m => m.User)
+                    .HasForeignKey(m => m.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });*/
 
-            // Restrict deletion of thread on message delete (set user to null instead)
-            modelBuilder.Entity<MessageModel>()
-                .HasOne(i => i.User)    
-                .WithMany(u => u.Messages)
-                .HasForeignKey(i => i.UserId) //.HasForeignKey i.ChatId
-                .IsRequired(false)
-                .OnDelete(DeleteBehavior.SetNull);
-            
-            modelBuilder.Entity<UserModel>().HasKey(u => u.Id);
+            modelBuilder.Entity<ChatModel>(entity =>
+            {
+                /*
+                entity.HasMany(c => c.Users)
+                    .WithOne(uc => uc.Chat)
+                    .HasForeignKey(uc => uc.ChatId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                    */
+
+                entity.HasMany(c => c.Messages)
+                    .WithOne(m => m.Chat)
+                    .HasForeignKey(m => m.ChatId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<UserChat>(entity =>
+            {
+                entity.HasKey(uc => new { uc.UserId, uc.ChatId });
+
+                entity.HasOne(uc => uc.User)
+                    .WithMany(u => u.Chats)
+                    .HasForeignKey(uc => uc.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(uc => uc.Chat)
+                    .WithMany(c => c.Users)
+                    .HasForeignKey(uc => uc.ChatId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+          
             modelBuilder.Entity<IdentityUserLogin<string>>()
                 .HasNoKey();
 
@@ -73,3 +101,32 @@ namespace N_Chat.Server.Data
         }
     }
 }
+
+  /*
+            /*modelBuilder.Entity<UserModel>()
+                .HasMany(u => u.Chats)
+                .WithOne(uc => uc.User)
+                .HasForeignKey(uc => uc.UserId);#1#
+            modelBuilder.Entity<UserChat>()
+                .HasKey(ucm => new {ucm.UserId, ucm.ChatId});
+
+            modelBuilder.Entity<UserChat>()
+                .HasOne(uc => uc.User)
+                .WithMany(u => u.Chats)
+                .HasForeignKey(uc => uc.UserId);
+
+            modelBuilder.Entity<UserChat>()
+                .HasOne(uc => uc.Chat)
+                .WithMany(c => c.Users)
+                .HasForeignKey(uc => uc.ChatId);
+            
+            modelBuilder.Entity<ChatModel>()
+                .HasMany(c => c.Messages)
+                .WithOne(uc => uc.Chat)
+                .HasForeignKey(uc => uc.ChatId);
+            
+            modelBuilder.Entity<MessageModel>()
+                .HasOne(m => m.User)
+                .WithMany(u => u.Messages)
+                .HasForeignKey(m => m.UserId);
+                */

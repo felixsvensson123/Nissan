@@ -12,7 +12,7 @@ namespace N_Chat.Shared
     public class UserModel : IdentityUser
     {
        public string? Email { get; set; }
-       public List<MessageModel>? Messages { get; set; }
-       public List<ChatModel>? Chats { get; set; }
+       public virtual ICollection<MessageModel> Messages { get; set; } = new List<MessageModel>();
+       public virtual ICollection<UserChat> Chats { get; set; } = new List<UserChat>();
     }
 }
