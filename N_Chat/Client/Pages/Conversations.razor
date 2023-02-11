@@ -28,9 +28,9 @@
             <MudTh>Action</MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Name">@context.Chat.Name</MudTd>
             <MudTd>
-                <MudButton Color="Color.Dark" @onclick="(() => Chat(context.Name))">Enter</MudButton>
+                <MudButton Color="Color.Dark" @onclick="(() => Chat(context.Chat.Name))">Enter</MudButton>
                 <MudButton Color="Color.Dark">Manage Chat</MudButton>
             </MudTd>
         </RowTemplate>
@@ -56,7 +56,7 @@ else
     <div class="alert alert-secondary mt-4" role="alert">
         <span class="oi oi-person mr-2" aria-hidden="true"></span>
         <span>You are connected as <b>@User.UserName</b></span>
-        @foreach (var item in SelectedChat.Messages)
+        @foreach (var item in SelectedChat.Chat.Messages)
         {
             <div class="scrollbox">
                 <div class="msg">@*@item.User.UserName.ToUpper(): ska fixas senare*@ @item.Message</div>
@@ -80,7 +80,8 @@ else
     private bool _pageLoaded = false;
     private bool _invitingUser = false;
     private UserModel? User { get; set; }// name of the user who will be chatting
-    private ChatModel? SelectedChat { get; set; } = new(); // Current Chat
+    private UserChat? SelectedChat { get; set; } = new(); // Current Chat
+    private List<ChatModel> UserChats { get; set; } = new();
     private string _hubUrl;
     private HubConnection _hubConnection;
     private string? _message;
@@ -95,7 +96,10 @@ else
         if (currentUser.Message == "Success")
         {
             User = await UserService.GetUser(currentUser.user.UserName);
-            
+            foreach (var item in User.Chats)
+            {
+                Console.WriteLine(item.Chat.Name);
+            }
             if (User != null)
             {
                 _pageLoaded = true;
@@ -106,7 +110,7 @@ else
 
     private async Task Chat(string chatName)
     {
-        SelectedChat = User.Chats.FirstOrDefault(c => c.Name == chatName);
+       // SelectedChat = ChatService.GetChatById();
         _userName = User.UserName;
         _chatName = chatName; // Sets chatname after chosen item in list
         _isChatting = true; // Start chatting and force refresh UI.
@@ -130,14 +134,13 @@ else
         var currentUser = User;
         if (currentUser != null)
         {
-            SelectedChat.Messages.Add(new MessageModel()
+            SelectedChat.Chat.Messages.Add(new MessageModel()
             {
                 Message = message,
                 MessageCreated = DateTime.Now,
                 UserId = currentUser.Id,
                 User = currentUser,
-                Chat = SelectedChat,
-                ChatId = SelectedChat.Id,
+                ChatId = SelectedChat.ChatId,
             });
         }
         await InvokeAsync(StateHasChanged); // update ui
@@ -155,8 +158,7 @@ else
                 MessageCreated = DateTime.Now,
                 UserId = User.Id,
                 User = User,
-                Chat = SelectedChat,
-                ChatId = SelectedChat.Id,
+                ChatId = SelectedChat.ChatId,
             };
             await MessageService.PostMessage(messageModel);
             message = string.Empty;

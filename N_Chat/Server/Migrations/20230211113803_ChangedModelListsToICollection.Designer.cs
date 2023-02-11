@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using N_Chat.Server.Data;
 
@@ -11,9 +12,11 @@ using N_Chat.Server.Data;
 namespace NChat.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230211113803_ChangedModelListsToICollection")]
+    partial class ChangedModelListsToICollection
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,14 +47,14 @@ namespace NChat.Server.Migrations
                         new
                         {
                             Id = "e02d359e-6bfb-47ed-9fbc-4c99e5d2db9b",
-                            ConcurrencyStamp = "6450d634-08cf-4a4c-8e76-21a1f1a2236b",
+                            ConcurrencyStamp = "4d1513e2-ddf3-4707-bf69-307b2926e820",
                             Name = "Member",
                             NormalizedName = "MEMBER"
                         },
                         new
                         {
                             Id = "d1678ba6-7957-21a7-96b5-12b64c06bc25",
-                            ConcurrencyStamp = "ce34cd55-ea63-4592-a58e-077a17740f57",
+                            ConcurrencyStamp = "474efe24-8364-4121-ba35-929e4e859114",
                             Name = "Admin",
                             NormalizedName = "admin"
                         });
@@ -185,10 +188,12 @@ namespace NChat.Server.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("ShowDetails")
-                        .HasColumnType("bit");
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Chats");
                 });
@@ -273,27 +278,15 @@ namespace NChat.Server.Migrations
                     b.ToTable("Test");
                 });
 
-            modelBuilder.Entity("N_Chat.Shared.UserChat", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("ChatId")
-                        .HasColumnType("int");
-
-                    b.HasKey("UserId", "ChatId");
-
-                    b.HasIndex("ChatId");
-
-                    b.ToTable("UserChats");
-                });
-
             modelBuilder.Entity("N_Chat.Shared.UserModel", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ChatModelId")
                         .HasColumnType("int");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -337,6 +330,8 @@ namespace NChat.Server.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ChatModelId");
+
                     b.ToTable("Users");
 
                     b.HasData(
@@ -344,15 +339,15 @@ namespace NChat.Server.Migrations
                         {
                             Id = "ded90182-7b04-41e0-aef6-8977a4d1c292",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "101f1ab2-2688-4406-9415-c86926ed3842",
+                            ConcurrencyStamp = "ca5e12d0-4df7-44a7-9ff7-c1c1b8d0b2eb",
                             Email = "adminuser@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "adminuser@gmail.com",
                             NormalizedUserName = "admin",
-                            PasswordHash = "AQAAAAEAACcQAAAAENej//2hXHxhM451I/YAHxC1yH+5AMdyBXD6ebewfluWIIAHkU/M465se7PrHrx4mA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAECvuzGN0KhZ2n+o/qlnUFjLZ4KXlILGVPTTDUGDuZzOPcnL5gQC/0oZkUeBEca4Ybg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "86e19c10-84e5-4c61-8a4c-3c6067ab1cdb",
+                            SecurityStamp = "55514883-d153-4ae1-a474-221dbd0c0ca9",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         },
@@ -360,18 +355,28 @@ namespace NChat.Server.Migrations
                         {
                             Id = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "1a659839-39ab-43c2-9fa6-c725f742aa65",
+                            ConcurrencyStamp = "11312ee2-e80c-43dc-a47c-7ec149e695f2",
                             Email = "Css@live.se",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "css@live.se",
                             NormalizedUserName = "felix",
-                            PasswordHash = "AQAAAAEAACcQAAAAEG/6bIU0kMZrHMx/gAW8/qlTX+jibM8HmyI1CirySIgnyCGwEdvy0Q22siM4yn87dA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEByfY6TmhP41IFdH52gCrrKrkoHrHRVRxZTsrsAYWzHopl5YYgbLKv89CmzD5DR2uQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "40f0754c-e2cd-4ff3-a1ef-563226e6bc8f",
+                            SecurityStamp = "34db2a82-5ae4-4ba9-976d-3badc472e93e",
                             TwoFactorEnabled = false,
                             UserName = "felix"
                         });
+                });
+
+            modelBuilder.Entity("N_Chat.Shared.ChatModel", b =>
+                {
+                    b.HasOne("N_Chat.Shared.UserModel", "User")
+                        .WithMany("Chats")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("N_Chat.Shared.MessageModel", b =>
@@ -384,30 +389,19 @@ namespace NChat.Server.Migrations
 
                     b.HasOne("N_Chat.Shared.UserModel", "User")
                         .WithMany("Messages")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Chat");
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("N_Chat.Shared.UserChat", b =>
+            modelBuilder.Entity("N_Chat.Shared.UserModel", b =>
                 {
-                    b.HasOne("N_Chat.Shared.ChatModel", "Chat")
+                    b.HasOne("N_Chat.Shared.ChatModel", null)
                         .WithMany("Users")
-                        .HasForeignKey("ChatId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("N_Chat.Shared.UserModel", "User")
-                        .WithMany("Chats")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Chat");
-
-                    b.Navigation("User");
+                        .HasForeignKey("ChatModelId");
                 });
 
             modelBuilder.Entity("N_Chat.Shared.ChatModel", b =>

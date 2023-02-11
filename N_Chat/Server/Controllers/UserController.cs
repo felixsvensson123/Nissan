@@ -23,16 +23,16 @@ namespace N_Chat.Server.Controllers{
             this.signInManager = signInManager;
             this.context = context;
         }
-        //[Authorize (AuthenticationSchemes = ClaimsIdentity.DefaultNameClaimType)] // testing different auths for requests dont touch
-        [HttpGet("{userName}")]
+
+        [HttpGet("{userName}")] // Gets user with chat and message list // made to reduce redundancy
         public async Task<UserModel> GetUserWithIncludes (string userName) // rör ej funkar
         {
             var result = context.Users
-                .Include(c => c.Chats)
-                .Include(m => m.Messages);
-               
+                .Include(u => u.Chats)
+                .ThenInclude(uc => uc.Chat)
+                .ThenInclude(c => c.Messages);
+
             return await result.SingleOrDefaultAsync(x => x.UserName == userName);
-            
         }
         [Authorize(Roles = "Admin")]
         [HttpGet("chats")] 
@@ -40,28 +40,27 @@ namespace N_Chat.Server.Controllers{
         {
             List<ChatModel> dbChats = await context.Chats
                 .Include(u => u.Users)
-                .Include(t => t.Messages)
-                .Include(t => t.User).ToListAsync();
+                .ThenInclude(uc => uc.User)
+                .ThenInclude(u => u.Messages)
+                .ToListAsync();
             return dbChats;
         }
         
         [Authorize]
-        [HttpGet("getcurrent")] //get current user from claim
+        [HttpGet("getcurrent")] //get current user from claims
         public async Task<ActionResult> GetCurrentUser()
         {
-            var claimValue = User.FindFirst(ClaimTypes.Name)?.Value; //Finds user claim
+            var claimValue = User.FindFirst(ClaimTypes.Name)?.Value;
+            if (claimValue == null)
+                return NotFound("User Claim was not found" + claimValue);
 
-            UserModel? user = await context.Users //finds user that matches claim
-                .FirstOrDefaultAsync(u => u.UserName == claimValue);
+            UserModel? user = await context.Users
+                    .Include(u => u.Chats)
+                    .ThenInclude(uc => uc.Chat)
+                    .ThenInclude(c => c.Messages)
+                    .FirstOrDefaultAsync(u => u.UserName == claimValue);
             
-            UserModel dtoUser = new UserModel() //ska fixa med denna sen rör inget!!! //
-            {
-                Id = user.Id,
-                UserName = user.UserName,               //ska fixa med denna sen rör inget!!! //
-                Email = user.Email,
-                NormalizedUserName = user.NormalizedUserName            //ska fixa med denna sen rör inget!!! //
-            };
-            return Ok(user); //returns found user
+            return Ok(user);
         }
 
         [HttpPost("login")]
@@ -165,36 +164,50 @@ namespace N_Chat.Server.Controllers{
 
             return BadRequest(updateModel);
         }
-
         
-        [HttpPost("chatrequest/{id}")] // not finished
-        public async Task<IActionResult> RequestChat(string userName, int id)
+        [HttpPost("chatrequest/{id}")] // adds user to chat
+        public async Task<IActionResult> RequestChat(UserModel user, int id)
+        {
+            var userChat = new UserChat()
+            {
+                UserId = user.Id,
+                ChatId = id
+            };
+            
+            if (userChat.ChatId == 0)
+                return BadRequest("Error: " + userChat);
+            
+            await context.UserChats.AddAsync(userChat);
+            await context.SaveChangesAsync();
+            
+            return CreatedAtAction(nameof(GetUserWithIncludes), new { user.Id, id }, userChat);
+            
+        }
+        
+        [HttpPost("newmessage")] // posts user message into user table -> message list
+        public async Task<IActionResult> PostUserMessage(MessageModel messageModel)
         {
             await using (var db = context)
             {
-                var user = await GetUserWithIncludes(userName);
-                if (user != null)
+                var user = await GetUserWithIncludes(User.Identity.Name);
+                if (user.UserName != null)
                 {
-                    var chat = await db.Chats.FirstOrDefaultAsync(c => c.Id == id); //finds chat using id recieved
-                    if (chat != null)
+                    if (messageModel.Message != null)
                     {
-                        user.Chats.Add(chat);
+                        user.Messages.Add(messageModel);
                         return Ok(user);
                     }
 
-                    return BadRequest("Error: " + chat);
+                    return BadRequest("Error: " + messageModel);
+                    
                 }
+                
                 return BadRequest("Error:" + user);
                 
             }
         }
         
-        
-        
-        
-        
-        
-        
+
         /*
         [HttpPost("ListMessages")]
         public async Task<ActionResult<List<MessageModel>>> GetMessages(MessageModel messageModel)

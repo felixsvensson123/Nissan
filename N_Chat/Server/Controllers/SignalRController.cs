@@ -24,7 +24,7 @@ public class SignalRController : Hub
         {
             foreach (var item in user.Chats)
             {
-                await Groups.AddToGroupAsync(Context.ConnectionId, item.Name);
+                await Groups.AddToGroupAsync(Context.ConnectionId, item.Chat.Name);
             }
             Console.WriteLine($"{Context.ConnectionId} connected");
             await base.OnConnectedAsync();
@@ -37,6 +37,7 @@ public class SignalRController : Hub
         return base.OnDisconnectedAsync(e);
     }
 
+    /*
     public async Task AddToRoom(string chatName)
     {
         await using (var db = context)
@@ -71,7 +72,7 @@ public class SignalRController : Hub
                 Groups.RemoveFromGroupAsync(Context.ConnectionId, chatName);
             }
         }
-    }
+    }*/
     public async Task SendGroupMessage(string userName,string message, string chatName)
     {
         await Clients.Groups(chatName).SendAsync("SendGroupMessage",userName, message, chatName);
