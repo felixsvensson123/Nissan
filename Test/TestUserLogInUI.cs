@@ -3,7 +3,7 @@ using Microsoft.Playwright;
 namespace Test;
 
 //test expected behaviour of the UI displayed by login 
-public class TestLoginUI{
+public class TestUserLogInUI{
     
     
     [Test]
@@ -73,6 +73,7 @@ public class TestLoginUI{
         string urlAfterClick = "";
 
         try{
+
             await page.GotoAsync("https://localhost:7280/");
 
             await page.FillAsync("input[type=text]", "felix");
@@ -85,9 +86,7 @@ public class TestLoginUI{
             //submit
             await page.ClickAsync("button[type=submit]");
 
-            //get what url is displayed after submit is clicked.
-            urlAfterClick = page.Url;
-            /* Console.WriteLine("urlAfterClick = " + urlAfterClick); */
+           
         }
         catch (Exception e){
             Console.WriteLine("Exception caught!! Message: ");
@@ -97,8 +96,13 @@ public class TestLoginUI{
             Console.WriteLine("StackTrace: " + e.StackTrace);
         }
 
+        //get what url is displayed after submit is clicked.
+        urlAfterClick = page.Url;
+        /* Console.WriteLine("urlAfterClick = " + urlAfterClick); */
+
         // Validate the navigation stays the same
         Assert.That(urlAfterClick, Is.EqualTo("https://localhost:7280/"));
+
 
         //THE TEST ITSELF DOES NOT WORK YET
         //validate the page title (the HTML element title).
@@ -135,4 +139,6 @@ public class TestLoginUI{
         Console.WriteLine("localStorageValue = " + localStorageValue);
         Assert.That(localStorageValue, Is.EqualTo("true"));
     }
+        
+        
 }
