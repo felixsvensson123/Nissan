@@ -45,6 +45,9 @@ namespace Test
                 //submit registration
                 await Page.ClickAsync("button[type=submit]");
 
+                var userLocalStorage=(userName,password);
+                await Page.EvaluateAsync("() => window.localStorage.getItem(userLocalStorage)");
+
                 //navigate to startpage
                 await Page.GotoAsync("https://localhost:7280/startPage");
 
@@ -57,6 +60,7 @@ namespace Test
                     Assert.That(userName,Is.EqualTo("Patrik"));
                     Assert.That(password, Is.EqualTo("patrik123"));
                     Assert.That(urlAfterClick, Is.EqualTo("https://localhost:7280/startPage"));
+                    Assert.That(userLocalStorage,Is.True);
                 });
 
 
