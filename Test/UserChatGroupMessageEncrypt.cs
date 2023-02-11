@@ -51,7 +51,7 @@ namespace Test
                 await Page.Locator("input[id=singelChatMember2]").FillAsync(userName2);
 
                 //fill i i want the chat to be encrypted
-                await Page.IsCheckedAsync("#agree");
+                await Page.IsCheckedAsync("#input");
 
 
                 //click start groupchat
@@ -67,7 +67,7 @@ namespace Test
                 {
                     Assert.That(userName1, Is.EqualTo("Calin"));
                     Assert.That(userName2, Is.EqualTo("Felix")); ;
-                    Assert.That(Page.IsCheckedAsync("#agree"), Is.True);
+                    Assert.That(Page.IsCheckedAsync("#input"), Is.True);
                     Assert.That(urlAfterClick, Is.EqualTo("https://localhost:7280/New_chat?txt=calin&txt=felix&isEncrypted=on"));
                 });
 

@@ -1,13 +1,16 @@
-﻿
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
 using Microsoft.Playwright;
 
-
-namespace Test.UITests_Playwright
+namespace Test
 {
-    public class UserChatSingelMessageEncrypt
+    public class UserChatSingelMessageNotEncrypt
     {
         [Test]
-        public async Task TestSendingEncryptSingelChatMessage()
+        public async Task TestSendingSingelChatMessageNotEncrypted()
         {
 
             try
@@ -48,7 +51,7 @@ namespace Test.UITests_Playwright
                 //click start chat
                 await Page.ClickAsync("button[text=Start Chat]");
 
-                await Page.GotoAsync("https://localhost:7280/New_chat?txt=patrik&txt=Patte&isEncrypted=on");
+                await Page.GotoAsync("https://localhost:7280/New_chat?txt=patrik&txt=Patte");
 
 
 
@@ -57,9 +60,9 @@ namespace Test.UITests_Playwright
                 Assert.Multiple(() =>
                 {
                     Assert.That(userName, Is.EqualTo("Patrik"));
-                    Assert.That(chatName, Is.EqualTo("Patte")); 
-                    Assert.That(Page.IsCheckedAsync("#input"), Is.True);
-                    Assert.That(urlAfterClick, Is.EqualTo("https://localhost:7280/New_chat?txt=patrik&txt=Patte&isEncrypted=on"));
+                    Assert.That(chatName, Is.EqualTo("Patte"));
+                    Assert.That(Page.IsCheckedAsync("#input"), Is.False);
+                    Assert.That(urlAfterClick, Is.EqualTo("https://localhost:7280/New_chat?txt=patrik&txt=Patte"));
                 });
 
             }
@@ -84,6 +87,6 @@ namespace Test.UITests_Playwright
 
 
         }
-        
+
     }
 }
