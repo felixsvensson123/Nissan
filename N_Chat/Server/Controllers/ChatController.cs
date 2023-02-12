@@ -32,7 +32,6 @@ namespace N_Chat.Server.Controllers
                 .Include(u => u.Users)
                 .ThenInclude(uc => uc.User)
                 .ThenInclude(u => u.Messages)
-                .ThenInclude(m => m.Chat)
                 .ToListAsync();
             return dbChats;
         }

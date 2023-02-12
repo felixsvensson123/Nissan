@@ -25,7 +25,7 @@
 	<RowTemplate>
 		<MudTd><MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => ShowBtnPress(context.Name))">@((context.ShowDetails == true)? "Hide" : "Show") Chat Details</MudButton></MudTd>
 		<MudTd DataLabel="Id">@context.Id</MudTd>
-		<MudTd DataLabel="Name">@context.Name</MudTd>
+		<MudTd DataLabel="Name">@context.Name.ToUpperInvariant()</MudTd>
 	</RowTemplate>
 	<ChildRowContent>
 		@if (context.ShowDetails)
@@ -39,7 +39,7 @@
 	  </CardHeaderContent>
 	 </MudCardHeader>
 	 <MudCardContent Class="pa-0">
-	  <MudTable Items="@context.Users" Context="UserContext" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
+	  <MudTable Items="@FriendList" Context="UserContext" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
 	   <ColGroup>
 		<col />
 		<col />
@@ -50,9 +50,11 @@
 		<MudTh>Action</MudTh>
 	   </HeaderContent>
 	   <RowTemplate>
-		   <MudTd DataLabel="User">@UserContext.User.UserName</MudTd>
-		   <MudTd DataLabel="Join">
-			   <MudButton OnClick="@(() => RequestChat(UserContext))">Join</MudButton>
+		   <MudTd DataLabel="User">
+			   @UserContext.UserName
+		   </MudTd>
+		   <MudTd DataLabel="Invite">
+			   <MudButton OnClick="@(() => RequestChat(@UserContext))">Invite</MudButton>
 		   </MudTd>
 	   </RowTemplate>
 	  </MudTable>
@@ -64,33 +66,35 @@
 	</ChildRowContent>
 </MudTable>
 @code {
-    ChatModel Chat { get; set; } = new();
+    ChatModel ChosenChat { get; set; } = new();
     UserModel User { get; set; } = new();
-    UserModel UserToAdd { get; set; } = new();
-	List<ChatModel> ChatList = new();
-    private string _userName;
-    private string _userNameAdd;
+	ICollection<ChatModel> ChatList { get; set; } = new List<ChatModel>();
+	ICollection<UserModel> FriendList { get; set; } = new List<UserModel>(); // Kommer att göra till en vän lista senare.
+	bool _pageLoaded = false;
+	
     protected override async Task OnInitializedAsync()
     {
         var currentUser = await UserService.GetUserClaim();
 	    if (currentUser.user == null)
 		    throw new Exception("User was not found!");
-	    
+	    await Task.Delay(1);
         User = await UserService.GetUser(currentUser.user.UserName);
 	    ChatList = await ChatService.GetChats();
-	    
+	    FriendList = await UserService.GetAllUsers();
+	    FriendList.Remove(User);
+	    _pageLoaded = true;
+	    StateHasChanged();
     }
 
 	private async Task HandleSubmit(EditContext context)
 	{
-		var userToAdd = await UserService.GetUser(_userName);
-		
+
 		if (User == null)
 			throw new Exception("User was not found!");
 
-		Chat.ChatCreated = DateTime.Now;
-		Chat.CreatorId = User.Id;
-		Chat.Users = new List<UserChat>()
+		ChosenChat.ChatCreated = DateTime.Now;
+		ChosenChat.CreatorId = User.Id;
+		ChosenChat.Users = new List<UserChat>()
 		{
 			new()
 			{
@@ -98,26 +102,25 @@
 			},
 			new()
 			{
-				UserId = userToAdd.Id
+			
 			}
 		};
-		await ChatService.CreateChat(Chat);
+		await ChatService.CreateChat(ChosenChat);
 	}
 	private void ShowBtnPress(string chatName)
 	{
-		var tempUser = ChatList.First(f => f.Name == chatName);
-		if(tempUser == null)	
+		ChosenChat = ChatList.First(f => f.Name == chatName);
+		if(ChosenChat == null)	
 			throw new Exception("User was not found!");
 		
-		tempUser.ShowDetails = !tempUser.ShowDetails;
+		ChosenChat.ShowDetails = !ChosenChat.ShowDetails;
 		StateHasChanged();
 	}
-    private async Task RequestChat(UserChat userContext)
+    private async Task RequestChat(UserModel chosenUser)
     {
-	    if (userContext.User == null)
+	    if (chosenUser == null)
 		    throw new Exception("User not found");
 	    
-        var result = await UserService.AddUserToChat(userContext.User, userContext.Chat.Id);
-        Console.WriteLine(result);
+        await UserService.AddUserToChat(chosenUser, ChosenChat.Id);
     }
 }
