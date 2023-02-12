@@ -34,16 +34,15 @@ namespace N_Chat.Server.Controllers{
 
             return await result.SingleOrDefaultAsync(x => x.UserName == userName);
         }
-        [Authorize(Roles = "Admin")]
+        
         [HttpGet("chats")] 
-        public async Task<IEnumerable<ChatModel>> GetIncludedUserChats()
+        public async Task<ICollection<UserModel>> GetIncludedUserChats()
         {
-            List<ChatModel> dbChats = await context.Chats
-                .Include(u => u.Users)
-                .ThenInclude(uc => uc.User)
-                .ThenInclude(u => u.Messages)
+            ICollection<UserModel> dbUsers = await context.Users
+                .Include(u => u.Chats)
+                .Include(m => m.Messages)
                 .ToListAsync();
-            return dbChats;
+            return dbUsers;
         }
         
         [Authorize]
@@ -164,14 +163,19 @@ namespace N_Chat.Server.Controllers{
 
             return BadRequest(updateModel);
         }
-        
-        [HttpPost("chatrequest/{id}")] // adds user to chat
-        public async Task<IActionResult> RequestChat(UserModel user, int id)
+
+        [HttpGet("{userId}/getuserchat/{chatId}")]
+        public async Task GetUserChatById(string userId, string chatId)
+        {
+            
+        }
+        [HttpPost("chatrequest/{chatId}")] // adds user to chat
+        public async Task<IActionResult> RequestChat(UserModel user, int chatId)
         {
             var userChat = new UserChat()
             {
                 UserId = user.Id,
-                ChatId = id
+                ChatId = chatId
             };
             
             if (userChat.ChatId == 0)
@@ -180,7 +184,7 @@ namespace N_Chat.Server.Controllers{
             await context.UserChats.AddAsync(userChat);
             await context.SaveChangesAsync();
             
-            return CreatedAtAction(nameof(GetUserWithIncludes), new { user.Id, id }, userChat);
+            return CreatedAtAction(nameof(GetUserWithIncludes), new { user.Id, chatId }, userChat);
             
         }
         

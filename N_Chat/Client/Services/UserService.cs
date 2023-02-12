@@ -68,14 +68,14 @@ namespace N_Chat.Client.Services
             }
         }
 
-        public async Task<List<ChatModel>> GetUserChats(string userName)
+        public async Task<ICollection<UserModel>> GetAllUsers()
         {
-            return await httpClient.GetFromJsonAsync<List<ChatModel>>($"api/user/userchats/{userName}");
+            return await httpClient.GetFromJsonAsync<ICollection<UserModel>>($"api/user/chats/");
         }
         
-        public async Task<string> AddUserToChat(UserModel user, int id)
+        public async Task<string> AddUserToChat(UserModel user, int chatId)
         {
-            var result = await httpClient.PostAsJsonAsync($"api/user/chatrequest/{id}", user);
+            var result = await httpClient.PostAsJsonAsync($"api/user/chatrequest/{chatId}", user);
             if (result.IsSuccessStatusCode)
             {
                 return await result.Content.ReadAsStringAsync();
@@ -89,11 +89,11 @@ namespace N_Chat.Client.Services
     {
         Task<string> LoginUser(LoginModel loginModel); // Login User Method
         Task<string> SignUp(RegisterModel registerModel); // Signup User Method
-        Task<UserModel> GetUser(string userName);
         Task<string> Signout(); // Signout user
         Task<(string Message, UserModel? user)> GetUserClaim(); //Gets user via claims
-        Task<List<ChatModel>> GetUserChats(string userName);
-        Task<string> AddUserToChat(UserModel user, int id);
+        Task<UserModel> GetUser(string userName); // gets specific user
+        Task<ICollection<UserModel>> GetAllUsers(); //Gets All Users 
+        Task<string> AddUserToChat(UserModel user, int chatId);
     }
 }
  
