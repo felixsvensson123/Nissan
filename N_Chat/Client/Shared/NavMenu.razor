@@ -29,11 +29,38 @@
             <span class="Chat" aria-hidden="true">Chatt 2</span>
          </NavLink>
       </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="login">
-                <span class="Chat" aria-hidden="true">Chatt 3</span>
-            </NavLink>
-        </div>
+      //utkommenterat pga är redan bra authorization kontroll, loginfönster visas om användare in är inloggad redan.
+      @*$1$check if user is not logged in#1#
+        @if (User == null){
+             <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="/Login">
+                            <span class="Chat" aria-hidden="true">Log in</span>
+                        </NavLink>
+                    </div>
+        }*@
+
+      //display all the chats of the user
+      <div class="display-users-chat-conversations">
+         <h2>Chats </h2>
+         //for each chat, display the chat name and the participants
+         @foreach (var chat in Chats){
+            <div class="chat">
+               <div class="chat-name">
+                  <h3>@chat.Name</h3>
+               </div>
+               <div class="chat-participants">
+                  <h4>Participants:</h4>
+                  @* <p>@chat.UserId</p> FUNKAR EJ DÅ VI HAR JOINER TABLE NU *@
+                  @*<ul>
+               @foreach (var participant in chat.JoinerIds){
+                  <li>@participant.JoinerIds</li>
+               }
+            </ul>*@
+               </div>
+            </div>
+         }
+      </div>
+
    </nav>
 </div>
 

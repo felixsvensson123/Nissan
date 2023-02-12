@@ -39,6 +39,25 @@ label {
     cursor: pointer;
     transition: .5s ease-in-out;
 }
+label[for="isEncrypted"]
+{
+    font-size: small!important;
+    margin: 5px;
+}
+.New-Chat-FieldContainer
+{
+    display: flex;
+    justify-items: center;
+    align-items: center;
+    flex-basis: 40.2%;
+    margin: 0;
+    
+}
+.Chat-Form-Container{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
 #div-flex{
     display: flex;
 }
@@ -54,17 +73,23 @@ input {
     background: #e0dede;
     justify-content: center;
     display: flex;
-    margin: 20px auto;
+    margin: 10px auto;
     padding: 10px;
     border: none;
     outline: none;
     border-radius: 5px;
 }
-
+input[id="isEncrypted"]
+{
+    font-size: small!important;
+    margin: 5px;
+    width: auto;
+}
 .create {
     width: 60%;
     height: 40px;
     margin: 10px auto;
+/*    margin-left: 4rem;*/
     justify-content: center;
     display: block;
     color: #fff;
