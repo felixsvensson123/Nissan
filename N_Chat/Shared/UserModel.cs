@@ -10,8 +10,8 @@ using Microsoft.AspNetCore.Identity;
 namespace N_Chat.Shared
 {
     public class UserModel : IdentityUser
-    {
-       public string? Email { get; set; }
+    { 
+        public string? Email { get; set; }
        public virtual ICollection<MessageModel> Messages { get; set; } = new List<MessageModel>();
        public virtual ICollection<UserChat> Chats { get; set; } = new List<UserChat>();
     }

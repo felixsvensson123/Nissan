@@ -24,19 +24,33 @@ namespace N_Chat.Server.Controllers{
             this.context = context;
         }
 
+        [HttpGet("joinertable/{userName}")]
+        public async Task<IActionResult> GetUserAsJoinerTable(string userName)
+        {
+            var user = await userManager.FindByNameAsync(userName);
+            if (user == null)
+                return NotFound(user);
+
+            UserChat joinerTable = new()
+            {
+                UserId = user.Id
+            };
+            return Ok(joinerTable);
+        } 
         [HttpGet("{userName}")] // Gets user with chat and message list // made to reduce redundancy
         public async Task<UserModel> GetUserWithIncludes (string userName) // rör ej funkar
         {
             var result = context.Users
                 .Include(u => u.Chats)
                 .ThenInclude(uc => uc.Chat)
-                .ThenInclude(c => c.Messages);
+                .ThenInclude(c => c.Messages)
+                .AsSingleQuery();
 
             return await result.SingleOrDefaultAsync(x => x.UserName == userName);
         }
         
         [HttpGet("chats")] 
-        public async Task<ICollection<UserModel>> GetIncludedUserChats()
+        public async Task<ICollection<UserModel>> GetAllUsers()
         {
             ICollection<UserModel> dbUsers = await context.Users
                 .Include(u => u.Chats)
@@ -65,35 +79,36 @@ namespace N_Chat.Server.Controllers{
         [HttpPost("login")]
         public async Task<IActionResult> LoginUser(LoginModel user) // rör ej funkar
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await signInManager
+                .PasswordSignInAsync(user.Username, user.Password, true, false); // signs in user.
+
+            if (result.Succeeded)
             {
-                var result = await signInManager
-                    .PasswordSignInAsync(user.Username, user.Password, true, false); // signs in user.
-                if (result.Succeeded)
+                var currentUser =
+                    await signInManager.UserManager.FindByNameAsync(user.Username);
+                
+                var claims = new List<Claim> //sets up user claim
                 {
-                    UserModel currentUser =
-                        await signInManager.UserManager.FindByNameAsync(user.Username); // gets current user by username
-                    var claims = new List<Claim> //sets up user claim
-                    {
-                        new(ClaimTypes.Name,
-                            currentUser.UserName) 
-                    };
-                    
-                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    var authProperties = new AuthenticationProperties();
-                    
-                    await HttpContext.SignInAsync( //sets claims principals and signs in use to HttpContext.
-                        CookieAuthenticationDefaults.AuthenticationScheme,
-                        new ClaimsPrincipal(claimsIdentity),
-                        authProperties);
+                    new(ClaimTypes.Name,
+                        currentUser.UserName)
+                };
 
-                    return Ok(result);
-                }
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var authProperties = new AuthenticationProperties();
 
-                ModelState.AddModelError(string.Empty, "Invalid Login Attempt"); // Error Message if string is empty
+                await HttpContext.SignInAsync( //sets claims principals and signs in user 
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(claimsIdentity),
+                    authProperties);
+
+                return Ok(result);
             }
             
-            return BadRequest(user);
+            ModelState.AddModelError(string.Empty, "Invalid Login Attempt"); // Error Message if string is empty
+            return BadRequest(ModelState);
             
         }
 
@@ -167,7 +182,6 @@ namespace N_Chat.Server.Controllers{
         [HttpGet("{userId}/getuserchat/{chatId}")]
         public async Task GetUserChatById(string userId, string chatId)
         {
-            
         }
         [HttpPost("chatrequest/{chatId}")] // adds user to chat
         public async Task<IActionResult> RequestChat(UserModel user, int chatId)
@@ -184,7 +198,7 @@ namespace N_Chat.Server.Controllers{
             await context.UserChats.AddAsync(userChat);
             await context.SaveChangesAsync();
             
-            return CreatedAtAction(nameof(GetUserWithIncludes), new { user.Id, chatId }, userChat);
+            return CreatedAtAction(nameof(GetUserWithIncludes), new { user.UserName, chatId }, userChat);
             
         }
         

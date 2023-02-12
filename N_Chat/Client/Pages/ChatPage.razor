@@ -1,70 +1,65 @@
-@inject IChatService ChatService
-@inject IUserService UserService
-@page "/ChatPAge/"
+@page "/chatpage"
 
-
-<h3>ChatPage</h3>
-@*<EditForm Model="@Chat" OnSubmit="HandleSubmit">
-    <MudTextField @bind-Value="@Chat.Name" placeholder="Chat name"></MudTextField>
-    <MudTextField @bind-Value="@_userName" placeholder="UserToAdd"></MudTextField>
-    <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary" Variant="Variant.Outlined">Submit</MudButton>
-</EditForm>*@
-<p>@User.UserName is logged in</p>
-<MudTable Items="@ChatList" Hover="true" Breakpoint="Breakpoint.Sm">
-	<ColGroup>
-		<col style="width:300px;" />
-		<col style="width:100px;" />
-		<col />
-		<col style="width:100px;" />
-	</ColGroup>
-	<HeaderContent>
-		<MudTh></MudTh>
-		<MudTh>Id</MudTh>
-		<MudTh>Name</MudTh>
-	</HeaderContent>
-	<RowTemplate>
-		<MudTd><MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => ShowBtnPress(context.Name))">@((context.ShowDetails == true)? "Hide" : "Show") Chat Details</MudButton></MudTd>
-		<MudTd DataLabel="Id">@context.Id</MudTd>
-		<MudTd DataLabel="Name">@context.Name.ToUpperInvariant()</MudTd>
-	</RowTemplate>
-	<ChildRowContent>
-		@if (context.ShowDetails)
-				{
-  <MudTr>
-   <td colspan="4">
-	<MudCard Elevation="0">
-	 <MudCardHeader>
-	  <CardHeaderContent>
-	   <MudText Typo="Typo.body1">Chat Details For: <strong>@context.Name.ToUpperInvariant()</strong></MudText>
-	  </CardHeaderContent>
-	 </MudCardHeader>
-	 <MudCardContent Class="pa-0">
-	  <MudTable Items="@FriendList" Context="UserContext" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
-	   <ColGroup>
-		<col />
-		<col />
-		<col style="width:200px;" />
-	   </ColGroup>
-	   <HeaderContent>
-		<MudTh>Users</MudTh>
-		<MudTh>Action</MudTh>
-	   </HeaderContent>
-	   <RowTemplate>
-		   <MudTd DataLabel="User">
-			   @UserContext.UserName
-		   </MudTd>
-		   <MudTd DataLabel="Invite">
-			   <MudButton OnClick="@(() => RequestChat(@UserContext))">Invite</MudButton>
-		   </MudTd>
-	   </RowTemplate>
-	  </MudTable>
-	 </MudCardContent>
-	</MudCard>
-   </td>
-  </MudTr>
-		}
-	</ChildRowContent>
-</MudTable>
+@if (_pageLoaded)
+{
+	<p>@User.UserName is logged in</p>
+	<MudTable Items="@ChatList" Hover="true" Breakpoint="Breakpoint.Sm">
+		<ColGroup>
+			<col style="width:300px;" />
+			<col style="width:100px;" />
+			<col />
+			<col style="width:100px;" />
+		</ColGroup>
+		<HeaderContent>
+			<MudTh></MudTh>
+			<MudTh>Id</MudTh>
+			<MudTh>Name</MudTh>
+		</HeaderContent>
+		<RowTemplate>
+			<MudTd><MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => ShowBtnPress(context.Name))">@((context.ShowDetails == true)? "Hide" : "Show") Chat Details</MudButton></MudTd>
+			<MudTd DataLabel="Id">@context.Id</MudTd>
+			<MudTd DataLabel="Name">@context.Name.ToUpperInvariant()</MudTd>
+		</RowTemplate>
+		<ChildRowContent>
+			@if (context.ShowDetails)
+			{
+				<MudTr>
+					<td colspan="4">
+						<MudCard Elevation="0">
+							<MudCardHeader>
+								<CardHeaderContent>
+									<MudText Typo="Typo.body1">Chat Details For: <strong>@context.Name.ToUpperInvariant()</strong></MudText>
+								</CardHeaderContent>
+							</MudCardHeader>
+							<MudCardContent Class="pa-0">
+								<MudTable Items="@FriendList" Context="UserContext" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
+									<ColGroup>
+										<col />
+										<col />
+										<col style="width:200px;" />
+									</ColGroup>
+									<HeaderContent>
+										<MudTh>Users</MudTh>
+										<MudTh>Action</MudTh>
+									</HeaderContent>
+									<RowTemplate>
+										<MudTd DataLabel="User">
+											@UserContext.UserName
+										</MudTd>
+										<MudTd DataLabel="Invite">
+											<MudButton OnClick="@(() => RequestChat(@UserContext))">Invite</MudButton>
+										</MudTd>
+									</RowTemplate>
+								</MudTable>
+							</MudCardContent>
+						</MudCard>
+					</td>
+				</MudTr>
+			}
+		</ChildRowContent>
+	</MudTable>
+		
+}
 @code {
     ChatModel ChosenChat { get; set; } = new();
     UserModel User { get; set; } = new();
@@ -77,11 +72,14 @@
         var currentUser = await UserService.GetUserClaim();
 	    if (currentUser.user == null)
 		    throw new Exception("User was not found!");
-	    await Task.Delay(1);
+	    
         User = await UserService.GetUser(currentUser.user.UserName);
+	    await Task.Delay(1);
 	    ChatList = await ChatService.GetChats();
+	    await Task.Delay(1);
 	    FriendList = await UserService.GetAllUsers();
-	    FriendList.Remove(User);
+	    await Task.Delay(1);
+	    
 	    _pageLoaded = true;
 	    StateHasChanged();
     }
@@ -100,10 +98,6 @@
 			{
 				UserId = User.Id
 			},
-			new()
-			{
-			
-			}
 		};
 		await ChatService.CreateChat(ChosenChat);
 	}
