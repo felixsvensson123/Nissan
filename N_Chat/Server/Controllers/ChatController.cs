@@ -66,29 +66,31 @@ namespace N_Chat.Server.Controllers
         {
             if (!ModelState.IsValid)
             { return BadRequest(ModelState); }
+
+            var checkIfExists = await context.Chats.FirstOrDefaultAsync(c => c.Name.ToUpper() == chat.Name.ToUpper());
+            if (checkIfExists != null)
+                return Conflict(new {message = $"An existing record with the name '{chat.Name}' already exists"});
             
             ChatModel chatToBeCreated = new()
             {
                 Name = chat.Name,
                 CreatorId = chat.CreatorId,
-                IsChatEdited = chat.IsChatEdited,
-                IsChatEnded = chat.IsChatEnded,
                 IsChatEncrypted = chat.IsChatEncrypted,
-                ChatCreated = chat.ChatCreated,
-                ChatEnded = chat.ChatEnded,
+                ChatCreated = DateTime.Now,
                 Users = chat.Users,
                 Messages = new List<MessageModel>()
                 {
                     new()
                     {
                         Message = "",
-                        MessageCreated = chat.ChatCreated
+                        MessageCreated = chat.ChatCreated,
+                        ChatId = chat.Id,
+                        UserId = chat.CreatorId
                     }
                 },
             };
             await context.Chats.AddAsync(chatToBeCreated);
             await context.SaveChangesAsync();
-            
             return Ok();
         }
 

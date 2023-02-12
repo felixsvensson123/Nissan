@@ -13,46 +13,27 @@ namespace N_Chat.Server.Data
         {
         }
 
-        public DbSet<TestModel> Test { get; set; }
         public DbSet<ChatModel> Chats { get; set; }
         public DbSet<MessageModel> Messages { get; set; }
         public DbSet<Connections> Connections { get; set; }
         public DbSet<UserChat> UserChats { get; set; }
-        
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-                    
-            /*modelBuilder.Entity<UserModel>(entity =>
-            {
-                entity.HasMany(u => u.Chats)
-                    .WithOne(uc => uc.User)
-                    .HasForeignKey(uc => uc.UserId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasMany(u => u.Messages)
-                    .WithOne(m => m.User)
-                    .HasForeignKey(m => m.UserId)
-                    .OnDelete(DeleteBehavior.Cascade);
-            });*/
-
-            modelBuilder.Entity<ChatModel>(entity =>
-            {
-                /*
-                entity.HasMany(c => c.Users)
-                    .WithOne(uc => uc.Chat)
-                    .HasForeignKey(uc => uc.ChatId)
-                    .OnDelete(DeleteBehavior.Cascade);
-                    */
-
-                entity.HasMany(c => c.Messages)
-                    .WithOne(m => m.Chat)
-                    .HasForeignKey(m => m.ChatId)
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
-
+            modelBuilder.Entity<ChatModel>()
+                .HasMany(c => c.Messages)
+                .WithOne(m => m.Chat)
+                .HasForeignKey(m => m.ChatId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            modelBuilder.Entity<MessageModel>()
+                .HasOne(m => m.User)
+                .WithMany(u => u.Messages)
+                .HasForeignKey(m => m.UserId);
+            
             modelBuilder.Entity<UserChat>(entity =>
             {
-                entity.HasKey(uc => new { uc.UserId, uc.ChatId });
+                entity.HasKey(uc => new {uc.UserId, uc.ChatId});
 
                 entity.HasOne(uc => uc.User)
                     .WithMany(u => u.Chats)
