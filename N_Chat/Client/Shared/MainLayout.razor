@@ -3,7 +3,6 @@
 @inject IUserService Userservice
 @inject NavigationManager NavManager
 
-
 <MudThemeProvider/>
 <MudDialogProvider/>
 <MudSnackbarProvider/>
@@ -40,11 +39,10 @@
 @code{
     bool errorCheck = false;
     string error;
-
     public string? userName{ get; set; }
     public string? newUserName { get; set; }
 
-    public async void search()
+    public async List<UserModel> search()
     {
         //var newUser = await UserService.GetUserByName(userName);
         if(userName == null)
@@ -54,7 +52,4 @@
         }
         NavManager.NavigateTo($"/profile/{newUserName}");
     }
-
-    
-
 }
