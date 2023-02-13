@@ -11,7 +11,8 @@
    <div class="login">
       <EditForm Model="LoginModel" OnValidSubmit="LoginUser">
          <label for="chk" aria-hidden="true">Login</label>
-         <input @bind-value="LoginModel.Username" type="Username" placeholder="Username" required="">
+         @* <input type="text"> defines a single-line text input field: *@
+         <input @bind-value="LoginModel.Username" type="text" id="username" placeholder="Username" required="">
          <input @bind-value="LoginModel.Password" type="password" placeholder="Password" required="">
          <div class="rememberlogin">
             <input type="checkbox" id="RememberMe"/>
