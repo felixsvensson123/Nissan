@@ -38,18 +38,16 @@
 </div>
 @code{
     bool errorCheck = false;
-    string error;
+    string? error;
     public string? userName{ get; set; }
-    public string? newUserName { get; set; }
 
-    public async List<UserModel> search()
+    public void search()
     {
-        //var newUser = await UserService.GetUserByName(userName);
         if(userName == null)
         {
             error = "User is not Found";
             errorCheck = true;
         }
-        NavManager.NavigateTo($"/profile/{newUserName}");
+        NavManager.NavigateTo($"/profile/{userName}");
     }
 }
