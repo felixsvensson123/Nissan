@@ -23,16 +23,9 @@ namespace N_Chat.Server.Controllers{
             this.signInManager = signInManager;
             this.context = context;
         }
-
-        [HttpGet("joinertable/{userName}")]
-        public async Task<IActionResult> GetUserAsJoinerTable(string userName)
-        {
-            var user = await userManager.FindByNameAsync(userName);
-            if (user == null)
-                return NotFound(user);
-
         [Authorize(Roles = "Admin")]
         [HttpGet("getallusers")]
+
         public async Task<ICollection<UserModel>> getAllUsers()
         {
             ICollection<UserModel> users = await context.Users
@@ -45,13 +38,8 @@ namespace N_Chat.Server.Controllers{
         public async Task<ActionResult> GetUserByName(string userName)
         {
             UserModel foundUser = await context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
-            if (foundUser != null)
-            UserChat joinerTable = new()
-            {
-                UserId = user.Id
-            };
-            return Ok(joinerTable);
-        } 
+            return Ok(foundUser);
+        }
         [HttpGet("{userName}")] // Gets user with chat and message list // made to reduce redundancy
         public async Task<UserModel> GetUserWithIncludes (string userName) // rör ej funkar
         {
@@ -229,49 +217,5 @@ namespace N_Chat.Server.Controllers{
                 
             }
         }
-        
-
-        /*
-        [HttpPost("ListMessages")]
-        public async Task<ActionResult<List<MessageModel>>> GetMessages(MessageModel messageModel)
-        {
-            var CurrentUser = await userManager.FindByIdAsync(messageModel.UserId);
-            List<MessageModel> messages = new();
-            using (var db = context){
-                messages = await db.Messages.Where(m => m.UserId == messageModel.UserId).ToListAsync();
-                
-                foreach (var message in messages)
-                {
-                    CurrentUser.Messages.Add(message);
-                }
-
-                db.SaveChanges();
-            }
-
-            return Ok();
-        }
-
-        [HttpPost("ChatList")]
-        public async Task<ActionResult<List<ChatModel>>> AddChatsToUser(string userId)
-        {
-            var CurrentUser = await userManager.FindByIdAsync(userId);
-
-            List<ChatModel> chats = new();
-
-            await using (var db = context)
-            {
-                chats = await db.Chats.Where(c => c.UserName == userId).ToListAsync();
-
-                foreach (var chat in chats)
-                {
-                    CurrentUser.Chats.Add(chat);
-                }
-
-                await db.SaveChangesAsync();
-            }
-
-            return Ok();
-        }
-        */
     }
 }
