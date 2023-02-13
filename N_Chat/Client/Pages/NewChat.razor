@@ -11,7 +11,7 @@
                 <input @bind-value="@UserToAdd.UserName" type="text" id="singleChatMember" name="txt" placeholder="Username" required="">
                 <input @bind-value="@Chat.Name"type="text" name="txt" placeholder="Chatname" required="">
                 <div class="New-Chat-FieldContainer">
-                    <p style="margin: 1px!important;" >Encryption</p>
+                    <p style="margin: 1px!important; color: white;" >Encryption</p>
                     <input type="radio" id="isEncrypted" name="Encryption" value="True" @onchange="@(() => UpdateBool("true"))">
                     <label for="isEncrypted">On</label>
                     <input type="radio" id="isEncrypted" name="Encryption" value="True" @onchange="@(() => UpdateBool("false"))">
