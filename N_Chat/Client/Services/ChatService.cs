@@ -14,25 +14,25 @@ namespace N_Chat.Client.Services
 
         public async Task<List<ChatModel>> GetChats()
         {
-            var result = await _httpClient.GetFromJsonAsync<List<ChatModel>>("api/chat/getall");
+            var result = await _httpClient.GetFromJsonAsync<List<ChatModel>>($"api/chat/getall");
             return result;
         }
 
         public async Task<ChatModel> GetChatById(int id)
         {
-            var result = await _httpClient.GetFromJsonAsync<ChatModel>("api/chat/getbyid/{id}");
+            var result = await _httpClient.GetFromJsonAsync<ChatModel>($"api/chat/getbyid/{id}");
             return result;
         }
 
         public async Task<string> UpdateChat(ChatModel chat, int id)
         {
-            var result = await _httpClient.PutAsJsonAsync<ChatModel>("api/chat/updatechat/{id}", chat);
+            var result = await _httpClient.PutAsJsonAsync<ChatModel>($"api/chat/updatechat/{id}", chat);
             return await result.Content.ReadAsStringAsync();
         }
 
         public async Task<string> CreateChat(ChatModel chat)
         {
-            var result = await _httpClient.PostAsJsonAsync<ChatModel>("api/chat/createchat", chat);
+            var result = await _httpClient.PostAsJsonAsync<ChatModel>($"api/chat/createchat", chat);
             return await result.Content?.ReadAsStringAsync();
         }
     }

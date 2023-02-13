@@ -59,8 +59,8 @@ namespace Test
                 string urlAfterClick = Page.Url;
                 Assert.Multiple(() =>
                 {
-                    Assert.That(userName, Is.EqualTo("Patrik"));
-                    Assert.That(chatName, Is.EqualTo("Patte"));
+                    Assert.That(userName, Is.EqualTo("Felix"));
+                    Assert.That(chatName, Is.EqualTo("Pattes Chat"));
                     Assert.That(Page.IsCheckedAsync("#input"), Is.False);
                     Assert.That(urlAfterClick, Is.EqualTo("https://localhost:7280/New_chat?txt=patrik&txt=Patte"));
                 });
