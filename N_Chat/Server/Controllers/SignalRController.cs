@@ -18,7 +18,7 @@ public class SignalRController : Hub
     public override async Task OnConnectedAsync()
     {
         //Get users
-        var user = await context.Users.Include(u => u.Chats).FirstOrDefaultAsync(x => x.UserName == Context.User.Identity.Name);
+        var user = await context.Users.Include(u => u.Chats).ThenInclude(c => c.Chat).FirstOrDefaultAsync(x => x.UserName == Context.User.Identity.Name);
         //Add user to each assigned group
         if (user != null)
         {
@@ -37,31 +37,39 @@ public class SignalRController : Hub
         return base.OnDisconnectedAsync(e);
     }
 
-    /*
+    
     public async Task AddToRoom(string chatName)
     {
         await using (var db = context)
         {
             //Find chat in db
-            var chat = db.Chats.Find(chatName);
+            var chat = db.Chats.FirstOrDefaultAsync(x=> x.Name == chatName);
             if (chat != null)
             {
-                var user = new UserModel() {UserName = Context.User.Identity.Name};
-                db.Users.Attach(user);
-                
-                chat.Users.Add(user);
+                var user = await context.Users.FirstOrDefaultAsync(x=> x.UserName == Context.User.Identity.Name);
+                UserChat userJoiner = new()
+                {
+                    UserId = user.Id,
+                    ChatId = chat.Id
+                    
+                };
+                db.UserChats.Add(userJoiner);
                 db.SaveChanges();
                 await Groups.AddToGroupAsync(Context.ConnectionId, chatName);
             }
         }
     }
-    public async Task RemoveFromRoom(string chatName)
+    public async Task SendGroupMessage(string userName,string message, string chatName)
+    {
+        await Clients.Groups(chatName).SendAsync("SendGroupMessage",userName, message, chatName);
+    }
+    /*public async Task RemoveFromRoom(string chatName)
     {
         using (var db = context)
         {
             // Retrieve room.
-            var chat = db.Chats.Find(chatName);
-            if (chat != null)
+            var chat = db.Chats.FirstOrDefaultAsync(x=> x.Name == chatName);
+            if (chat  != null)
             {
                 var user = new UserModel() { UserName = Context.User.Identity.Name };
                 db.Users.Attach(user);
@@ -73,10 +81,7 @@ public class SignalRController : Hub
             }
         }
     }*/
-    public async Task SendGroupMessage(string userName,string message, string chatName)
-    {
-        await Clients.Groups(chatName).SendAsync("SendGroupMessage",userName, message, chatName);
-    }
+
      
 
     /*

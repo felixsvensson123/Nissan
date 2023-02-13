@@ -63,7 +63,7 @@ else
         <input @bind="_message" class="messageinput" type="text" name="txt" placeholder="Write something..." wrap="hard" rows="5" cols="30" required="">
         <button class="oi oi-pencil" aria-hidden="true" id="Pencil"></button>
         <button class="oi oi-trash" aria-hidden="true" id="Trash"></button>
-        <button @onclick="@(() => SendAsync(User.UserName, _message, _chatName))" class="oi oi-location" aria-hidden="true" id="Send"></button>
+        <button @onclick="@(() => SendAsync(User.UserName, _message, SelectedChat.Chat.Name))" class="oi oi-location" aria-hidden="true" id="Send"></button>
     </div>
     </body>
 }
@@ -91,10 +91,6 @@ else
         if (currentUser.Message == "Success")
         {
             User = await UserService.GetUser(currentUser.user.UserName);
-            foreach (var item in User.Chats)
-            {
-                Console.WriteLine(item.Chat.Name);
-            }
             if (User != null)
             {
                 _pageLoaded = true;
@@ -105,9 +101,8 @@ else
 
     private async Task Chat(string chatName)
     {
-       // SelectedChat = ChatService.GetChatById();
+        SelectedChat = User.Chats.FirstOrDefault(c => c.Chat.Name == chatName);
         _userName = User.UserName;
-        _chatName = chatName; // Sets chatname after chosen item in list
         _isChatting = true; // Start chatting and force refresh UI.
         await Task.Delay(1);
 
@@ -115,29 +110,18 @@ else
             .WithUrl(NavigationManager.ToAbsoluteUri("/conversations"))
             .Build();
 
-        _hubConnection.On<string, string, string>("SendGroupMessage", BroadcastMessage);
+        _hubConnection.On<string, string, string>("SendGroupMessage", SendAsync);
 
 
         await _hubConnection.StartAsync();
 
         await SendAsync( _userName, "Has joined the chat" ,chatName);
+        await InvokeAsync(StateHasChanged); // update ui
     }
 
     private async Task BroadcastMessage(string userName, string message, string chatName)
     {
-    //Adds message to list for display in html
-        var currentUser = User;
-        if (currentUser != null)
-        {
-            SelectedChat.Chat.Messages.Add(new MessageModel()
-            {
-                Message = message,
-                MessageCreated = DateTime.Now,
-                UserId = currentUser.Id,
-                User = currentUser,
-                ChatId = SelectedChat.ChatId,
-            });
-        }
+    //lägg till en lista som hämtar alla meddelanden från databasen och decryptar dom sedan displayar
         await InvokeAsync(StateHasChanged); // update ui
     }
 
@@ -152,11 +136,21 @@ else
                 Message = message,
                 MessageCreated = DateTime.Now,
                 UserId = User.Id,
-                User = User,
                 ChatId = SelectedChat.ChatId,
+                IsMessageEncrypted = SelectedChat.Chat.IsChatEncrypted
             };
-            await MessageService.PostMessage(messageModel);
-            message = string.Empty;
+            if (SelectedChat.Chat.IsChatEncrypted)
+            {
+                //await MessageService.PostEncryptedMessage(messageModel)
+                message = string.Empty;
+                await InvokeAsync(StateHasChanged);
+            }
+            else
+            {
+                await MessageService.PostMessage(messageModel);
+                message = string.Empty;
+                await InvokeAsync(StateHasChanged);
+            }
             await InvokeAsync(StateHasChanged);
         }
     }
