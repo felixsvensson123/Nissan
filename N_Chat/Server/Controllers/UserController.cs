@@ -24,8 +24,7 @@ namespace N_Chat.Server.Controllers{
             this.context = context;
         }
         [Authorize(Roles = "Admin")]
-        [HttpGet("getallusers")]
-
+        [HttpGet("chats")]
         public async Task<ICollection<UserModel>> getAllUsers()
         {
             ICollection<UserModel> users = await context.Users
