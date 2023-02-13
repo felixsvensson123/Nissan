@@ -19,18 +19,14 @@ namespace N_Chat.Shared
         public bool IsChatEdited { get; set; }
         public bool? IsChatEnded { get; set; }
         public bool IsChatEncrypted { get; set; }
+        public bool ShowDetails { get; set; }
         public DateTime ChatCreated { get; set; }
         public DateTime? ChatEnded { get; set; }
 
         //Lista av meddelanden i chatt
-        public List<MessageModel>? Messages { get; set; }
+        public virtual ICollection<MessageModel> Messages { get; set; } = new List<MessageModel>();
         //Lista av användare i chatt
-        public virtual List<UserModel>? Users { get; set; }
-
-        //Relationer-One to Many
-        [ForeignKey(nameof(User))]
-        public string? UserId { get; set; }
-        public UserModel? User { get; set; }
+        public virtual ICollection<UserChat> Users { get; set; } = new List<UserChat>();
 
     }
 }

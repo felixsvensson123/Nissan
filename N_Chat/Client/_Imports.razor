@@ -20,3 +20,11 @@
 @using Microsoft.AspNetCore.Authentication.Cookies
 @using Microsoft.AspNetCore.Http;
 @using System.Security.Claims
+
+
+@inject IUserService UserService;
+@inject IChatService ChatService;
+@inject NavigationManager NavigationManager;
+@inject IMessageService MessageService;
+@inject ILocalStorageService LocalStorageService;
+@inject AuthenticationStateProvider AuthStateProvider;

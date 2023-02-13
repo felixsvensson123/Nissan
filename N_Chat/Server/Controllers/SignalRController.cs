@@ -15,17 +15,20 @@ public class SignalRController : Hub
     {
         this.context = context;
     }
-    public override Task OnConnectedAsync()
+    public override async Task OnConnectedAsync()
     {
         //Get users
-        var user = context.Users.Include(u => u.Chats).SingleOrDefault(x => x.UserName == Context.User.Identity.Name);
+        var user = await context.Users.Include(u => u.Chats).FirstOrDefaultAsync(x => x.UserName == Context.User.Identity.Name);
         //Add user to each assigned group
-        foreach (var item in user.Chats)
+        if (user != null)
         {
-            Groups.AddToGroupAsync(Context.ConnectionId, item.Name);
+            foreach (var item in user.Chats)
+            {
+                await Groups.AddToGroupAsync(Context.ConnectionId, item.Chat.Name);
+            }
+            Console.WriteLine($"{Context.ConnectionId} connected");
+            await base.OnConnectedAsync();
         }
-        Console.WriteLine($"{Context.ConnectionId} connected");
-        return base.OnConnectedAsync();
     }
 
     public override Task OnDisconnectedAsync(Exception e)
@@ -34,6 +37,7 @@ public class SignalRController : Hub
         return base.OnDisconnectedAsync(e);
     }
 
+    /*
     public async Task AddToRoom(string chatName)
     {
         await using (var db = context)
@@ -68,10 +72,10 @@ public class SignalRController : Hub
                 Groups.RemoveFromGroupAsync(Context.ConnectionId, chatName);
             }
         }
-    }
-    public async Task SendGroupMessage(string user,string message, string chatName)
+    }*/
+    public async Task SendGroupMessage(string userName,string message, string chatName)
     {
-        await Clients.Groups(chatName).SendAsync("SendGroupMessage",user, message, chatName);
+        await Clients.Groups(chatName).SendAsync("SendGroupMessage",userName, message, chatName);
     }
      
 
