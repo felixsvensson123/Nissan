@@ -14,14 +14,10 @@ public class KeyVaultService : IKeyVaultService
         this.keyClient = keyClient;
         this.cryptoClient = cryptoClient;
         this.vaultKey = vaultKey;
-        /*keyClient = new KeyClient(new Uri(keyVaultUrl), new DefaultAzureCredential());
-        vaultKey = keyClient.GetKey("[MessageKey]");
-        cryptoClient = new CryptographyClient(vaultKey.Id, new DefaultAzureCredential());*/
     }
     public async Task<string> EncryptStringAsync(string input)
     {
-        KeyVaultKey key = keyClient.GetKey("[MessageKey]");
-        CryptographyClient cryptoClient = new CryptographyClient(key.Id, new DefaultAzureCredential());
+        await keyClient.GetKeyAsync("MessageKey");
         byte[] inputAsByteArray = Encoding.UTF8.GetBytes(input);
 
         EncryptResult encryptResult =  await cryptoClient.EncryptAsync(EncryptionAlgorithm.RsaOaep, inputAsByteArray);
@@ -30,9 +26,8 @@ public class KeyVaultService : IKeyVaultService
     }
     public async Task<string> DecryptStringAsync(string input)
     {
-        KeyVaultKey key = keyClient.GetKey("[MessageKey]");
-        CryptographyClient cryptoClient = new CryptographyClient(key.Id, new DefaultAzureCredential());
-        
+        KeyVaultKey key = await keyClient.GetKeyAsync("MessageKey");
+
         byte[] inputAsByteArray = Convert.FromBase64String(input);
 
         DecryptResult decryptResult = await cryptoClient.DecryptAsync(EncryptionAlgorithm.RsaOaep, inputAsByteArray);

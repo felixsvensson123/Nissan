@@ -3,6 +3,7 @@ global using N_Chat.Server.Data;
 global using N_Chat.Shared;
 global using Azure.Identity;
 global using Azure.Security.KeyVault.Keys;
+global using N_Chat.Client.Services;
 global using Azure.Security.KeyVault;
 using Azure.Security.KeyVault.Keys.Cryptography;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -19,12 +20,13 @@ using N_Chat.Server.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
 var credential = new DefaultAzureCredential();
 KeyClient keyClient = new KeyClient(new Uri("https://enchatvault.vault.azure.net/"), credential);
 KeyVaultKey vaultKey = keyClient.GetKey("MessageKey");
 CryptographyClient cryptoClient = new CryptographyClient(vaultKey.Id, credential);
 
+// Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 

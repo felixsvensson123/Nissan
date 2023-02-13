@@ -18,8 +18,9 @@ public class SignalRController : Hub
     public override async Task OnConnectedAsync()
     {
         //Get users
-        var user = await context.Users.Include(u => u.Chats).ThenInclude(c => c.Chat).FirstOrDefaultAsync(x => x.UserName == Context.User.Identity.Name);
-        //Add user to each assigned group
+        var user = await userController.GetUserWithIncludes(Context.User.Identity.Name);
+      //      await context.Users.Include(u => u.Chats).ThenInclude(c => c.Chat).FirstOrDefaultAsync(x => x.UserName == Context.User.Identity.Name);
+//Add user to each assigned group
         if (user != null)
         {
             foreach (var item in user.Chats)
