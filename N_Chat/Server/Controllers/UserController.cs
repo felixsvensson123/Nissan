@@ -32,7 +32,6 @@ namespace N_Chat.Server.Controllers{
                 .Include(t => t.Messages).ToListAsync();
             return users;
         }
-
         [HttpGet("getbyname/{userName}")]
         public async Task<ActionResult> GetUserByName(string userName)
         {
