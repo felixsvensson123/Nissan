@@ -4,20 +4,10 @@
 
 .top-row {
     height: 3.5rem;
-    background-color: rgb(211, 178, 232);
+    background: rgb(58, 6, 71);
     border-bottom: solid;
     border-color: black;
-}
-
-.Searchbar {
-    width: 100%;
-    height: 20px;
-    background: #e0dede;
-    border: none;
-    outline: none;
-    border-radius: 5px;
-    margin-bottom: 15px;
-    padding: 0.5rem 1rem;
+    width: 15.6rem;
 }
 
 .navbar-brand {
@@ -25,7 +15,7 @@
 }
 
 .Chat{
-    color: black;
+    color: white;
 }
 
 .oi {
@@ -35,7 +25,7 @@
     vertical-align: text-top;
     top: -2px;
     font-weight: bold;
-    color: black;
+    color: white;
     text-align: center;
 }
 
@@ -60,16 +50,16 @@
         display: flex;
         align-items: center;
         line-height: 3rem;
-        background: rgb(182,140,205);
+        background: #424549;
     }
 
 .nav-item ::deep a.active {
-    background: rgb(182,140,205);
+    background: #808080;
     color: white;
 }
 
 .nav-item ::deep a:hover {
-    background-color: rgba(255,255,255,0.1);
+    background-color: #1e2124;
     color: white;
 }
 

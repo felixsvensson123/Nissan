@@ -32,8 +32,12 @@ namespace N_Chat.Client.Services
 
         public async Task<string> CreateChat(ChatModel chat)
         {
-            var result = await _httpClient.PostAsJsonAsync<ChatModel>("api/chat/createchat", chat);
-            return await result.Content?.ReadAsStringAsync();
+            var result = await _httpClient.PostAsJsonAsync("api/chat/createchat", chat);
+            
+            if (result.IsSuccessStatusCode)
+                return await result.Content?.ReadAsStringAsync();
+
+            return "Failure";
         }
     }
 

@@ -9,7 +9,8 @@ main {
 }
 
 .content {
-    height: 92vh;
+    height: 100%;
+    background: rgb(220, 206, 229);
 }
 
 .sidebar {
