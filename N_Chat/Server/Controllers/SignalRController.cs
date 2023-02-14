@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using Microsoft.AspNetCore.SignalR;
+using MongoDB.Driver.Linq;
 
 
 namespace N_Chat.Server.Controllers;
@@ -10,54 +11,90 @@ public class SignalRController : Hub
     public const string HubUrl = "/conversations";
     
     private readonly DataContext context;
-    private readonly static UserController userController;
-    public SignalRController(DataContext context)
+    private readonly IUserService userService;
+    private static UserModel user;
+    private static ICollection<UserChat> chatList = new List<UserChat>();
+    private static ICollection<ChatModel> chatModels = new List<ChatModel>();
+    public SignalRController(DataContext context, IUserService userService)
     {
         this.context = context;
+        this.userService = userService;
     }
-    public override Task OnConnectedAsync()
+
+    public override async Task OnConnectedAsync()
     {
-        //Get users
-        var user = context.Users.Include(u => u.Chats).SingleOrDefault(x => x.UserName == Context.User.Identity.Name);
-        //Add user to each assigned group
-        foreach (var item in user.Chats)
+        var userIdentifier = Context.UserIdentifier;
+        if (userIdentifier != null)
         {
-            Groups.AddToGroupAsync(Context.ConnectionId, item.Name);
+            chatList = await context.UserChats.Where(x=> x.UserId == userIdentifier).ToListAsync();
+            Console.WriteLine(userIdentifier);
+            foreach (var item in chatList)
+            {
+                if (item.Chat != null)
+                {
+                    await Groups.AddToGroupAsync(Context.ConnectionId, item.Chat.Name);
+                    Console.WriteLine(item.Chat.Name);
+                }
+            }
+            await base.OnConnectedAsync();
         }
-        Console.WriteLine($"{Context.ConnectionId} connected");
-        return base.OnConnectedAsync();
     }
 
-    public override Task OnDisconnectedAsync(Exception e)
+    public async Task EnterChat(string chatName)
     {
-        Console.WriteLine($"Disconnected {e?.Message} {Context.ConnectionId}");
-        return base.OnDisconnectedAsync(e);
+        await Clients.Groups(chatName).SendAsync("HasEntered", Context.User.Identity.Name);
+        await Groups.AddToGroupAsync(Context.ConnectionId, chatName);
+
+        Console.WriteLine($"{Context.User.Identity.Name} connected");
+    }
+    public async Task ExitChat(string chatName)
+    {
+        await Clients.Groups(chatName).SendAsync("HasDisconnected", user.UserName);
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, chatName);
+        Console.WriteLine($"{Context.User.Identity.Name} disconnected");
+    }
+    public async Task SendMessage(MessageModel message, string chatName)
+    {
+        string userName = Context.User.Identity.Name;
+        await Clients.Groups(chatName).SendAsync("ReceiveMessage", message);
+    }
+    public override async Task OnDisconnectedAsync(Exception e)
+    {
+        var userChat = user.Chats.FirstOrDefault(uc => uc.UserId == user.Id);
+        await Clients.Groups(userChat.Chat.Name).SendAsync("HasDisconnected", user.UserName);
+        await base.OnDisconnectedAsync(e);
     }
 
-    public async Task AddToRoom(string chatName)
+
+    /*public async Task AddToRoom(string chatName)
     {
         await using (var db = context)
         {
             //Find chat in db
-            var chat = db.Chats.Find(chatName);
+            var chat = db.Chats.FirstOrDefaultAsync(x=> x.Name == chatName);
             if (chat != null)
             {
-                var user = new UserModel() {UserName = Context.User.Identity.Name};
-                db.Users.Attach(user);
-                
-                chat.Users.Add(user);
+                var user = await context.Users.FirstOrDefaultAsync(x=> x.UserName == Context.User.Identity.Name);
+                UserChat userJoiner = new()
+                {
+                    UserId = user.Id,
+                    ChatId = chat.Id
+                    
+                };
+                db.UserChats.Add(userJoiner);
                 db.SaveChanges();
                 await Groups.AddToGroupAsync(Context.ConnectionId, chatName);
             }
         }
-    }
-    public async Task RemoveFromRoom(string chatName)
+    }*/
+
+    /*public async Task RemoveFromRoom(string chatName)
     {
         using (var db = context)
         {
             // Retrieve room.
-            var chat = db.Chats.Find(chatName);
-            if (chat != null)
+            var chat = db.Chats.FirstOrDefaultAsync(x=> x.Name == chatName);
+            if (chat  != null)
             {
                 var user = new UserModel() { UserName = Context.User.Identity.Name };
                 db.Users.Attach(user);
@@ -68,11 +105,8 @@ public class SignalRController : Hub
                 Groups.RemoveFromGroupAsync(Context.ConnectionId, chatName);
             }
         }
-    }
-    public async Task SendGroupMessage(string user,string message, string chatName)
-    {
-        await Clients.Groups(chatName).SendAsync("SendGroupMessage",user, message, chatName);
-    }
+    }*/
+
      
 
     /*

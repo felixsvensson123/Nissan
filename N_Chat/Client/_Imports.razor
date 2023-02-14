@@ -20,3 +20,14 @@
 @using Microsoft.AspNetCore.Authentication.Cookies
 @using Microsoft.AspNetCore.Http;
 @using System.Security.Claims
+@using Azure.Identity;
+@using Azure.Security.KeyVault.Keys;
+@using Azure.Security.KeyVault;
+@using Azure.Security.KeyVault.Keys.Cryptography;
+
+@inject IUserService UserService;
+@inject IChatService ChatService;
+@inject NavigationManager NavigationManager;
+@inject IMessageService MessageService;
+@inject ILocalStorageService LocalStorageService;
+@inject AuthenticationStateProvider AuthStateProvider;
