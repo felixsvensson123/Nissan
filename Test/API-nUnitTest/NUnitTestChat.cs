@@ -15,7 +15,8 @@ namespace Test.API_nUnitTest
             {
 
                 private HttpClient _httpClient;
-                private ChatService _service;
+                private IChatService _service;
+                private new List<ChatModel> chatList;
 
             [SetUp]
             public void Setup()
@@ -79,18 +80,18 @@ namespace Test.API_nUnitTest
                     string chatName = "Felix-My new Encrypted Group chat";
                     bool encrypted = true;
                     string creatorid= "d7fc4ba6-4957-41a7-96b5-52b65c06bc35";
-                    //UserChats userId1 = new() { UserId = "" };
-                    //UserChats userId2 = new() { UserId = "" };
-                    //List<UserModel> usersInNewChat = new() { userId1, userId2 };
+                    UserChat userId1 = new() { UserId = "" };
+                    UserChat userId2 = new() { UserId = "" };
+                    List<UserChat> usersInNewChat = new() { userId1, userId2 };
 
-                    //ChatModel expectedNewchat = new() { Name = chatName, IsChatEncrypted = encrypted, CreatorId =creatorid,Users=usersInNewChat };
+                    ChatModel expectedNewchat = new() { Name = chatName, IsChatEncrypted = encrypted, CreatorId =creatorid,Users=usersInNewChat };
 
                   
 
                     List<ChatModel> newChattoChatlist = await _service.GetChats();
 
                    
-                    //Assert.That(newChattoChatlist, Does.Contain(expectedNewchat));
+                    Assert.That(newChattoChatlist, Does.Contain(expectedNewchat));
 
                 }
             
@@ -103,18 +104,18 @@ namespace Test.API_nUnitTest
                 bool encrypted = false;
                 string creatorid = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35";
 
-                //UserChats userId1 = new() { UserId = "" };
-                //UserChats userId2 = new() { UserId = "" };
-                //List<UserModel> usersInNewChat = new() { userId1, userId2 };
+                UserChat userId1 = new() { UserId = "" };
+                UserChat userId2 = new() { UserId = "" };
+                List<UserChat> usersInNewChat = new() { userId1, userId2 };
 
-                //ChatModel expectedNewchat = new() { Name = chatName, IsChatEncrypted = encrypted, CreatorId = creatorid, Users = usersInNewChat };
+                ChatModel expectedNewchat = new() { Name = chatName, IsChatEncrypted = encrypted, CreatorId = creatorid, Users = usersInNewChat };
 
                
 
                 List<ChatModel> newChattoNotEncyptToChatlist = await _service.GetChats();
 
              
-                //Assert.That(newChattoNotEncyptToChatlist, Does.Contain(expectedNewchat));
+                Assert.That(newChattoNotEncyptToChatlist, Does.Contain(expectedNewchat));
 
             }
                 [Test]//a chat is softdeleted from the chat list in db.
@@ -152,7 +153,7 @@ namespace Test.API_nUnitTest
 
                     //Arrange
 
-                    //
+                    
                     ChatModel actualChatWithnewName= new() {Name= newChatName,CreatorId=userId,Id=chatId,IsChatEdited =isChatEdited};
                     _service.UpdateChat(updateChatName, chatId);
 
@@ -173,18 +174,18 @@ namespace Test.API_nUnitTest
                     bool encrypted = false;
                     string creatorid = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35";
 
-                    //UserChats userId = new() { UserId = "" };
+                   UserChat userId = new() { UserId = "" };
                    
-                   // List<UserChats> usersInNewChat = new() { userId};
+                    List<UserChat> usersInNewChat = new() { userId};
 
-                    //ChatModel expectedNewSingelchat = new() { Name = chatName, IsChatEncrypted = encrypted, CreatorId = creatorid, Users = usersInNewChat };
+                    ChatModel expectedNewSingelchat = new() { Name = chatName, IsChatEncrypted = encrypted, CreatorId = creatorid, Users = usersInNewChat };
 
                     
 
                     List<ChatModel> newSingelChatToChatlist = await _service.GetChats();
 
                     
-                   // Assert.That(newSingelChatToChatlist, Does.Contain(expectedNewSingelchat));
+                    Assert.That(newSingelChatToChatlist, Does.Contain(expectedNewSingelchat));
 
                 }
 
@@ -195,18 +196,18 @@ namespace Test.API_nUnitTest
                 bool encrypted = true;
                 string creatorid = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35";
 
-                //UserChats userId = new() { UserId = "" };
+                UserChat userId = new() { UserId = "" };
 
-                //List<UserChats> usersInNewChat = new() { userId };// adding new usser to our chat
+                List<UserChat> usersInNewChat = new() { userId };// adding new usser to our chat
 
-                //ChatModel expectedNewSingelchat = new() { Name = chatName, IsChatEncrypted = encrypted, CreatorId = creatorid, Users = usersInNewChat };// creating a new ccha¨t with properties
+                ChatModel expectedNewSingelchat = new() { Name = chatName, IsChatEncrypted = encrypted, CreatorId = creatorid, Users = usersInNewChat };// creating a new ccha¨t with properties
 
                 //Arrange
 
                 List<ChatModel> newSingelChatToChatlist = await _service.GetChats(); // fetching chatlist via service that connected to controller
 
                 //Assert
-                //Assert.That(newSingelChatToChatlist, Does.Contain(expectedNewSingelchat));// testing if the new chatexist in chatlist.
+                Assert.That(newSingelChatToChatlist, Does.Contain(expectedNewSingelchat));// testing if the new chatexist in chatlist.
                 }
 
 
