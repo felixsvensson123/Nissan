@@ -107,6 +107,7 @@ else
             
             _pageLoaded = true;
             await InvokeAsync(StateHasChanged);
+            StateHasChanged();
         }
     }
 
@@ -119,6 +120,7 @@ else
         {
             SelectedChat.Chat.Messages.Add(message);
             InvokeAsync(StateHasChanged);
+            StateHasChanged();
         });
 
         await hubConnection.StartAsync();
