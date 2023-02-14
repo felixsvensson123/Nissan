@@ -29,6 +29,7 @@ CryptographyClient cryptoClient = new CryptographyClient(vaultKey.Id, credential
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddHttpClient();
 
 // Add database connection
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -83,6 +84,8 @@ builder.Services.AddSingleton(keyClient);
 builder.Services.AddSingleton(vaultKey);
 builder.Services.AddSingleton(cryptoClient);
 builder.Services.AddSingleton<IKeyVaultService>(new KeyVaultService(keyClient, cryptoClient, vaultKey));
+builder.Services.AddSingleton<IUserService, UserService>();
+
 var app = builder.Build();
 
 //app.UseResponseCompression();
