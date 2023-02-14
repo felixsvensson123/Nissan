@@ -1,6 +1,5 @@
-﻿ using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver.Linq;
 
 namespace N_Chat.Server.Controllers
 {
@@ -10,36 +9,23 @@ namespace N_Chat.Server.Controllers
     {
 
         private readonly DataContext context;
-
+        
         public ChatController(DataContext context)
         {
             this.context = context;
         }
 
-        /*
         [HttpGet("getall")]
         public async Task<IEnumerable<ChatModel>> GetAll()
         {
             List<ChatModel> chatList = await context.Chats.OfType<ChatModel>().Where(c => c.IsChatEnded != true).ToListAsync();
             return chatList;
         }
-        */
-        
-        [HttpGet("getall")] 
-        public async Task<ICollection<ChatModel>> GetIncludedChats()
-        {
-            var dbChats = await context.Chats
-                .Include(u => u.Users)
-                .ThenInclude(uc => uc.User)
-                .ThenInclude(u => u.Messages)
-                .ToListAsync();
-            return dbChats;
-        }
 
         [HttpGet("getchatbyid/{id}")]
         public async Task<ChatModel> GetById(int id)
         {
-            var result = await GetIncludedChats(); 
+            var result = await GetAll(); 
             return result.FirstOrDefault(x => x.Id == id);
         }
 
@@ -60,75 +46,49 @@ namespace N_Chat.Server.Controllers
             await context.SaveChangesAsync();
             return Ok(chatToBeUpdated);
         }
-        
-        [HttpPost("createchat")] //posts chat
+
+        [HttpPost("createchat")]
         public async Task<ActionResult> CreateChat(ChatModel chat)
         {
             if (!ModelState.IsValid)
             { return BadRequest(ModelState); }
 
-            var checkIfExists = await context.Chats.FirstOrDefaultAsync(c => c.Name.ToUpper() == chat.Name.ToUpper());
-            if (checkIfExists != null)
-                return Conflict(new {message = $"An existing record with the name '{chat.Name}' already exists"});
-            
-            ChatModel chatToBeCreated = new()
+            var user = await context.Users.FirstOrDefaultAsync(x => x.Id == chat.UserId);
+            var user2 = await context.Users.FirstOrDefaultAsync(x => x.UserName == "admin");
+            if (user != null)
             {
-                Name = chat.Name,
-                CreatorId = chat.CreatorId,
-                IsChatEncrypted = chat.IsChatEncrypted,
-                ChatCreated = DateTime.Now,
-                Users = chat.Users,
-                Messages = new List<MessageModel>()
+                ChatModel chatToBeCreated = new ()
                 {
-                    new()
+                    User = user,
+                    UserId = chat.UserId,
+                    Name = chat.Name,
+                    CreatorId = chat.CreatorId,
+                    IsChatEdited = chat.IsChatEdited,
+                    IsChatEnded = chat.IsChatEnded,
+                    IsChatEncrypted = chat.IsChatEncrypted,
+                    ChatCreated= chat.ChatCreated,
+                    ChatEnded = chat.ChatEnded,
+                    Users = new List<UserModel>()
                     {
-                        Message = "",
-                        MessageCreated = chat.ChatCreated,
-                        ChatId = chat.Id,
-                        UserId = chat.CreatorId
-                    }
-                },
-            };
-            await context.Chats.AddAsync(chatToBeCreated);
+                        user,
+                        user2
+                    },
+                    Messages = new List<MessageModel>()
+                    {
+                        new()
+                        {
+                            UserId = chat.UserId,
+                            Message = chat.Name,
+                            MessageCreated = chat.ChatCreated
+                        }
+                    },
+  
+                };
+               context.Chats.Add(chatToBeCreated);
+               user.Chats.Add(chatToBeCreated);
+            }
             await context.SaveChangesAsync();
             return Ok();
         }
-
-
-
-        /*[HttpPost("createchat")]
-        public async Task<ActionResult> CreateChat(ChatModel chat)
-        {
-            if (!ModelState.IsValid)
-            { return BadRequest(ModelState); }
-
-            ChatModel chatToBeCreated = new()
-            {
-                Name = chat.Name,
-                CreatorId = chat.CreatorId,
-                IsChatEdited = chat.IsChatEdited,
-                IsChatEnded = chat.IsChatEnded,
-                IsChatEncrypted = chat.IsChatEncrypted,
-                ChatCreated = chat.ChatCreated,
-                ChatEnded = chat.ChatEnded,
-                Users = chat.Users,
-                Messages = new List<MessageModel>()
-                {
-                    new()
-                    {
-                        Message = "Chat was created!",
-                        MessageCreated = chat.ChatCreated
-                    }
-                },
-
-            };
-            /*var userInclude = await context.Users.Include(c => c.Chats)
-                .FirstOrDefaultAsync(x => x.UserName == User.Identity.Name);
-            userInclude.Chats.Add(chatToBeCreated);#1#
-            
-            await context.Chats.AddAsync(chatToBeCreated);
-            await context.SaveChangesAsync();
-            return Ok();
-        }*/
     }
 }

@@ -5,23 +5,14 @@ global using Microsoft.AspNetCore.SignalR.Client;
 global using  Microsoft.AspNetCore.Authentication;
 global using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 global using N_Chat.Client;
-global using N_Chat.Client.Handlers;
+global  using N_Chat.Client.Handlers;
 global using N_Chat.Client.Services;
-global using Azure.Identity;
-global using Azure.Security.KeyVault.Keys;
-global using Azure.Security.KeyVault;
-global using Azure.Security.KeyVault.Keys.Cryptography;
-global using Azure.Security.KeyVault.Secrets;
-global using Azure.Core;
-using Azure.Core.Pipeline;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Azure;
-
 
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);

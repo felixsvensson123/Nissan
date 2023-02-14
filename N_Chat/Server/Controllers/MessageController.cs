@@ -5,10 +5,9 @@ namespace N_Chat.Server.Controllers{
     [ApiController]
     public class MessageController : ControllerBase{
         private readonly DataContext _context;
-        private readonly IKeyVaultService keyVaultService;
-        public MessageController(DataContext context, IKeyVaultService keyVaultService){
+
+        public MessageController(DataContext context){
             _context = context;
-            this.keyVaultService = keyVaultService;
         }
 
         //GET:hämta en användares alla chatt meddelanden
@@ -19,13 +18,6 @@ namespace N_Chat.Server.Controllers{
                 var userMessages = await _context.Messages
                   .Where(u => u.UserId == id && u.IsMessageDeleted != true)
                   .ToListAsync();
-                
-                foreach (var item in userMessages)
-                {
-                    if(item.IsMessageEncrypted) // decrypts message using azure key vault service if statement is true
-                        item.Message = await keyVaultService.DecryptStringAsync(item.Message); 
-                }
-                
                 return userMessages;
             }
             catch (Exception e){
@@ -39,11 +31,8 @@ namespace N_Chat.Server.Controllers{
             try{
                 //hämtar meddelande med meddelande id
                var userMessage = await _context.Messages.FirstOrDefaultAsync(p => p.Id == id);
-               
-               if(userMessage.IsMessageEncrypted) // decrypts message using azure key vault service if statement is true
-                   userMessage.Message = await keyVaultService.DecryptStringAsync(userMessage.Message); 
-             
-               return Ok(userMessage);
+
+                return Ok(userMessage);
             }
             catch (Exception e){
                 return NotFound(e.Message + e.StackTrace);
@@ -59,25 +48,18 @@ namespace N_Chat.Server.Controllers{
                 if (currentUser == null){
                     return NotFound();
                 }
-                
-                if(messageModel.IsMessageEncrypted) // encrypts message using azure key vault service if statement is true
-                    messageModel.Message = await keyVaultService.EncryptStringAsync(messageModel.Message);
 
-                var chat = await _context.Chats.FirstOrDefaultAsync(x => x.Id == messageModel.ChatId);
-                chat.Messages.Add(new()
-                    {
-                        UserId = currentUser.Id,
-                        IsMessageEncrypted = messageModel.IsMessageEncrypted,
-                        IsMessageDeleted = messageModel.IsMessageDeleted,
-                        ChatId = messageModel.ChatId,
-                        MessageCreated = DateTime.Now,
-                        Message = messageModel.Message
-                    }
-                );
                 //skapar ett nytt meddelande till databasen
-                _context.Update(chat);
+                await _context.AddAsync(new MessageModel(){
+                    UserId = currentUser.Id,
+                    Id = messageModel.Id,
+                    IsMessageEncrypted = messageModel.IsMessageEncrypted,
+                    IsMessageDeleted = messageModel.IsMessageDeleted,
+                    ChatId = messageModel.ChatId,
+                    MessageCreated = DateTime.Now,
+                    Message = messageModel.Message,
+                });
                 await _context.SaveChangesAsync();
-               
                 return Ok();
             }
             catch (Exception e){
@@ -123,13 +105,6 @@ namespace N_Chat.Server.Controllers{
         public async Task<ActionResult<IEnumerable<MessageModel>>> GetAllMessages(){
             try{
                 var allMessages = await _context.Messages.ToListAsync();
-                
-                foreach (var item in allMessages)
-                {
-                    if(item.IsMessageEncrypted) // decrypts message using azure key vault service if statement is true
-                        await keyVaultService.DecryptStringAsync(item.Message); 
-                }
-                
                 return Ok(allMessages);
             }
             catch (Exception e){

@@ -1,90 +1,55 @@
 ﻿@page "/new_chat"
 @layout Loginlayout
+@inject NavigationManager NavigationManager
 
-<div class="main">
-    <input type="checkbox" id="chk" aria-hidden="true">
-    <div class="New-Chat">
-        <EditForm Model="Chat">
-            <button class="oi oi-x" aria-hidden="true" id="cross" @onclick=@(() => NavigationManager.NavigateTo("/StartPage"))></button>
-            <label for="chk" aria-hidden="true">Singel Chat</label>
-            <div class="Chat-Form-Container">
-                <input @bind-value="@UserToAdd.UserName" type="text" id="singleChatMember" name="txt" placeholder="Username" required="">
-                <input @bind-value="@Chat.Name"type="text" name="txt" placeholder="Chatname" required="">
-                <div class="New-Chat-FieldContainer">
-                    <p style="margin: 1px!important; color: white;" >Encryption</p>
-                    <input type="radio" id="isEncrypted" name="Encryption" value="True" @onchange="@(() => UpdateBool("true"))">
-                    <label for="isEncrypted">On</label>
-                    <input type="radio" id="isEncrypted" name="Encryption" value="True" @onchange="@(() => UpdateBool("false"))">
-                    <label for="isEncrypted">Off</label>
-                </div>
-                <button class="create" @onclick=@(() => CreateChat(Chat))>Start Chat</button>
-            </div>
-        </EditForm>
-    </div>
+<AuthorizeView>
+	<Authorized>
+		<div class="main">
+			<input type="checkbox" id="chk" aria-hidden="true">
 
-    <div class="New-Group-Chat">
-        <EditForm Model="Chat">
-            <label for="chk" aria-hidden="true">Group Chat</label>
-            <div class="Chat-Form-Container">
-            <input type="text" id="chatMember1" name="txt" placeholder="User 1" required="">
-            <input type="text" name="txt" id="chatMember2" placeholder="User 2" required="">
-                <div class="New-Chat-FieldContainer">
-                    <p style="margin: 1px!important;" >Encryption</p>
-                    <input type="radio" id="isEncrypted" name="Encryption" value="True" @onchange="@(() => UpdateBool("true"))">
-                    <label for="isEncrypted">On</label>
-                    <input type="radio" id="isEncrypted" name="Encryption" value="True" @onchange="@(() => UpdateBool("false"))">
-                    <label for="isEncrypted">Off</label>
-                </div>
-            <button class="create"@onclick=@(() => CreateChat(Chat))>Start Group Chat</button>
-            </div>
-        </EditForm>
-    </div>
-</div>
+
+			<div class="New-Chat">
+				<form>
+					<button class="oi oi-x" aria-hidden="true" id="cross" @onclick=@(() => NavigationManager.NavigateTo("/StartPage")) ></button>
+					<label for="chk" aria-hidden="true">Singel Chat</label>
+					<input type="text" id="singleChatMember" name="txt" placeholder="Username" required="">
+					<input type="text" name="txt" placeholder="Chatname" required="">
+					<input type="checkbox" name="isEncrypted"/>
+                    <center>
+                        <p>I want the chat encrypted </p>
+					</center>
+					<button class="create" @onclick=@(() => createNewChat())>Start Chat</button>
+				</form>
+			</div>
+
+			<div class="New-Group-Chat">
+				<form>
+					<label for="chk" aria-hidden="true">Group Chat</label>
+					<input type="text" id="chatMember1" name="txt" placeholder="Username 1" required="">
+					<input type="text" name="txt" id="chatMember2" placeholder="Username 2" required="">
+					<input type="checkbox" name="isEncrypted"/>
+                    <center>
+                        <p>I want the chat encrypted </p>
+					</center>
+					<button class="create"@onclick=@(() => createNewChat()) >Start Group Chat</button>
+				</form>
+			</div>
+		</div>
+	</Authorized>
+	<NotAuthorized>
+		<LoginDisplay/>
+	</NotAuthorized>
+</AuthorizeView>
 
 @code {
-    ChatModel Chat { get; set; } = new();
-    UserModel User { get; set; } = new();
-    List<UserChat> JoinerTableList { get; set; } = new();
-    UserModel UserToAdd { get; set; } = new();
-    
-    protected override async Task OnInitializedAsync()
-    {
-        var currentUser = await UserService.GetUserClaim();
-        if(currentUser.user == null)
-            throw new Exception("User was not found!");
-        
-        User = currentUser.user;
-    }
+	public ChatModel createNewChat()
+	{
 
-    private async Task CreateChat(ChatModel chatModel)
-    {
-        var userToAdd = await UserService.GetUser(UserToAdd.UserName);
-        
-        chatModel.CreatorId = User.Id;
-        chatModel.Users = new List<UserChat>()
-        {
-            new()
-            {
-                UserId = userToAdd.Id,
-                ChatId = chatModel.Id
-            },
-            new()
-            {
-                UserId = User.Id,
-                ChatId = chatModel.Id
-            }
-        };
-        
-        await ChatService.CreateChat(chatModel);
-    }
 
-    private void UpdateBool(string decision)
-    {
-        if (decision == "true")
-            Chat.IsChatEncrypted = true;
 
-        if (decision != "true")
-            Chat.IsChatEncrypted = false;
 
-    }
+
+		//todo create method
+		return null;
+	}
 }

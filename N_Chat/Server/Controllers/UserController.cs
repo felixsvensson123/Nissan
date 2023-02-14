@@ -6,8 +6,9 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity;
-using MongoDB.Driver.Linq;
 using N_Chat.Shared.dto;
+
+//using AutoMapper;
 
 namespace N_Chat.Server.Controllers{
     [Route("api/[controller]")]
@@ -23,88 +24,82 @@ namespace N_Chat.Server.Controllers{
             this.signInManager = signInManager;
             this.context = context;
         }
-        [Authorize(Roles = "Admin")]
-        [HttpGet("chats")]
-        public async Task<ICollection<UserModel>> getAllUsers()
+        
+        [HttpGet("userchats/{id}")]
+        public async Task<IEnumerable<ChatModel>> GetUserChats(string id)
         {
-            ICollection<UserModel> users = await context.Users
-                .Include(u => u.Chats)
-                .Include(t => t.Messages).ToListAsync();
-            return users;
+            List<ChatModel> dbChats = await context.Chats.Where(x => x.UserId == id)
+                .Include(t => t.Messages)
+                .Include(t => t.User).ToListAsync();
+            return dbChats;
         }
-        [HttpGet("getbyname/{userName}")]
-        public async Task<ActionResult> GetUserByName(string userName)
-        {
-            UserModel foundUser = await context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
-            return Ok(foundUser);
-        }
-        [HttpGet("{userName}")] // Gets user with chat and message list // made to reduce redundancy
-        public async Task<UserModel> GetUserWithIncludes (string userName) // rör ej funkar
-        {
-            var result = context.Users
-                .Include(u => u.Chats)
-                .ThenInclude(uc => uc.Chat)
-                .ThenInclude(c => c.Messages)
-                .AsSingleQuery();
 
-            return await result.SingleOrDefaultAsync(x => x.UserName == userName);
+        //Get User by ID
+        [Authorize]
+        [HttpGet("get/{id}")]
+        public async Task<ActionResult> GetUser(string id)
+        {
+            UserModel currentuser = await userManager.FindByNameAsync(id); //gets current user using recieved ID
+            if (currentuser != null)
+                return Ok(currentuser);
+            return BadRequest(currentuser);
         }
         
         [Authorize]
-        [HttpGet("getcurrent")] //get current user from claims
+        [HttpGet("getcurrent")] //get current user from claim
         public async Task<ActionResult> GetCurrentUser()
         {
-            var claimValue = User.FindFirst(ClaimTypes.Name)?.Value;
-            if (claimValue == null)
-                return NotFound("User Claim was not found" + claimValue);
+            var uid = User.FindFirst(ClaimTypes.Name)?.Value; //Finds user claim
 
-            UserModel? user = await context.Users
-                    .Include(u => u.Chats)
-                    .ThenInclude(uc => uc.Chat)
-                    .ThenInclude(c => c.Messages)
-                    .FirstOrDefaultAsync(u => u.UserName == claimValue);
-            
-            return Ok(user);
+            UserModel? user = await context.Users //finds user that matches claim
+                .FirstOrDefaultAsync(u => u.UserName == uid);
+            UserModel dtoUser = new UserModel()
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                NormalizedUserName = user.NormalizedUserName
+            };
+            return Ok(user); //returns found user
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> LoginUser(LoginModel user) // rör ej funkar
+        public async Task<IActionResult> LoginUser(LoginModel user)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var result = await signInManager
-                .PasswordSignInAsync(user.Username, user.Password, true, false); // signs in user.
-
-            if (result.Succeeded)
+            if (ModelState.IsValid)
             {
-                var currentUser =
-                    await signInManager.UserManager.FindByNameAsync(user.Username);
-                
-                var claims = new List<Claim> //sets up user claim
+                var result = await signInManager
+                    .PasswordSignInAsync(user.Username, user.Password, true, false); // signs in user.
+                if (result.Succeeded)
                 {
-                    new(ClaimTypes.Name,
-                        currentUser.UserName)
-                };
+                    UserModel currentUser =
+                        await signInManager.UserManager.FindByNameAsync(user.Username); // gets current user by username
+                    var claims = new List<Claim> //sets up userid claim
+                    {
+                        new(ClaimTypes.Name,
+                            currentUser.UserName) // Sets claimtype to name, with value: user's username
+                    };
+                    
+                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    var authProperties = new AuthenticationProperties();
+                    
+                    await HttpContext.SignInAsync( //sets claims principals and signs in use to HttpContext.
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity),
+                        authProperties);
 
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                var authProperties = new AuthenticationProperties();
+                    return Ok(result);
+                }
 
-                await HttpContext.SignInAsync( //sets claims principals and signs in user 
-                    CookieAuthenticationDefaults.AuthenticationScheme,
-                    new ClaimsPrincipal(claimsIdentity),
-                    authProperties);
-
-                return Ok(result);
+                ModelState.AddModelError(string.Empty, "Invalid Login Attempt"); // Error Message if string is empty
             }
-            
-            ModelState.AddModelError(string.Empty, "Invalid Login Attempt"); // Error Message if string is empty
-            return BadRequest(ModelState);
-            
+
+            return BadRequest(user);
         }
 
         [HttpPost("signup")]
-        public async Task<IActionResult> SignupUser(RegisterModel registerModel) // funkar rör ej!
+
+        public async Task<IActionResult> SignupUser(RegisterModel registerModel)
         {
             if (ModelState.IsValid)
             {
@@ -170,49 +165,66 @@ namespace N_Chat.Server.Controllers{
             return BadRequest(updateModel);
         }
 
-        [HttpGet("{userId}/getuserchat/{chatId}")]
-        public async Task GetUserChatById(string userId, string chatId)
+        [HttpPost("ListMessages")]
+        public async Task<ActionResult<List<MessageModel>>> GetMessages(MessageModel messageModel)
         {
+            var CurrentUser = await userManager.FindByIdAsync(messageModel.UserId);
+            List<MessageModel> messages = new();
+            using (var db = context){
+                messages = await db.Messages.Where(m => m.UserId == messageModel.UserId).ToListAsync();
+                
+                foreach (var message in messages)
+                {
+                    CurrentUser.Messages.Add(message);
+                }
+
+                db.SaveChanges();
+            }
+
+            return Ok();
         }
-        [HttpPost("chatrequest/{chatId}")] // adds user to chat
-        public async Task<IActionResult> RequestChat(UserModel user, int chatId)
+
+        [HttpPost("ChatList")]
+        public async Task<ActionResult<List<ChatModel>>> AddChatsToUser(string userId)
         {
-            var userChat = new UserChat()
+            var CurrentUser = await userManager.FindByIdAsync(userId);
+
+            List<ChatModel> chats = new();
+
+            await using (var db = context)
             {
-                UserId = user.Id,
-                ChatId = chatId
-            };
-            
-            if (userChat.ChatId == 0)
-                return BadRequest("Error: " + userChat);
-            
-            await context.UserChats.AddAsync(userChat);
-            await context.SaveChangesAsync();
-            
-            return CreatedAtAction(nameof(GetUserWithIncludes), new { user.UserName, chatId }, userChat);
-            
+                chats = await db.Chats.Where(c => c.UserId == userId).ToListAsync();
+
+                foreach (var chat in chats)
+                {
+                    CurrentUser.Chats.Add(chat);
+                }
+
+                await db.SaveChangesAsync();
+            }
+
+            return Ok();
         }
-        
-        [HttpPost("newmessage")] // posts user message into user table -> message list
-        public async Task<IActionResult> PostUserMessage(MessageModel messageModel)
+
+        [HttpPut("chatrequest/{chatId}")]
+        public async Task<ActionResult> RequestChat(int chatId, string userName)
         {
             await using (var db = context)
             {
-                var user = await GetUserWithIncludes(User.Identity.Name);
-                if (user.UserName != null)
+                var user = await userManager.FindByNameAsync(userName); //finds user with username recieved
+                if (user != null)
                 {
-                    if (messageModel.Message != null)
+                    var chat = await db.Chats.FirstOrDefaultAsync(c => c.Id == chatId); //finds chat using id recieved
+                    if (chat != null)
                     {
-                        user.Messages.Add(messageModel);
-                        return Ok(user);
+                        chat.Users.Add(user); //adds recieved user to chat
+                        return Ok(chat);
                     }
 
-                    return BadRequest("Error: " + messageModel);
-                    
+                    return BadRequest(chat);
                 }
-                
-                return BadRequest("Error:" + user);
-                
+
+                return BadRequest(user);
             }
         }
     }

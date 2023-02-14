@@ -3,45 +3,16 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace N_Chat.Server.Migrations
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
+namespace NChat.Server.Migrations
 {
+    /// <inheritdoc />
     public partial class InitialApp : Migration
     {
+        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "Chats",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatorId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsChatEdited = table.Column<bool>(type: "bit", nullable: false),
-                    IsChatEnded = table.Column<bool>(type: "bit", nullable: true),
-                    IsChatEncrypted = table.Column<bool>(type: "bit", nullable: false),
-                    ShowDetails = table.Column<bool>(type: "bit", nullable: false),
-                    ChatCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ChatEnded = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Chats", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Connections",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    UserAgent = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Connected = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Connections", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "RoleClaims",
                 columns: table => new
@@ -69,6 +40,20 @@ namespace N_Chat.Server.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Roles", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Test",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Test", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -103,12 +88,12 @@ namespace N_Chat.Server.Migrations
                 name: "UserRoles",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserRoles", x => new { x.UserId, x.RoleId });
+                    table.PrimaryKey("PK_UserRoles", x => x.RoleId);
                 });
 
             migrationBuilder.CreateTable(
@@ -116,8 +101,8 @@ namespace N_Chat.Server.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NormalizedEmail = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
@@ -150,6 +135,32 @@ namespace N_Chat.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Chats",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatorId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsChatEdited = table.Column<bool>(type: "bit", nullable: false),
+                    IsChatEnded = table.Column<bool>(type: "bit", nullable: true),
+                    IsChatEncrypted = table.Column<bool>(type: "bit", nullable: false),
+                    ChatCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ChatEnded = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Chats", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Chats_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Messages",
                 columns: table => new
                 {
@@ -178,31 +189,8 @@ namespace N_Chat.Server.Migrations
                         name: "FK_Messages_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserChats",
-                columns: table => new
-                {
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ChatId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserChats", x => new { x.UserId, x.ChatId });
-                    table.ForeignKey(
-                        name: "FK_UserChats_Chats_ChatId",
-                        column: x => x.ChatId,
-                        principalTable: "Chats",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserChats_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.InsertData(
@@ -210,8 +198,8 @@ namespace N_Chat.Server.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "d1678ba6-7957-21a7-96b5-12b64c06bc25", "07c3c2d6-b711-4a02-9ae1-d58d28000cf9", "Admin", "admin" },
-                    { "e02d359e-6bfb-47ed-9fbc-4c99e5d2db9b", "8462db72-24c9-4647-8e8a-6cb00b9cd748", "Member", "MEMBER" }
+                    { "d1678ba6-7957-21a7-96b5-12b64c06bc25", "ef5ebfff-07ca-42ce-bc82-d79176141785", "Admin", "admin" },
+                    { "e02d359e-6bfb-47ed-9fbc-4c99e5d2db9b", "ff2e4058-5729-4ac1-89e5-66db1b28b543", "Member", "MEMBER" }
                 });
 
             migrationBuilder.InsertData(
@@ -224,9 +212,30 @@ namespace N_Chat.Server.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
                 values: new object[,]
                 {
-                    { "d7fc4ba6-4957-41a7-96b5-52b65c06bc35", 0, "21ec92ae-4e01-44bb-b217-0cac26bb1e89", "Css@live.se", true, false, null, "css@live.se", "felix", "AQAAAAEAACcQAAAAEFqkf5akrRin2IwDYoEfwJa8obyWVpOSKwXFg4+WQC/fKwatoLDDnmBjqgS3G1SAMQ==", null, false, "d4e4c343-e6e1-436f-ad48-eaf849e07fe3", false, "felix" },
-                    { "ded90182-7b04-41e0-aef6-8977a4d1c292", 0, "28c7adfc-b4ef-4430-ac10-b46259c151ef", "adminuser@gmail.com", true, false, null, "adminuser@gmail.com", "admin", "AQAAAAEAACcQAAAAECoG3YO+6lfmW4Kr7F8nT4sPkArj0PjyaU6TELN+91wYwF3QBvHlx1L76IUUD3//Kg==", null, false, "e0d65ae3-1275-48c0-b22b-acbc06918f11", false, "admin" }
+                    { "d7fc4ba6-4957-41a7-96b5-52b65c06bc35", 0, "e891dec1-b60b-43b9-b543-d645b4acfc62", "Css@live.se", true, false, null, "css@live.se", "felix", "AQAAAAEAACcQAAAAEATZR5vE9AA/3ar1CaGMqDASm8btP8ZaQPalrBUMaLr9ZEkkmbVRoO/tcId5OTTzcQ==", null, false, "fa2f380f-eda5-4dba-967a-fe1a41cff33c", false, "felix" },
+                    { "ded90182-7b04-41e0-aef6-8977a4d1c292", 0, "0e18ae57-a6a8-428d-99ad-fbece5eaffdf", "adminuser@gmail.com", true, false, null, "adminuser@gmail.com", "admin", "AQAAAAEAACcQAAAAEASTMOf7+cHBLJVaCI/Fbm/yVPRK6Pp77VRQg2sSj4is7nAoS8Rjkkr27RxSgpRmxA==", null, false, "f8c767fd-185f-4879-94d3-e88be9ae7e42", false, "admin" }
                 });
+
+            migrationBuilder.InsertData(
+                table: "Chats",
+                columns: new[] { "Id", "ChatCreated", "ChatEnded", "CreatorId", "IsChatEdited", "IsChatEncrypted", "IsChatEnded", "Name", "UserId" },
+                values: new object[] { 5, new DateTime(2023, 2, 4, 10, 48, 59, 850, DateTimeKind.Local).AddTicks(3752), null, "d7fc4ba6-4957-41a7-96b5-52b65c06bc35", false, false, false, "CoolChat", "d7fc4ba6-4957-41a7-96b5-52b65c06bc35" });
+
+            migrationBuilder.InsertData(
+                table: "Messages",
+                columns: new[] { "Id", "ChatId", "IsMessageDeleted", "IsMessageEdited", "IsMessageEncrypted", "Message", "MessageCreated", "MessageDeleted", "MessageEdited", "UserId" },
+                values: new object[,]
+                {
+                    { 2, 5, false, false, false, "This one admin message 1", new DateTime(2023, 2, 4, 10, 48, 59, 850, DateTimeKind.Local).AddTicks(3793), null, null, "d7fc4ba6-4957-41a7-96b5-52b65c06bc35" },
+                    { 3, 5, false, false, false, "This one admin message 2", new DateTime(2023, 2, 4, 15, 48, 59, 850, DateTimeKind.Local).AddTicks(3799), null, null, "d7fc4ba6-4957-41a7-96b5-52b65c06bc35" },
+                    { 4, 5, false, false, false, "This is felix message 1", new DateTime(2023, 2, 4, 10, 48, 59, 850, DateTimeKind.Local).AddTicks(3806), null, null, "ded90182-7b04-41e0-aef6-8977a4d1c292" },
+                    { 5, 5, false, false, false, "This is just a test message for the api's glhf", new DateTime(2023, 2, 4, 10, 48, 59, 850, DateTimeKind.Local).AddTicks(3809), null, null, "ded90182-7b04-41e0-aef6-8977a4d1c292" }
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Chats_UserId",
+                table: "Chats",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Messages_ChatId",
@@ -237,18 +246,11 @@ namespace N_Chat.Server.Migrations
                 name: "IX_Messages_UserId",
                 table: "Messages",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserChats_ChatId",
-                table: "UserChats",
-                column: "ChatId");
         }
 
+        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Connections");
-
             migrationBuilder.DropTable(
                 name: "Messages");
 
@@ -259,7 +261,7 @@ namespace N_Chat.Server.Migrations
                 name: "Roles");
 
             migrationBuilder.DropTable(
-                name: "UserChats");
+                name: "Test");
 
             migrationBuilder.DropTable(
                 name: "UserClaims");

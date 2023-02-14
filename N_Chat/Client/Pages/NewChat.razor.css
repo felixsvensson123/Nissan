@@ -13,7 +13,7 @@ body {
 .main {
     width: 350px;
     height: 500px;
-    background: rgb(58, 6, 71);
+    background: rgb(222, 196, 238);
     overflow: hidden;
     border-radius: 10px;
     box-shadow: 5px 20px 50px #000;
@@ -30,7 +30,7 @@ body {
 }
 
 label {
-    color: white;
+    color: black;
     font-size: 2.3em;
     justify-content: center;
     display: flex;
@@ -38,25 +38,6 @@ label {
     font-weight: bold;
     cursor: pointer;
     transition: .5s ease-in-out;
-}
-label[for="isEncrypted"]
-{
-    font-size: small!important;
-    margin: 5px;
-}
-.New-Chat-FieldContainer
-{
-    display: flex;
-    justify-items: center;
-    align-items: center;
-    flex-basis: 40.2%;
-    margin: 0;
-    
-}
-.Chat-Form-Container{
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
 }
 #div-flex{
     display: flex;
@@ -70,35 +51,24 @@ div-flex{
 input {
     width: 60%;
     height: 20px;
-    background: white;
+    background: #e0dede;
     justify-content: center;
     display: flex;
-    margin: 10px auto;
+    margin: 20px auto;
     padding: 10px;
     border: none;
     outline: none;
     border-radius: 5px;
 }
 
-::placeholder {
-    color: rgb(58, 6, 71);
-}
-
-input[id="isEncrypted"]
-{
-    font-size: small!important;
-    margin: 5px;
-    width: auto;
-}
 .create {
     width: 60%;
     height: 40px;
     margin: 10px auto;
-    /*    margin-left: 4rem;*/
     justify-content: center;
     display: block;
-    color: rgb(58, 6, 71);
-    background: white;
+    color: #fff;
+    background: rgb(163, 111, 195);
     font-size: 1em;
     font-weight: bold;
     margin-top: 20px;
@@ -110,16 +80,16 @@ input[id="isEncrypted"]
 }
 
 .create:hover {
-    background: #8a2be2;
+    background: rgb(181, 142, 205);
 }
 
 #cross {
-    color: white;
+    color: black;
     display: flex;
     justify-content: flex-end;
     font-size: x-large;
     border: none;
-    background: rgb(58, 6, 71);
+    background: rgb(222, 196, 238);
     margin-left: auto;
     margin-right: 7px;
     margin-top: 3px;

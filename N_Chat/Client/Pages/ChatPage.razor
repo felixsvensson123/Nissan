@@ -1,120 +1,40 @@
-@page "/chatpage"
+@inject IChatService ChatService
+@inject IUserService UserService
+@page "/ChatPage"
 
-@if (_pageLoaded)
+
+<h3>ChatPage</h3>
+<EditForm Model="Chat" OnValidSubmit="CreateChat">
+    <InputText @bind-Value="Chat.Name" placeholder="Chat name"></InputText>
+</EditForm>
+
+@foreach (var item in Chats)
 {
-	<p>@User.UserName is logged in</p>
-	<MudTable Items="@ChatList" Hover="true" Breakpoint="Breakpoint.Sm">
-		<ColGroup>
-			<col style="width:300px;" />
-			<col style="width:100px;" />
-			<col />
-			<col style="width:100px;" />
-		</ColGroup>
-		<HeaderContent>
-			<MudTh></MudTh>
-			<MudTh>Id</MudTh>
-			<MudTh>Name</MudTh>
-		</HeaderContent>
-		<RowTemplate>
-			<MudTd><MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => ShowBtnPress(context.Name))">@((context.ShowDetails == true)? "Hide" : "Show") Chat Details</MudButton></MudTd>
-			<MudTd DataLabel="Id">@context.Id</MudTd>
-			<MudTd DataLabel="Name">@context.Name.ToUpperInvariant()</MudTd>
-		</RowTemplate>
-		<ChildRowContent>
-			@if (context.ShowDetails)
-			{
-				<MudTr>
-					<td colspan="4">
-						<MudCard Elevation="0">
-							<MudCardHeader>
-								<CardHeaderContent>
-									<MudText Typo="Typo.body1">Chat Details For: <strong>@context.Name.ToUpperInvariant()</strong></MudText>
-								</CardHeaderContent>
-							</MudCardHeader>
-							<MudCardContent Class="pa-0">
-								<MudTable Items="@FriendList" Context="UserContext" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
-									<ColGroup>
-										<col />
-										<col />
-										<col style="width:200px;" />
-									</ColGroup>
-									<HeaderContent>
-										<MudTh>Users</MudTh>
-										<MudTh>Action</MudTh>
-									</HeaderContent>
-									<RowTemplate>
-										<MudTd DataLabel="User">
-											@UserContext.UserName
-										</MudTd>
-										<MudTd DataLabel="Invite">
-											<MudButton OnClick="@(() => RequestChat(@UserContext))">Invite</MudButton>
-										</MudTd>
-									</RowTemplate>
-								</MudTable>
-							</MudCardContent>
-						</MudCard>
-					</td>
-				</MudTr>
-			}
-		</ChildRowContent>
-	</MudTable>
-		
+    <h1>@item.Name</h1>
 }
 @code {
-    ChatModel ChosenChat { get; set; } = new();
+    ChatModel Chat { get; set; } = new();
     UserModel User { get; set; } = new();
-	ICollection<ChatModel> ChatList { get; set; } = new List<ChatModel>();
-	ICollection<UserModel> FriendList { get; set; } = new List<UserModel>(); // Kommer att göra till en vän lista senare.
-	bool _pageLoaded = false;
-	
-    protected override async Task OnInitializedAsync()
+    List<ChatModel> Chats { get; set; } = new();
+    UserModel UserToAdd { get; set; } = new();
+    private async Task CreateChat()
     {
-        var currentUser = await UserService.GetUserClaim();
-	    if (currentUser.user == null)
-		    throw new Exception("User was not found!");
-	    
-        User = await UserService.GetUser(currentUser.user.UserName);
-	    await Task.Delay(1);
-	    ChatList = await ChatService.GetChats();
-	    await Task.Delay(1);
-	    FriendList = await UserService.GetAllUsers();
-	    await Task.Delay(1);
-	    
-	    _pageLoaded = true;
-	    StateHasChanged();
-    }
-
-	private async Task HandleSubmit(EditContext context)
-	{
-
-		if (User == null)
-			throw new Exception("User was not found!");
-
-		ChosenChat.ChatCreated = DateTime.Now;
-		ChosenChat.CreatorId = User.Id;
-		ChosenChat.Users = new List<UserChat>()
-		{
-			new()
-			{
-				UserId = User.Id
-			},
-		};
-		await ChatService.CreateChat(ChosenChat);
-	}
-	private void ShowBtnPress(string chatName)
-	{
-		ChosenChat = ChatList.First(f => f.Name == chatName);
-		if(ChosenChat == null)	
-			throw new Exception("User was not found!");
-		
-		ChosenChat.ShowDetails = !ChosenChat.ShowDetails;
-		StateHasChanged();
-	}
-    private async Task RequestChat(UserModel chosenUser)
-    {
-	    if (chosenUser == null)
-		    throw new Exception("User not found");
-	    
-        await UserService.AddUserToChat(chosenUser, ChosenChat.Id);
+        var getuser = await UserService.GetUserClaim();
+        if (getuser.Message == "Success")
+        {
+            User = getuser.user;
+            if (User != null)
+            {
+                Chat.ChatCreated = DateTime.Now;
+                Chat.UserId = User.Id;
+                Chat.CreatorId = User.Id;
+                await ChatService.CreateChat(Chat);
+                foreach (var item in User.Chats)
+                {
+                    Chats.Add(item);
+                }
+            }
+            
+        }
     }
 }

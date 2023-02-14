@@ -1,4 +1,4 @@
-﻿/*using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using N_Chat.Shared;
 
@@ -61,4 +61,3 @@ namespace N_Chat.Server.Controllers
 
     }
 }
-*/

@@ -42,15 +42,10 @@ namespace N_Chat.Client.Services
 
             return null;
         }
-        public async Task<UserModel> GetUser(string userName)
-        {
-            var result = await httpClient.GetFromJsonAsync<UserModel>($"api/user/{userName}");
-            return result;
-        }
 
-        public async Task<UserModel> GetUserByName(string name)
+        public async Task<UserModel> GetUserById(string id)
         {
-            var result = await httpClient.GetFromJsonAsync<UserModel>($"api/user/getbyname/{name}");
+            var result = await httpClient.GetFromJsonAsync<UserModel>($"api/user/get/{id}");
             return result;
         }
 
@@ -74,33 +69,31 @@ namespace N_Chat.Client.Services
             }
         }
 
-        public async Task<ICollection<UserModel>> GetAllUsers()
+        public async Task<List<ChatModel>> GetUserChats(string id)
         {
-            return await httpClient.GetFromJsonAsync<ICollection<UserModel>>($"api/user/chats/");
+            return await httpClient.GetFromJsonAsync<List<ChatModel>>($"api/user/userchats/{id}");
         }
-        
-        public async Task<string> AddUserToChat(UserModel user, int chatId)
+
+        public async Task<string> AddUserToChat(string userName, int chatId)
         {
-            var result = await httpClient.PostAsJsonAsync($"api/user/chatrequest/{chatId}", user);
+            var result = await httpClient.PutAsJsonAsync($"api/user/chatrequest/{chatId}", userName);
             if (result.IsSuccessStatusCode)
             {
-                return await result.Content.ReadAsStringAsync();
+                return "Success!";
             }
-            return null;
+            return "Failed";
         }
-        
     }
 
     public interface IUserService 
     {
         Task<string> LoginUser(LoginModel loginModel); // Login User Method
         Task<string> SignUp(RegisterModel registerModel); // Signup User Method
-        Task<UserModel> GetUserByName(string name);// Get user by username method
+        Task<UserModel> GetUserById(string id);  // Get user by id method
         Task<string> Signout(); // Signout user
         Task<(string Message, UserModel? user)> GetUserClaim(); //Gets user via claims
-        Task<UserModel> GetUser(string userName); // gets specific user
-        Task<ICollection<UserModel>> GetAllUsers(); //Gets All Users 
-        Task<string> AddUserToChat(UserModel user, int chatId);
+        Task<List<ChatModel>> GetUserChats(string id);
+        Task<string> AddUserToChat(string userName, int chatId);
     }
 }
  

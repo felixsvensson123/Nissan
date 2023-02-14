@@ -1,8 +1,4 @@
-﻿.SidebarPosition{
-    position: fixed;
-}
-
-.navbar-toggler {
+﻿.navbar-toggler {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
@@ -11,7 +7,6 @@
     background-color: rgb(211, 178, 232);
     border-bottom: solid;
     border-color: black;
-    width: 15.6rem;
 }
 
 .navbar-brand {
@@ -23,8 +18,10 @@
 
 }
 
+
+
 .oi {
-    margin-top: 5px;
+    margin-top:5px;
     width: 2rem;
     font-size: 1.1rem;
     vertical-align: text-top;
@@ -35,7 +32,7 @@
 }
 
 #LogOut{
-    margin-top:435px;
+    margin-top:500px;
     margin-bottom:7px;
     padding-bottom:12px;
 }

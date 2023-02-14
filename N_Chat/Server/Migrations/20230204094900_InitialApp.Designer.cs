@@ -9,20 +9,21 @@ using N_Chat.Server.Data;
 
 #nullable disable
 
-namespace N_Chat.Server.Migrations
+namespace NChat.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230214093158_TestingABug")]
-    partial class TestingABug
+    [Migration("20230204094900_InitialApp")]
+    partial class InitialApp
     {
+        /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.13")
+                .HasAnnotation("ProductVersion", "7.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -46,14 +47,14 @@ namespace N_Chat.Server.Migrations
                         new
                         {
                             Id = "e02d359e-6bfb-47ed-9fbc-4c99e5d2db9b",
-                            ConcurrencyStamp = "5003ad62-a713-447a-862d-4502023080fd",
+                            ConcurrencyStamp = "ff2e4058-5729-4ac1-89e5-66db1b28b543",
                             Name = "Member",
                             NormalizedName = "MEMBER"
                         },
                         new
                         {
                             Id = "d1678ba6-7957-21a7-96b5-12b64c06bc25",
-                            ConcurrencyStamp = "d1b639b2-53af-41f2-bb63-1711672b612e",
+                            ConcurrencyStamp = "ef5ebfff-07ca-42ce-bc82-d79176141785",
                             Name = "Admin",
                             NormalizedName = "admin"
                         });
@@ -65,7 +66,7 @@ namespace N_Chat.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("nvarchar(max)");
@@ -87,7 +88,7 @@ namespace N_Chat.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("nvarchar(max)");
@@ -122,21 +123,21 @@ namespace N_Chat.Server.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("RoleId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("UserId", "RoleId");
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("RoleId");
 
                     b.ToTable("UserRoles");
 
                     b.HasData(
                         new
                         {
-                            UserId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",
-                            RoleId = "d1678ba6-7957-21a7-96b5-12b64c06bc25"
+                            RoleId = "d1678ba6-7957-21a7-96b5-12b64c06bc25",
+                            UserId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35"
                         });
                 });
 
@@ -163,7 +164,7 @@ namespace N_Chat.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("ChatCreated")
                         .HasColumnType("datetime2");
@@ -187,29 +188,27 @@ namespace N_Chat.Server.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("ShowDetails")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Chats");
-                });
-
-            modelBuilder.Entity("N_Chat.Shared.Connections", b =>
-                {
-                    b.Property<string>("Id")
+                    b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<bool>("Connected")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserAgent")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
-                    b.ToTable("Connections");
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Chats");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 5,
+                            ChatCreated = new DateTime(2023, 2, 4, 10, 48, 59, 850, DateTimeKind.Local).AddTicks(3752),
+                            CreatorId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",
+                            IsChatEdited = false,
+                            IsChatEncrypted = false,
+                            IsChatEnded = false,
+                            Name = "CoolChat",
+                            UserId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35"
+                        });
                 });
 
             modelBuilder.Entity("N_Chat.Shared.MessageModel", b =>
@@ -218,7 +217,7 @@ namespace N_Chat.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ChatId")
                         .HasColumnType("int");
@@ -235,7 +234,7 @@ namespace N_Chat.Server.Migrations
                     b.Property<string>("Message")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("MessageCreated")
+                    b.Property<DateTime>("MessageCreated")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("MessageDeleted")
@@ -254,21 +253,71 @@ namespace N_Chat.Server.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Messages");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 2,
+                            ChatId = 5,
+                            IsMessageDeleted = false,
+                            IsMessageEdited = false,
+                            IsMessageEncrypted = false,
+                            Message = "This one admin message 1",
+                            MessageCreated = new DateTime(2023, 2, 4, 10, 48, 59, 850, DateTimeKind.Local).AddTicks(3793),
+                            UserId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ChatId = 5,
+                            IsMessageDeleted = false,
+                            IsMessageEdited = false,
+                            IsMessageEncrypted = false,
+                            Message = "This one admin message 2",
+                            MessageCreated = new DateTime(2023, 2, 4, 15, 48, 59, 850, DateTimeKind.Local).AddTicks(3799),
+                            UserId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            ChatId = 5,
+                            IsMessageDeleted = false,
+                            IsMessageEdited = false,
+                            IsMessageEncrypted = false,
+                            Message = "This is felix message 1",
+                            MessageCreated = new DateTime(2023, 2, 4, 10, 48, 59, 850, DateTimeKind.Local).AddTicks(3806),
+                            UserId = "ded90182-7b04-41e0-aef6-8977a4d1c292"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            ChatId = 5,
+                            IsMessageDeleted = false,
+                            IsMessageEdited = false,
+                            IsMessageEncrypted = false,
+                            Message = "This is just a test message for the api's glhf",
+                            MessageCreated = new DateTime(2023, 2, 4, 10, 48, 59, 850, DateTimeKind.Local).AddTicks(3809),
+                            UserId = "ded90182-7b04-41e0-aef6-8977a4d1c292"
+                        });
                 });
 
-            modelBuilder.Entity("N_Chat.Shared.UserChat", b =>
+            modelBuilder.Entity("N_Chat.Shared.TestModel", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("ChatId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.HasKey("UserId", "ChatId");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.HasIndex("ChatId");
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.ToTable("UserChats");
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Test");
                 });
 
             modelBuilder.Entity("N_Chat.Shared.UserModel", b =>
@@ -327,15 +376,15 @@ namespace N_Chat.Server.Migrations
                         {
                             Id = "ded90182-7b04-41e0-aef6-8977a4d1c292",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "17310562-1ce3-446d-8e9b-6d2714ec9f4d",
+                            ConcurrencyStamp = "0e18ae57-a6a8-428d-99ad-fbece5eaffdf",
                             Email = "adminuser@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "adminuser@gmail.com",
                             NormalizedUserName = "admin",
-                            PasswordHash = "AQAAAAEAACcQAAAAEGJlVFsb3nATfUgNWwzJmMwfY8e32iO/nLx+DE2H0zPTvV4NRp2cdTCzIR4+OOpNaw==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEASTMOf7+cHBLJVaCI/Fbm/yVPRK6Pp77VRQg2sSj4is7nAoS8Rjkkr27RxSgpRmxA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "a4245a7a-8b22-4d4d-8905-41b8c6146500",
+                            SecurityStamp = "f8c767fd-185f-4879-94d3-e88be9ae7e42",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         },
@@ -343,18 +392,28 @@ namespace N_Chat.Server.Migrations
                         {
                             Id = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "522fd56a-05b5-41fb-9967-7dcd9ff8bff1",
+                            ConcurrencyStamp = "e891dec1-b60b-43b9-b543-d645b4acfc62",
                             Email = "Css@live.se",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "css@live.se",
                             NormalizedUserName = "felix",
-                            PasswordHash = "AQAAAAEAACcQAAAAEKmjO05AIJD/ZgVV6AHyH23r1c/EE0JajU36gikhRGEAR861OAM0k2L6TL3mPiXBIQ==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEATZR5vE9AA/3ar1CaGMqDASm8btP8ZaQPalrBUMaLr9ZEkkmbVRoO/tcId5OTTzcQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "8507ddb6-7661-404d-8b6c-86e4a14aa02a",
+                            SecurityStamp = "fa2f380f-eda5-4dba-967a-fe1a41cff33c",
                             TwoFactorEnabled = false,
                             UserName = "felix"
                         });
+                });
+
+            modelBuilder.Entity("N_Chat.Shared.ChatModel", b =>
+                {
+                    b.HasOne("N_Chat.Shared.UserModel", "User")
+                        .WithMany("Chats")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("N_Chat.Shared.MessageModel", b =>
@@ -367,26 +426,8 @@ namespace N_Chat.Server.Migrations
 
                     b.HasOne("N_Chat.Shared.UserModel", "User")
                         .WithMany("Messages")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("Chat");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("N_Chat.Shared.UserChat", b =>
-                {
-                    b.HasOne("N_Chat.Shared.ChatModel", "Chat")
-                        .WithMany("Users")
-                        .HasForeignKey("ChatId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("N_Chat.Shared.UserModel", "User")
-                        .WithMany("Chats")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Chat");
 
@@ -396,8 +437,6 @@ namespace N_Chat.Server.Migrations
             modelBuilder.Entity("N_Chat.Shared.ChatModel", b =>
                 {
                     b.Navigation("Messages");
-
-                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("N_Chat.Shared.UserModel", b =>

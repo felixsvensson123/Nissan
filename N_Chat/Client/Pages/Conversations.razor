@@ -1,4 +1,9 @@
-﻿@using Microsoft.AspNetCore.SignalR.Client
+﻿@inject NavigationManager NavigationManager
+@inject IUserService UserService
+@inject IMessageService MessageService
+@inject IChatService ChatService
+
+@using Microsoft.AspNetCore.SignalR.Client
 @using Microsoft.AspNetCore.Connections
 
 
@@ -10,7 +15,6 @@
 {
 @if (!_isChatting)
 {
-    <p>Welcome @User.UserName</p>
     <MudTable Items="@User.Chats">
         <ColGroup>
             <col style="width: 60px;"/>
@@ -23,16 +27,16 @@
             <MudTh>Action</MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd DataLabel="Name">@context.Chat.Name</MudTd>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
             <MudTd>
-                <MudButton Color="Color.Dark" @onclick="(() => Chat(context.Chat.Name))">Enter</MudButton>
-                <MudButton Color="Color.Dark">Manage Chat</MudButton>
+                <MudButton Color="Color.Dark" @onclick="(() => Chat(context.Name))">Enter</MudButton>
+                <MudButton Color="Color.Dark" @onclick="(() => AddUserToChat(context.Id))">Manage Chat</MudButton>
             </MudTd>
         </RowTemplate>
     </MudTable>
     @if (_invitingUser)
     {
-        <MudTable SelectedItem="@SelectedChat">
+        <MudTable SelectedItem="@CurrentChat">
             <HeaderContent>
                 <MudTh>Chat</MudTh>
                 <MudTh>Current</MudTh>
@@ -50,28 +54,21 @@ else
     <body>
     <div class="alert alert-secondary mt-4" role="alert">
         <span class="oi oi-person mr-2" aria-hidden="true"></span>
-        <span>Connected As: <b>@User.UserName</b></span>
-        @if (SelectedChat != null)
+        <span>You are connected as <b>@User.UserName</b></span>
+        @foreach (var item in _messages)
         {
-            @foreach (var item in SelectedChat.Chat.Messages)
-            {
-                <div class="scrollbox">
-                    <div class="msg">
-                        @if (item.User != null)
-                        {
-                            <span>@item.User.UserName: </span>
-                        }
-                        <p>Message: @item.Message</p>
-                    </div>
-                </div>
-            }
+            <div class="scrollbox">
+                <div class="msg">@item.User.UserName: @item.Message</div>
+            </div>
         }
+        <button class="btn btn-sm btn-warning ml-md-auto" @onclick="@DisconnectAsync">Disconnect</button>
     </div>
     <div class="message">
-        <input @bind="_message.Message" class="messageinput" type="text" name="txt" placeholder="Write something..." wrap="hard" rows="5" cols="30" required="">
+        <input @bind="_message" class="messageinput" type="text" name="txt" placeholder="Write something..." wrap="hard" rows="5" cols="30" required="">
         <button class="oi oi-pencil" aria-hidden="true" id="Pencil"></button>
         <button class="oi oi-trash" aria-hidden="true" id="Trash"></button>
-        <button @onclick="@(() => SendMessage(_message))" class="oi oi-location" aria-hidden="true" id="Send"></button>
+        <button @onclick="@(() => SendAsync(_message, _chatName))" class="oi oi-location" aria-hidden="true" id="Send"></button>
+
     </div>
     </body>
 }
@@ -82,79 +79,126 @@ else
     private bool _isChatting = false;
     private bool _pageLoaded = false;
     private bool _invitingUser = false;
-    private UserModel? User { get; set; }// name of the user who will be chatting
-    private UserChat? SelectedChat { get; set; } = new(); // Current Chat
-    private List<ChatModel> UserChats { get; set; } = new();
+    private UserModel? User { get; set; } // name of the user who will be chatting
+    private MessageModel? DisplayMessage { get; set; } = new(); // on-screen message
+    private MessageModel? InputMessage { get; set; } = new(); // new message input
+    private ChatModel? CurrentChat { get; set; } = new(); // Current Chat
+    private List<MessageModel> _messages = new(); // list of messages in chat
     private string _hubUrl;
-    private HubConnection hubConnection;
-    MessageModel _message { get; set; } = new();
-    // string? _message;
+    private HubConnection _hubConnection;
+    private string? _message;
     private string? encryptedMessage;
-    private string? _chatName { get; set; }
-    private string? _userName;
-    
+    private string? _chatName;
+
     protected override async Task OnInitializedAsync()
     {
-        hubConnection = new HubConnectionBuilder()
-            .WithUrl(NavigationManager.ToAbsoluteUri("/conversations"))
-            .Build();
-
         var currentUser = await UserService.GetUserClaim();
-        
         if (currentUser.Message == "Success")
         {
-            User = await UserService.GetUser(currentUser.user.UserName);
-            
-            _pageLoaded = true;
-            await InvokeAsync(StateHasChanged);
+            User = currentUser.user;
+            if (User != null)
+            {
+                User.Chats = await UserService.GetUserChats(User.Id);
+                _pageLoaded = true;
+                StateHasChanged();
+            }
+
             StateHasChanged();
         }
     }
 
     private async Task Chat(string chatName)
     {
-        SelectedChat = User.Chats.FirstOrDefault(c => c.Chat.Name == chatName);
-        _chatName = chatName;
-        
-        hubConnection.On<MessageModel>("ReceiveMessage", (message) =>
-        {
-            SelectedChat.Chat.Messages.Add(message);
-            InvokeAsync(StateHasChanged);
-            StateHasChanged();
-        });
+        _isChatting = true; // Start chatting and force refresh UI.
+        await Task.Delay(1);
 
-        await hubConnection.StartAsync();
-        
-        await hubConnection.InvokeAsync("EnterChat", chatName);
-        await hubConnection.SendAsync("SendMessage", _message ,chatName);
-        _isChatting = true;
-        await InvokeAsync(StateHasChanged);
+        _messages.Clear(); // remove old messages if any
+
+        _hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/conversations"))
+            .Build();
+
+        _hubConnection.On<string, string, string>("SendGroupMessage", BroadcastMessage);
+        _chatName = chatName; // Sets chatname after chosen item in list
+
+        await _hubConnection.StartAsync();
+
+        await SendAsync($"[Notice] {User.UserName}: has joined the chat", chatName);
     }
 
-    private async Task SendMessage(MessageModel messageModel)
+    private async Task BroadcastMessage(string name, string message, string chatName)
     {
-        if (_isChatting)
+    //Adds message to list for display in html
+        var findUser = User.UserName;
+        if (findUser != null)
         {
-            messageModel = new()
+            var user = await UserService.GetUserById(findUser);
+            _messages.Add(new MessageModel()
             {
-                Message = messageModel.Message,
-                MessageCreated = DateTime.Now,
+                Id = +1,
+                Message = message,
                 UserId = User.Id,
-                ChatId = SelectedChat.ChatId,
-                IsMessageEncrypted = SelectedChat.Chat.IsChatEncrypted
-            };
-            await MessageService.PostMessage(messageModel);
-            await hubConnection.SendAsync("SendMessage", messageModel, _chatName);
-            _message.Message = string.Empty;
-            messageModel = default(MessageModel)!;
+                User = user,
+                MessageCreated = DateTime.Now,
+            });
+        }
+        InvokeAsync(StateHasChanged); // update ui
+    }
+
+    //skicka ett privat meddeland i en chat
+    private async Task SendAsync(string message, string chatName)
+    {
+        if (_isChatting && !string.IsNullOrWhiteSpace(message))
+        {
+            await _hubConnection.SendAsync("SendGroupMessage", User.UserName, message, chatName);
+            message = string.Empty;
             await InvokeAsync(StateHasChanged);
         }
     }
 
-    /*public async Task DisposeAsync()
+
+    private async Task DisconnectAsync()
     {
-        await hubConnection.DisposeAsync();
-        await base.InvokeAsync("HasDisconnected", );
+        if (_isChatting)
+        {
+            await SendAsync($"[Notice] {User.UserName} left chat room.", "");
+
+            await _hubConnection.StopAsync();
+            await _hubConnection.DisposeAsync();
+
+            _hubConnection = null;
+            _isChatting = false;
+        }
+    }
+
+    private async Task AddUserToChat(int chatId)
+    {
+        CurrentChat = await ChatService.GetChatById(chatId);
+        _invitingUser = true;
+    }
+
+    /*//skicka ett privat meddeland i en chat-connectar till ett visst chatId-valbar med encrypt
+    private async Task SendPrivateChatMessage(string userId, string user, string message, int chatId, bool isChatEncrypted)
+    {
+        CurrentChat = (new ChatModel() //create chat
+        {
+            Id = CurrentChat.Id,
+            ChatCreated = DateTime.Now,
+            CreatorId = userId,
+            Name = CurrentChat.Name,
+            Messages = new List<MessageModel>()
+            {
+                new() //Message in chat
+                {
+                    Message = message,
+                    MessageCreated = DateTime.Now,
+                    UserId = User.Id,
+                }
+            }
+        }
+            );
+
+        InvokeAsync(StateHasChanged);
     }*/
 
 }

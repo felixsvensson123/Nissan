@@ -13,39 +13,29 @@ namespace N_Chat.Server.Data
         {
         }
 
+        public DbSet<TestModel> Test { get; set; }
         public DbSet<ChatModel> Chats { get; set; }
         public DbSet<MessageModel> Messages { get; set; }
         public DbSet<Connections> Connections { get; set; }
-        public DbSet<UserChat> UserChats { get; set; }
-
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
             modelBuilder.Entity<ChatModel>()
-                .HasMany(c => c.Messages)
-                .WithOne(m => m.Chat)
-                .HasForeignKey(m => m.ChatId)
-                .OnDelete(DeleteBehavior.Cascade);
-            
+                .HasOne(i => i.User)
+                .WithMany(u => u.Chats)
+                .HasForeignKey(i => i.UserId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Restrict deletion of thread on message delete (set user to null instead)
             modelBuilder.Entity<MessageModel>()
-                .HasOne(m => m.User)
+                .HasOne(i => i.User)    
                 .WithMany(u => u.Messages)
-                .HasForeignKey(m => m.UserId);
-            
-            modelBuilder.Entity<UserChat>(entity =>
-            {
-                entity.HasKey(uc => new {uc.UserId, uc.ChatId});
+                .HasForeignKey(i => i.UserId) //.HasForeignKey i.ChatId
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
 
-                entity.HasOne(uc => uc.User)
-                    .WithMany(u => u.Chats)
-                    .HasForeignKey(uc => uc.UserId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne(uc => uc.Chat)
-                    .WithMany(c => c.Users)
-                    .HasForeignKey(uc => uc.ChatId)
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
-          
             modelBuilder.Entity<IdentityUserLogin<string>>()
                 .HasNoKey();
 
@@ -74,40 +64,74 @@ namespace N_Chat.Server.Data
                 NormalizedUserName = "felix",
                 EmailConfirmed = true,
                 PasswordHash = hasher.HashPassword(null!, "qwe123"),};
+
+            var seedChat = new ChatModel() {
+                Id = 5,
+                Name = "CoolChat",
+                CreatorId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",
+                IsChatEncrypted = false,
+                IsChatEnded = false,
+                IsChatEdited = false,
+                ChatCreated = DateTime.Now,
+                ChatEnded = null,
+                Messages = null,
+                UserId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",};
+
+
+            var seedMessage1 = new MessageModel() {
+                Id = 2,
+                Message = "This one admin message 1",
+                UserId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35", //admin qwe123
+                MessageCreated = DateTime.Now,
+                MessageDeleted = null,
+                MessageEdited = null,
+                IsMessageEncrypted = false,
+                IsMessageEdited = false,
+                IsMessageDeleted = false,
+                ChatId = 5,};
+
+            var seedMessage2 = new MessageModel() {
+                Id = 3,
+                Message = "This one admin message 2",
+                UserId = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35", //admin qwe123
+                MessageCreated = DateTime.Now.AddHours(5),
+                MessageDeleted = null,
+                MessageEdited = null,
+                IsMessageEncrypted = false,
+                IsMessageEdited = false,
+                IsMessageDeleted = false,
+                ChatId = 5,};
+
+            var seedMessage3 = new MessageModel() {
+                Id = 4,
+                Message = "This is felix message 1",
+                UserId = "ded90182-7b04-41e0-aef6-8977a4d1c292", //felix qwe123
+                ChatId = 5,
+                MessageCreated = DateTime.Now,
+                MessageDeleted = null,
+                MessageEdited = null,
+                IsMessageEncrypted = false,
+                IsMessageEdited = false,
+                IsMessageDeleted = false,};
             
+            var seedMessage4 = new MessageModel() {
+                Id = 5,
+                Message = "This is just a test message for the api's glhf",
+                UserId = "ded90182-7b04-41e0-aef6-8977a4d1c292", //felix qwe123
+                ChatId = 5,
+                MessageCreated = DateTime.Now,
+                MessageDeleted = null,
+                MessageEdited = null,
+                IsMessageEncrypted = false,
+                IsMessageEdited = false,
+                IsMessageDeleted = false,};
+
             modelBuilder.Entity<IdentityRole>().HasData(member, administrator);
             modelBuilder.Entity<UserModel>().HasData(adminSeed, chatAdminSeed);
             modelBuilder.Entity<IdentityUserRole<string>>().HasData(new IdentityUserRole<string>
                 {UserId = chatAdminSeed.Id, RoleId = administrator.Id});
+            modelBuilder.Entity<MessageModel>().HasData(seedMessage1, seedMessage2, seedMessage3, seedMessage4);
+            modelBuilder.Entity<ChatModel>().HasData(seedChat);
         }
     }
 }
-
-  /*
-            /*modelBuilder.Entity<UserModel>()
-                .HasMany(u => u.Chats)
-                .WithOne(uc => uc.User)
-                .HasForeignKey(uc => uc.UserId);#1#
-            modelBuilder.Entity<UserChat>()
-                .HasKey(ucm => new {ucm.UserId, ucm.ChatId});
-
-            modelBuilder.Entity<UserChat>()
-                .HasOne(uc => uc.User)
-                .WithMany(u => u.Chats)
-                .HasForeignKey(uc => uc.UserId);
-
-            modelBuilder.Entity<UserChat>()
-                .HasOne(uc => uc.Chat)
-                .WithMany(c => c.Users)
-                .HasForeignKey(uc => uc.ChatId);
-            
-            modelBuilder.Entity<ChatModel>()
-                .HasMany(c => c.Messages)
-                .WithOne(uc => uc.Chat)
-                .HasForeignKey(uc => uc.ChatId);
-            
-            modelBuilder.Entity<MessageModel>()
-                .HasOne(m => m.User)
-                .WithMany(u => u.Messages)
-                .HasForeignKey(m => m.UserId);
-                */
