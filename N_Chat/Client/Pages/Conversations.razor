@@ -143,6 +143,7 @@ else
             };
             await MessageService.PostMessage(messageModel);
             await hubConnection.SendAsync("SendMessage", messageModel, _chatName);
+            _message.Message = string.Empty;
             messageModel = default(MessageModel)!;
             await InvokeAsync(StateHasChanged);
         }
