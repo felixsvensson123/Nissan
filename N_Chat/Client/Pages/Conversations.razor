@@ -57,6 +57,10 @@ else
             {
                 <div class="scrollbox">
                     <div class="msg">
+                        @if (item.User != null)
+                        {
+                            <span>@item.User.UserName: </span>
+                        }
                         <p>Message: @item.Message</p>
                     </div>
                 </div>
@@ -86,7 +90,7 @@ else
     MessageModel _message { get; set; } = new();
     // string? _message;
     private string? encryptedMessage;
-    private string? _chatName;
+    private string? _chatName { get; set; }
     private string? _userName;
     
     protected override async Task OnInitializedAsync()
@@ -109,7 +113,7 @@ else
     private async Task Chat(string chatName)
     {
         SelectedChat = User.Chats.FirstOrDefault(c => c.Chat.Name == chatName);
-
+        _chatName = chatName;
         
         hubConnection.On<MessageModel>("ReceiveMessage", (message) =>
         {
@@ -138,6 +142,7 @@ else
                 IsMessageEncrypted = SelectedChat.Chat.IsChatEncrypted
             };
             await MessageService.PostMessage(messageModel);
+            await hubConnection.SendAsync("SendMessage", messageModel, _chatName);
             messageModel = default(MessageModel)!;
             await InvokeAsync(StateHasChanged);
         }
