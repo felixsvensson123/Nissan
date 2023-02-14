@@ -56,7 +56,9 @@ else
             @foreach (var item in SelectedChat.Chat.Messages)
             {
                 <div class="scrollbox">
-                    <div class="msg">@item.Message</div>
+                    <div class="msg">
+                        <p>Message: @item.Message</p>
+                    </div>
                 </div>
             }
         }
@@ -100,19 +102,19 @@ else
             User = await UserService.GetUser(currentUser.user.UserName);
             
             _pageLoaded = true;
-            StateHasChanged();
+            await InvokeAsync(StateHasChanged);
         }
     }
 
     private async Task Chat(string chatName)
     {
         SelectedChat = User.Chats.FirstOrDefault(c => c.Chat.Name == chatName);
- 
+
         
         hubConnection.On<MessageModel>("ReceiveMessage", (message) =>
         {
             SelectedChat.Chat.Messages.Add(message);
-            StateHasChanged();
+            InvokeAsync(StateHasChanged);
         });
 
         await hubConnection.StartAsync();
@@ -120,7 +122,7 @@ else
         await hubConnection.InvokeAsync("EnterChat", chatName);
         await hubConnection.SendAsync("SendMessage", _message ,chatName);
         _isChatting = true;
-        StateHasChanged();
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task SendMessage(MessageModel messageModel)
@@ -137,7 +139,7 @@ else
             };
             await MessageService.PostMessage(messageModel);
             messageModel = default(MessageModel)!;
-            StateHasChanged();
+            await InvokeAsync(StateHasChanged);
         }
     }
 

@@ -30,8 +30,11 @@ public class SignalRController : Hub
             Console.WriteLine(userIdentifier);
             foreach (var item in chatList)
             {
-                await Groups.AddToGroupAsync(Context.ConnectionId, item.Chat.Name);
-                Console.WriteLine(item.Chat.Name);
+                if (item.Chat != null)
+                {
+                    await Groups.AddToGroupAsync(Context.ConnectionId, item.Chat.Name);
+                    Console.WriteLine(item.Chat.Name);
+                }
             }
             await base.OnConnectedAsync();
         }
