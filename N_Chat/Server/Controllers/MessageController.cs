@@ -23,7 +23,7 @@ namespace N_Chat.Server.Controllers{
                 foreach (var item in userMessages)
                 {
                     if(item.IsMessageEncrypted) // decrypts message using azure key vault service if statement is true
-                        await keyVaultService.DecryptStringAsync(item.Message); 
+                        item.Message = await keyVaultService.DecryptStringAsync(item.Message); 
                 }
                 
                 return userMessages;
@@ -41,7 +41,7 @@ namespace N_Chat.Server.Controllers{
                var userMessage = await _context.Messages.FirstOrDefaultAsync(p => p.Id == id);
                
                if(userMessage.IsMessageEncrypted) // decrypts message using azure key vault service if statement is true
-                   await keyVaultService.DecryptStringAsync(userMessage.Message); 
+                   userMessage.Message = await keyVaultService.DecryptStringAsync(userMessage.Message); 
              
                return Ok(userMessage);
             }
@@ -61,7 +61,7 @@ namespace N_Chat.Server.Controllers{
                 }
                 
                 if(messageModel.IsMessageEncrypted) // encrypts message using azure key vault service if statement is true
-                    await keyVaultService.EncryptStringAsync(messageModel.Message);
+                    messageModel.Message = await keyVaultService.EncryptStringAsync(messageModel.Message);
 
                 var chat = await _context.Chats.FirstOrDefaultAsync(x => x.Id == messageModel.ChatId);
                 chat.Messages.Add(new()

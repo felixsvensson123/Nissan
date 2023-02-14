@@ -44,14 +44,14 @@ namespace N_Chat.Server.Migrations
                         new
                         {
                             Id = "e02d359e-6bfb-47ed-9fbc-4c99e5d2db9b",
-                            ConcurrencyStamp = "ef041358-3e2d-438f-99be-d3299e532b41",
+                            ConcurrencyStamp = "5003ad62-a713-447a-862d-4502023080fd",
                             Name = "Member",
                             NormalizedName = "MEMBER"
                         },
                         new
                         {
                             Id = "d1678ba6-7957-21a7-96b5-12b64c06bc25",
-                            ConcurrencyStamp = "0cbcba21-9538-43f8-bc20-ed777a99a8f2",
+                            ConcurrencyStamp = "d1b639b2-53af-41f2-bb63-1711672b612e",
                             Name = "Admin",
                             NormalizedName = "admin"
                         });
@@ -233,7 +233,7 @@ namespace N_Chat.Server.Migrations
                     b.Property<string>("Message")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("MessageCreated")
+                    b.Property<DateTime?>("MessageCreated")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("MessageDeleted")
@@ -325,15 +325,15 @@ namespace N_Chat.Server.Migrations
                         {
                             Id = "ded90182-7b04-41e0-aef6-8977a4d1c292",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "88e7fed6-2551-4abe-9271-33526c6df73b",
+                            ConcurrencyStamp = "17310562-1ce3-446d-8e9b-6d2714ec9f4d",
                             Email = "adminuser@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "adminuser@gmail.com",
                             NormalizedUserName = "admin",
-                            PasswordHash = "AQAAAAEAACcQAAAAEAujpaVHYHV1sJUMdqLvZ2oZDu2CyS0s1Io16DAwpJx+oyYP2H+3cvNiZPzEhUviYg==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEGJlVFsb3nATfUgNWwzJmMwfY8e32iO/nLx+DE2H0zPTvV4NRp2cdTCzIR4+OOpNaw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "2f38eda8-84e4-4b12-9c94-d6ee48ab81b9",
+                            SecurityStamp = "a4245a7a-8b22-4d4d-8905-41b8c6146500",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         },
@@ -341,15 +341,15 @@ namespace N_Chat.Server.Migrations
                         {
                             Id = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "44dce2d8-7297-4c6c-a729-1ab8b1575d1e",
+                            ConcurrencyStamp = "522fd56a-05b5-41fb-9967-7dcd9ff8bff1",
                             Email = "Css@live.se",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "css@live.se",
                             NormalizedUserName = "felix",
-                            PasswordHash = "AQAAAAEAACcQAAAAEL1mmijZxAuqiKa+st+/0kW41LI9Zx4u2WQaB4K8XCYprePwGJEaa23ScWPQwrd4+g==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEKmjO05AIJD/ZgVV6AHyH23r1c/EE0JajU36gikhRGEAR861OAM0k2L6TL3mPiXBIQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "3e8fd506-cd64-4743-8241-c9cb515debc4",
+                            SecurityStamp = "8507ddb6-7661-404d-8b6c-86e4a14aa02a",
                             TwoFactorEnabled = false,
                             UserName = "felix"
                         });
