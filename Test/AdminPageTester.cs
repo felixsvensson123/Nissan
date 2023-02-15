@@ -13,14 +13,14 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Test
 {
-    public class AdminPgaeTester
+    public class AdminPageTester
     {
         // Test expectet behavior of method of method get all usersn in Class UserController.cs
 
 
         private DataContext _context;
         private IUserService userService;
-        private new List<UserModel> UserList;
+        private new ICollection<UserModel> UserList;
 
         [SetUp]
         public void Setup()
