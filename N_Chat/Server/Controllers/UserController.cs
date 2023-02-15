@@ -29,7 +29,8 @@ namespace N_Chat.Server.Controllers{
         {
             ICollection<UserModel> users = await context.Users
                 .Include(u => u.Chats)
-                .Include(t => t.Messages).ToListAsync();
+                .Include(t => t.Messages)
+                .ToListAsync();
             return users;
         }
         [HttpGet("getbyname/{userName}")]

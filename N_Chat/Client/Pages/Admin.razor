@@ -1,5 +1,27 @@
-﻿<h3>Admin</h3>
+﻿@inject Services.IUserService IUserService
+@inject Services.IChatService IChatService
+@inject NavigationManager NavManeger
+@page "/Admin"
+
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        @OnStart()
+        <h3>welcome to admin</h3>
+    </Authorized>
+        <NotAuthorized>
+        <h3>L</h3>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
+    ICollection<UserModel>? UserList { get; set; }
+    ICollection<ChatModel>? ChatList { get; set; }
 
+    public async Task OnStart()
+    {
+        UserList = await IUserService.GetAllUsers();
+        ChatList = await IChatService.GetChats();
+        Console.WriteLine(UserList);
+        Console.WriteLine(ChatList);
+    }
 }
