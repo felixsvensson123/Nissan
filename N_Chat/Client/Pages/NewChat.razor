@@ -1,55 +1,162 @@
 ﻿@page "/new_chat"
 @layout Loginlayout
 @inject NavigationManager NavigationManager
+@inject IUserService UserService
+@inject IChatService ChatService
 
 <AuthorizeView>
-	<Authorized>
-		<div class="main">
-			<input type="checkbox" id="chk" aria-hidden="true">
+   <Authorized>
+      <div class="main">
+         <input type="checkbox" id="chk" aria-hidden="true">
 
+         <div class="New-Chat">
+            <form>
+               <button class="oi oi-x" aria-hidden="true" id="cross" @onclick=@(() => NavigationManager.NavigateTo("/StartPage"))></button>
+               <label for="chk" aria-hidden="true">Singel Chat</label> @*todo: fix popup window for text <usernameErrorMessage> if user is trying to add users that do not exist:*@
+               @*
+               <span class="popup-text" id="myPopup">@usernameErrorMessage</span>
+               *@
+               <input type="text" id="singleChatMember" name="txt" placeholder="Username" required="" @bind="SingleChatMember">
+               <input type="text" id="Chat-name" name="Chat-name" placeholder="Chat-name" required="" @bind="ChatName">
+               <div class="not-block-element">
+                  <input type="checkbox" name="isEncrypted" @bind="IsEncrypted"/>
+                  I want the chat encrypted
+               </div>
+               <button class="create" id="createBtn1" type="submit" @onclick=GettingUsersForChat @onclick:preventDefault="true">Start Chat</button> @*todo: make un-clickable if incorrectly filled form*@
+            </form>
+         </div>
 
-			<div class="New-Chat">
-				<form>
-					<button class="oi oi-x" aria-hidden="true" id="cross" @onclick=@(() => NavigationManager.NavigateTo("/StartPage")) ></button>
-					<label for="chk" aria-hidden="true">Singel Chat</label>
-					<input type="text" id="singleChatMember" name="txt" placeholder="Username" required="">
-					<input type="text" name="txt" placeholder="Chatname" required="">
-					<input type="checkbox" name="isEncrypted"/>
-                    <center>
-                        <p>I want the chat encrypted </p>
-					</center>
-					<button class="create" @onclick=@(() => createNewChat())>Start Chat</button>
-				</form>
-			</div>
-
-			<div class="New-Group-Chat">
-				<form>
-					<label for="chk" aria-hidden="true">Group Chat</label>
-					<input type="text" id="chatMember1" name="txt" placeholder="Username 1" required="">
-					<input type="text" name="txt" id="chatMember2" placeholder="Username 2" required="">
-					<input type="checkbox" name="isEncrypted"/>
-                    <center>
-                        <p>I want the chat encrypted </p>
-					</center>
-					<button class="create"@onclick=@(() => createNewChat()) >Start Group Chat</button>
-				</form>
-			</div>
-		</div>
-	</Authorized>
-	<NotAuthorized>
-		<LoginDisplay/>
-	</NotAuthorized>
+         <div class="New-Group-Chat">
+            <form>
+               <label for="chk" aria-hidden="true">Group Chat</label>
+               <input type="text" id="chatMember1" name="txt" placeholder="Username 1" required="" @bind="ChatMember1">
+               <input type="text" name="txt" id="chatMember2" placeholder="Username 2" required="" @bind="ChatMember2">
+               <input type="checkbox" name="isEncrypted" @bind="IsEncrypted"/>
+               <p>I want the chat encrypted </p>
+               <button class="create" id="createBtn2" type="submit" @onclick="GettingUsersForChat" @onclick:preventDefault="true">Start Group Chat</button>@*todo: make un-clickable if incorrectly filled form*@
+            </form>
+         </div>
+      </div>
+   </Authorized>
+   <NotAuthorized>
+      <LoginDisplay/>
+   </NotAuthorized>
 </AuthorizeView>
 
 @code {
-	public ChatModel createNewChat()
-	{
+   //get the logged in user id
+   ChatModel Chat { get; set; } = new();
+   UserModel User { get; set; } = new();
+
+   private string? ChatName { get; set; }
+   private string? SingleChatMember { get; set; }
+   private string usernameErrorMessage { get; set; }
+   private bool IsEncrypted { get; set; }
+   private string? ChatMember1 { get; set; }
+   private string? ChatMember2 { get; set; }
+
+   //_addedUsers is not readonly since we want to add to it.
+   private List<UserModel> _addedUsers = new();
+
+   protected override async Task OnInitializedAsync(){
+      var currentUser = await UserService.GetUserClaim();
+      if (currentUser.Message == "Success"){
+         User = currentUser.user;
+      }
+   }
 
 
+   private void GettingUsersForChat(){
+      if (SingleChatMember != null){
+   /* Console.WriteLine("CreateNewChat ran"); */
+         getUserAndAddTo_addedUsers(SingleChatMember);
+      }
+      if (ChatMember1 != null && ChatMember2 != null){
+   /* Console.WriteLine("CreateNewChat ran");  */
+         getUserAndAddTo_addedUsers(ChatMember1);
+         getUserAndAddTo_addedUsers(ChatMember2);
+      }
+
+       /*  Console.WriteLine("row80 ");  */
+      //checking if _addedUsers is not null BUT DOES NOT WORK
+      if (_addedUsers != null ){
+          Console.WriteLine("row83 _addedUsers.GetType() = " + _addedUsers.GetType());
+         
+         /*Console.WriteLine("_addedUsers[0].UserName = " + _addedUsers[0].UserName);*/
+         
+         
+         
+         //print name of users in _addedUsers
+         foreach (var user in _addedUsers){
+            Console.WriteLine("row86: " + _addedUsers[0].UserName);
+         }
+         CreateNewChat();
+      }
+      
+      //check if _addedUsers is empty, if it is, then we don't want to create a chat.
+      if (_addedUsers.Count == 0){
+         usernameErrorMessage = "You need to add at least one user to the chat.";
+      }
+   }
 
 
+   private async void CreateNewChat(){
+      /*  Console.WriteLine("row91: CreateNewChat ran");  */
+   //add chat attributes
+      Chat.Name = ChatName;
+      Chat.CreatorId = User.Id;
+      Console.WriteLine("row: 95, ChatName= " + ChatName + ", Chat.CreatorId= " + Chat.CreatorId);
+      Chat.ChatCreated = DateTime.Now;
+      Chat.Users = _addedUsers;
+      Chat.IsChatEncrypted = IsEncrypted;
 
-		//todo create method
-		return null;
-	}
+      try{
+   //save the chat, it will return the ChatId.
+         string chatId = await ChatService.CreateChatUseInput(Chat.CreatorId, Chat.Name, Chat.IsChatEncrypted, Chat.Users);
+
+         Console.WriteLine("Chat created. ChatName = " + Chat.Name + ",CreatorId =" + Chat.CreatorId + ",ChatCreated =  " + Chat.ChatCreated + ", Users = " + Chat.Users + " och IsChatEncrypted = " + Chat.IsChatEncrypted+ ", id= "+ Chat.Id+".");
+
+   //navigate the user to the "/ChatPage" page and pass along the int chatId in Blazor WebAssembly
+         NavigationManager.NavigateTo($"/ChatPage?value={chatId}");
+      }
+      catch (Exception e){
+         Console.WriteLine("chat not created!!! ");
+         Console.WriteLine(e.Message);
+         Console.WriteLine(e.StackTrace);
+      }
+   }
+
+
+   //this code is being reused, right now 3 times.
+   private async void getUserAndAddTo_addedUsers(string username){
+      usernameErrorMessage = string.Empty;
+   /*       Console.WriteLine("getUserAndAddTo_addedUsers ran");       */
+
+      if (string.IsNullOrWhiteSpace(username)){
+         usernameErrorMessage = "Username on participants is required.";
+      }
+
+      try{
+   //get the user object by userName
+         UserModel user = await UserService.GetUserByName(username);
+
+   /* Console.WriteLine("UserModel userJoining = await UserService.GetUserByUserName(username); just ran"); */
+         
+   //so we don't add the same user twice.
+         if (!_addedUsers.Any(u => u.UserName == user.UserName)){
+            Console.WriteLine("row 134: Added user with userName: " + user.UserName + " to _addedUsers");
+            _addedUsers.Add(user);
+             Console.WriteLine("row 136: _addedUsers = " + _addedUsers.Count + ", " + _addedUsers[0].UserName);
+         }
+
+   //OBS finns ingen error handeling i UserController + UserService för denna metod där själva requesten till db görs. Ex response 400 som svar på request till db hanteras inte. Leder till buggar
+      }
+      catch (Exception e){
+         usernameErrorMessage = "User " + username + " not found!";
+         Console.WriteLine("Error!! called UserService.GetUserByUserName(username). Error message: ");
+         Console.WriteLine(e.Message);
+         Console.WriteLine(e.StackTrace);
+      }
+   }
+
 }

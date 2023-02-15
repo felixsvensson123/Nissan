@@ -124,3 +124,7 @@ input {
 #chk:checked ~ .New-Chat label {
     transform: scale(.6);
 }
+.popup-text{
+    /*z index */
+    z-index: 2;
+}

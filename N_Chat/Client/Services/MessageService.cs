@@ -25,6 +25,22 @@ namespace N_Chat.Client.Services
             return null;
         }
 
+        
+        
+        public async Task<List<MessageModel>> GetMessageByChatId(int chatid){
+            try{
+                var messagesByChatId =  await _httpClient.GetFromJsonAsync<List<MessageModel>>($"api/Message/messagebychatid/{chatid}");
+                //returning a list with one item
+                return messagesByChatId;
+            }
+            catch (Exception e){
+                Console.WriteLine(e);
+                return null;
+            }
+        }
+
+        
+        
         public async Task<IEnumerable<MessageModel>> GetAllUserMessages(string id)
         {
             var respons = await _httpClient.GetFromJsonAsync<MessageModel>($"api/message/usermessages/{id}");

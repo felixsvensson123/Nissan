@@ -9,7 +9,21 @@ namespace N_Chat.Server.Controllers{
         public MessageController(DataContext context){
             _context = context;
         }
-
+        
+        //Get Message By attribute ChatId
+        [HttpGet("messagebychatid/{chatId}")]
+        public async Task<IEnumerable<MessageModel>> GetMessageByChatId(int chatId){
+            try{
+                List<MessageModel> messageList = await _context.Messages.OfType<MessageModel>().Where(u => u.ChatId == chatId && u.IsMessageDeleted != true)
+                    .ToListAsync();
+                return messageList;
+            }
+            catch (Exception e){
+                Console.WriteLine(e.Message + e.StackTrace);
+                return null;
+            }
+        }
+ 
         //GET:hämta en användares alla chatt meddelanden
         /* IsMessageDeleted används för att kolla om message är softdeleted (och om det är true visas meddelandet inte för användaren pga det är softdeleted).*/
         [HttpGet("usermessages/{id}")]

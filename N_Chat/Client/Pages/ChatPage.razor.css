@@ -1,0 +1,11 @@
+.not-block-element{
+/*not-block-element*/
+    display: flex;
+    background-color:aliceblue;
+}
+.p{
+/*not-block-element*/
+    display: flex;
+    background-color:aliceblue;
+    text-align: center;
+}
