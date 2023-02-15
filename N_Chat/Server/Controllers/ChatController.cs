@@ -16,26 +16,27 @@ namespace N_Chat.Server.Controllers
             this.context = context;
         }
 
-        /*
+
+        //[HttpGet("getall")]
+        //public async Task<IEnumerable<ChatModel>> GetAll()
+        //{
+        //    List<ChatModel> chatList = await context.Chats.OfType<ChatModel>().Where(c => c.IsChatEnded != true).ToListAsync();
+        //    return chatList;
+        //}
+
+
         [HttpGet("getall")]
-        public async Task<IEnumerable<ChatModel>> GetAll()
-        {
-            List<ChatModel> chatList = await context.Chats.OfType<ChatModel>().Where(c => c.IsChatEnded != true).ToListAsync();
-            return chatList;
-        }
-        */
-        
-        [HttpGet("getall")] 
         public async Task<ICollection<ChatModel>> GetIncludedChats()
         {
             var dbChats = await context.Chats
                 .Include(u => u.Users)
                 .ThenInclude(uc => uc.User)
-                .ThenInclude(u => u.Messages)
                 .Where(u => u.IsChatEnded != true)
+                .AsSingleQuery()
                 .ToListAsync();
             return dbChats;
         }
+
 
         [HttpGet("getchatbyid/{id}")]
         public async Task<ChatModel> GetById(int id)
