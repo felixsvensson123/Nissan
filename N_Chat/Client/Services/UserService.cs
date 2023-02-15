@@ -48,6 +48,10 @@ namespace N_Chat.Client.Services
             return result;
         }
 
+        /*public async Task<ICollection<UserChat>> GetUserChats(string userName)
+        {
+            
+        }*/
         public async Task<UserModel> GetUserByName(string name)
         {
             var result = await httpClient.GetFromJsonAsync<UserModel>($"api/user/getbyname/{name}");

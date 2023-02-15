@@ -170,9 +170,15 @@ namespace N_Chat.Server.Controllers{
             return BadRequest(updateModel);
         }
 
-        [HttpGet("{userId}/getuserchat/{chatId}")]
-        public async Task GetUserChatById(string userId, string chatId)
+        [HttpGet("{userId}/userchat/")]
+        public async Task<IActionResult> GetUserChats(string userId)
         {
+            var userChat =  context.UserChats
+                .Where(x => x.UserId == userId)
+                .Include(uc => uc.User)
+                .ThenInclude(u => u.Chats);
+            
+            return Ok(userChat);
         }
         [HttpPost("chatrequest/{chatId}")] // adds user to chat
         public async Task<IActionResult> RequestChat(UserModel user, int chatId)

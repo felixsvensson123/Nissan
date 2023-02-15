@@ -23,11 +23,11 @@
     </div>
 
     <div class="New-Group-Chat">
-        <EditForm Model="Chat">
+        <EditForm Model="UserList">
             <label for="chk" aria-hidden="true">Group Chat</label>
             <div class="Chat-Form-Container">
-            <input type="text" id="chatMember1" name="txt" placeholder="User 1" required="">
-            <input type="text" name="txt" id="chatMember2" placeholder="User 2" required="">
+            <input @bind-value="@User.UserName" type="text" id="chatMember1" name="txt" placeholder="User 1" required="">
+            <input @bind-value="@User.UserName" type="text" name="txt" id="chatMember2" placeholder="User 2" required="">
                 <div class="New-Chat-FieldContainer">
                     <p style="margin: 1px!important;" >Encryption</p>
                     <input type="radio" id="isEncrypted" name="Encryption" value="True" @onchange="@(() => UpdateBool("true"))">
@@ -44,9 +44,9 @@
 @code {
     ChatModel Chat { get; set; } = new();
     UserModel User { get; set; } = new();
-    List<UserChat> JoinerTableList { get; set; } = new();
+    List<UserChat> UserChatList { get; set; } = new();
     UserModel UserToAdd { get; set; } = new();
-    
+    List<UserModel> UserList { get; set; } = new();
     protected override async Task OnInitializedAsync()
     {
         var currentUser = await UserService.GetUserClaim();
@@ -56,10 +56,16 @@
         User = currentUser.user;
     }
 
+    private async Task AddUser(ChatModel chatModel)
+    {
+        
+    }
     private async Task CreateChat(ChatModel chatModel)
     {
         var userToAdd = await UserService.GetUser(UserToAdd.UserName);
+        var userChatList = await UserService.GetAllUsers();
         
+
         chatModel.CreatorId = User.Id;
         chatModel.Users = new List<UserChat>()
         {

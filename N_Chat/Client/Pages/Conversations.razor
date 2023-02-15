@@ -1,10 +1,34 @@
 ﻿@using Microsoft.AspNetCore.SignalR.Client
 @using Microsoft.AspNetCore.Connections
 
-
+@layout MainLayout
 
 @page "/conversations"
 
+<style>
+    .chat-paper{
+        height: 50rem!important;
+        border-radius: 15px!important;    
+        overflow-y: auto;
+    }
+    .messageChip{
+        margin-left: 20px;
+        margin-top: 5px;
+        margin-right: 20px;
+        max-width: 220px!important;
+        max-height: 250px!important;
+        height: auto;
+        background: #0a58ca;
+        box-sizing: border-box!important;
+        border-radius: 5px!important;
+    }
+    .chip-text{
+        flex-wrap: wrap;
+        word-wrap: break-word!important;
+        overflow-y: visible;
+        color: white;
+    }
+</style>
 
 @if (_pageLoaded)
 {
@@ -19,13 +43,15 @@
             <col/>
         </ColGroup>
         <HeaderContent>
-            <MudTh>Chat</MudTh>
-            <MudTh>Action</MudTh>
+            <MudTh>Chats</MudTh>
+            <MudTh>Actions</MudTh>
+            <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Name">@context.Chat.Name</MudTd>
+            <MudTd> @context.ChatId </MudTd>
             <MudTd>
-                <MudButton Color="Color.Dark" @onclick="(() => Chat(context.Chat.Name))">Enter</MudButton>
+                <MudButton Color="Color.Dark" @onclick="(() => Chat(context.Chat.Name, context.ChatId))">Enter</MudButton>
                 <MudButton Color="Color.Dark">Manage Chat</MudButton>
             </MudTd>
         </RowTemplate>
@@ -47,33 +73,53 @@
 }
 else
 {
-    <body>
-    <div class="alert alert-secondary mt-4" role="alert">
-        <span class="oi oi-person mr-2" aria-hidden="true"></span>
-        <span>Connected As: <b>@User.UserName</b></span>
+    @*<div class="alert alert-secondary mt-4" role="alert">
+        <span class="oi oi-person mr-2" aria-hidden="true"></span>*@
+    <span>Connected As: <b>@User.UserName.ToUpperInvariant()</b></span>
+    <div class="page-container">
         @if (SelectedChat != null)
         {
-            @foreach (var item in SelectedChat.Chat.Messages)
-            {
-                <div class="scrollbox">
-                    <div class="msg">
-                        @if (item.User != null)
+            <div class="field-container">
+                <div class="chat_container">
+                    <MudPaper Width="480px" Height="100%" Class="chat-paper">
+                        @*<p>@SelectedChat.User.UserName</p>*@
+                        @foreach (var item in MessageList)
                         {
-                            <span>@item.User.UserName: </span>
+                            <div class="messageContainer">
+                                <p class="messageHeader">
+                                    @item.User.UserName.ToUpper()
+                                </p>
+                                @if (item.User.UserName == User.UserName)
+                                {
+                                <MudChip Style="" Class="messageChip">
+                                    <MudText Class="chip-text">
+                                        @item.Message
+                                    </MudText>
+                                </MudChip>
+                                }
+                                @if (item.User.UserName != User.UserName)
+                                {
+                                <MudChip Style="background: darkgrey" Class="messageChip">
+                                    <MudText Class="chip-text">
+                                        @item.Message
+                                    </MudText>
+                                </MudChip>
+                                }
+                            </div>
                         }
-                        <p>Message: @item.Message</p>
-                    </div>
+                    </MudPaper>
                 </div>
-            }
+                <div class="message">
+                    <input @bind="_message.Message" class="messageinput" type="text" name="txt" placeholder="Write something..." wrap="hard" rows="5" cols="30" required="">
+                    @*<button class="oi oi-pencil" aria-hidden="true" id="Pencil"></button>
+                    <button class="oi oi-trash" aria-hidden="true" id="Trash"></button>*@
+                    <button @onclick="@(() => SendMessage(_message))" class="oi oi-location" aria-hidden="true" id="Send"></button>
+                </div>
+            </div>
         }
+        @*</div>*@
+
     </div>
-    <div class="message">
-        <input @bind="_message.Message" class="messageinput" type="text" name="txt" placeholder="Write something..." wrap="hard" rows="5" cols="30" required="">
-        <button class="oi oi-pencil" aria-hidden="true" id="Pencil"></button>
-        <button class="oi oi-trash" aria-hidden="true" id="Trash"></button>
-        <button @onclick="@(() => SendMessage(_message))" class="oi oi-location" aria-hidden="true" id="Send"></button>
-    </div>
-    </body>
 }
 }
 
@@ -82,17 +128,16 @@ else
     private bool _isChatting = false;
     private bool _pageLoaded = false;
     private bool _invitingUser = false;
-    private UserModel? User { get; set; }// name of the user who will be chatting
-    private UserChat? SelectedChat { get; set; } = new(); // Current Chat
-    private List<ChatModel> UserChats { get; set; } = new();
-    private string _hubUrl;
-    private HubConnection hubConnection;
+    UserModel? User { get; set; } // name of the user who will be chatting
+    UserChat? SelectedChat { get; set; } = new(); // Current Chat
+    HubConnection hubConnection;
     MessageModel _message { get; set; } = new();
+    ICollection<MessageModel> MessageList { get; set; } = new List<MessageModel>();
     // string? _message;
-    private string? encryptedMessage;
-    private string? _chatName { get; set; }
-    private string? _userName;
-    
+    string? encryptedMessage;
+    string? _chatName { get; set; }
+    string? _userName;
+
     protected override async Task OnInitializedAsync()
     {
         hubConnection = new HubConnectionBuilder()
@@ -100,33 +145,34 @@ else
             .Build();
 
         var currentUser = await UserService.GetUserClaim();
-        
+
         if (currentUser.Message == "Success")
         {
             User = await UserService.GetUser(currentUser.user.UserName);
-            
+
             _pageLoaded = true;
             await InvokeAsync(StateHasChanged);
             StateHasChanged();
         }
     }
 
-    private async Task Chat(string chatName)
+    private async Task Chat(string chatName, int chatId)
     {
-        SelectedChat = User.Chats.FirstOrDefault(c => c.Chat.Name == chatName);
+        MessageList = await MessageService.GetChatMessages(chatId);
+        SelectedChat = User.Chats.FirstOrDefault(c => c.Chat.Name == chatName); //remove
         _chatName = chatName;
-        
+
         hubConnection.On<MessageModel>("ReceiveMessage", (message) =>
         {
-            SelectedChat.Chat.Messages.Add(message);
+            MessageList.Add(message);
             InvokeAsync(StateHasChanged);
             StateHasChanged();
         });
 
         await hubConnection.StartAsync();
-        
+
         await hubConnection.InvokeAsync("EnterChat", chatName);
-        await hubConnection.SendAsync("SendMessage", _message ,chatName);
+        await hubConnection.SendAsync("SendMessage", _message, chatName);
         _isChatting = true;
         await InvokeAsync(StateHasChanged);
     }

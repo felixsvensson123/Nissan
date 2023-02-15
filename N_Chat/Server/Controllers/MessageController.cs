@@ -137,6 +137,21 @@ namespace N_Chat.Server.Controllers{
             }
         }
 
+        [HttpGet("GetChatMessages/{chatId}")]
+        public async Task<ICollection<MessageModel>> GetChatMessages(int chatId)
+        {
+            var messages = await _context.Messages
+                .Include(m => m.User)
+                .Where(m => m.ChatId == chatId).ToListAsync();
+
+            foreach (var item in messages)
+            {
+                if (item.IsMessageEncrypted == true)
+                    await keyVaultService.DecryptStringAsync(item.Message);
+            }
+
+            return messages;
+        }
         //SOFTDELETE: soft-delete ett chatt meddelande 
         //pga betygkrav fpr inte meddelandet vara raderat från DB, pga meddelandet är "soft-deleted" kan vi läsa av boolean IsMessageDeleted och/eller MessageDeleted.
         /* [HttpPut("SoftDeleteUserMessage")]
