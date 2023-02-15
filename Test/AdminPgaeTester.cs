@@ -44,7 +44,7 @@ namespace Test
 
             if (UserList != null)
             {
-                UserList = await userService.GetUsers();
+                UserList = await userService.GetAllUsers();
                 Assert.That(UserList, Is.Not.Empty);
             }
             else Console.WriteLine("User is not found");

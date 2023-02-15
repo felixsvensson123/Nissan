@@ -5,23 +5,23 @@
 
 <AuthorizeView Roles="Admin">
     <Authorized>
+        @OnStart()
         <h3>welcome to admin</h3>
     </Authorized>
-</AuthorizeView>
-<AuthorizeView>
-    <NotAuthorized>
+        <NotAuthorized>
         <h3>L</h3>
     </NotAuthorized>
 </AuthorizeView>
-
 
 @code {
     ICollection<UserModel>? UserList { get; set; }
     ICollection<ChatModel>? ChatList { get; set; }
 
-    public async Task OnIntializedAsync()
+    public async Task OnStart()
     {
         UserList = await IUserService.GetAllUsers();
         ChatList = await IChatService.GetChats();
+        Console.WriteLine(UserList);
+        Console.WriteLine(ChatList);
     }
 }

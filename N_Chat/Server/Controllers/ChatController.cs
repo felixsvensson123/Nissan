@@ -32,6 +32,7 @@ namespace N_Chat.Server.Controllers
                 .Include(u => u.Users)
                 .ThenInclude(uc => uc.User)
                 .ThenInclude(u => u.Messages)
+                .Where(u => u.IsChatEnded != true)
                 .ToListAsync();
             return dbChats;
         }
