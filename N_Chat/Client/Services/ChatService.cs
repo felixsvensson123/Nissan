@@ -12,7 +12,7 @@ namespace N_Chat.Client.Services
             _httpClient = httpClient;
         }
 
-        public async Task<List<ChatModel>> GetChats()
+        public async Task<ICollection<ChatModel>> GetChats()
         {
             var result = await _httpClient.GetFromJsonAsync<List<ChatModel>>($"api/chat/getall");
             return result;
@@ -45,7 +45,7 @@ namespace N_Chat.Client.Services
 
     public interface IChatService
     {
-        Task<List<ChatModel>> GetChats();
+        Task<ICollection<ChatModel>> GetChats();
         Task<ChatModel> GetChatById(int id);
         Task<string> UpdateChat(ChatModel chat, int id);
         Task<string> CreateChat(ChatModel chat);
