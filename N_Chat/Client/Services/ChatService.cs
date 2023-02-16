@@ -26,7 +26,7 @@ namespace N_Chat.Client.Services
 
         public async Task<string> UpdateChat(ChatModel chat, int id)
         {
-            var result = await _httpClient.PutAsJsonAsync<ChatModel>("api/chat/updatechat/{id}", chat);
+            var result = await _httpClient.PutAsJsonAsync<ChatModel>($"api/chat/updatechat/{id}", chat);
             return await result.Content.ReadAsStringAsync();
         }
 
