@@ -141,15 +141,24 @@ namespace N_Chat.Server.Controllers{
         public async Task<ICollection<MessageModel>> GetChatMessages(int chatId)
         {
             var messages = await _context.Messages
-                .Include(m => m.User)
-                .Where(m => m.ChatId == chatId).ToListAsync();
-
-            foreach (var item in messages)
-            {
-                if (item.IsMessageEncrypted == true)
-                    await keyVaultService.DecryptStringAsync(item.Message);
-            }
-
+                .Where(m => m.ChatId == chatId)
+                .Include(c=> c.User)
+                .Select(m => new MessageModel
+                {
+                    Id = m.Id,
+                    Message = m.IsMessageEncrypted ? keyVaultService.DecryptStringAsync(m.Message).Result : m.Message,
+                    ChatId = m.ChatId,
+                    UserId = m.UserId,
+                    IsMessageEncrypted = m.IsMessageEncrypted,
+                    IsMessageEdited = m.IsMessageEdited,
+                    IsMessageDeleted = m.IsMessageDeleted,
+                    MessageCreated = m.MessageCreated,
+                    MessageEdited = m.MessageEdited,
+                    MessageDeleted = m.MessageDeleted,
+                    User = m.User
+                })
+                .ToListAsync();
+            
             return messages;
         }
         //SOFTDELETE: soft-delete ett chatt meddelande 

@@ -46,7 +46,7 @@ namespace N_Chat.Server.Controllers{
                 .Include(u => u.Chats)
                 .ThenInclude(uc => uc.Chat)
                 .ThenInclude(c => c.Messages)
-                .AsSingleQuery();
+                .AsSplitQuery();
 
             return await result.SingleOrDefaultAsync(x => x.UserName == userName);
         }
@@ -61,8 +61,8 @@ namespace N_Chat.Server.Controllers{
 
             UserModel? user = await context.Users
                     .Include(u => u.Chats)
-                    .ThenInclude(uc => uc.Chat)
-                    .ThenInclude(c => c.Messages)
+                    .Include(c => c.Messages)
+                    .AsSplitQuery()
                     .FirstOrDefaultAsync(u => u.UserName == claimValue);
             
             return Ok(user);
