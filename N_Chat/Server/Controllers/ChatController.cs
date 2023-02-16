@@ -21,8 +21,7 @@ namespace N_Chat.Server.Controllers
         {
             var dbChats = await context.Chats
                 .Include(u => u.Users)
-                .ThenInclude(uc => uc.User)
-                .ThenInclude(u => u.Messages)
+                .Include(u => u.Messages)
                 .Where(u => u.IsChatEnded != true)
                 .AsSplitQuery()
                 .ToListAsync();
