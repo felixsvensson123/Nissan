@@ -33,7 +33,6 @@ namespace N_Chat.Server.Controllers{
                 .ToListAsync();
             return users;
         }
-
         [HttpGet("getbyname/{userName}")]
         public async Task<ActionResult> GetUserByName(string userName)
         {
@@ -47,7 +46,7 @@ namespace N_Chat.Server.Controllers{
                 .Include(u => u.Chats)
                 .ThenInclude(uc => uc.Chat)
                 .ThenInclude(c => c.Messages)
-                .AsSingleQuery();
+                .AsSplitQuery();
 
             return await result.SingleOrDefaultAsync(x => x.UserName == userName);
         }
@@ -62,8 +61,8 @@ namespace N_Chat.Server.Controllers{
 
             UserModel? user = await context.Users
                     .Include(u => u.Chats)
-                    .ThenInclude(uc => uc.Chat)
-                    .ThenInclude(c => c.Messages)
+                    .Include(c => c.Messages)
+                    .AsSplitQuery()
                     .FirstOrDefaultAsync(u => u.UserName == claimValue);
             
             return Ok(user);
@@ -172,9 +171,15 @@ namespace N_Chat.Server.Controllers{
             return BadRequest(updateModel);
         }
 
-        [HttpGet("{userId}/getuserchat/{chatId}")]
-        public async Task GetUserChatById(string userId, string chatId)
+        [HttpGet("{userId}/userchat/")]
+        public async Task<IActionResult> GetUserChats(string userId)
         {
+            var userChat =  context.UserChats
+                .Where(x => x.UserId == userId)
+                .Include(uc => uc.User)
+                .ThenInclude(u => u.Chats);
+            
+            return Ok(userChat);
         }
         [HttpPost("chatrequest/{chatId}")] // adds user to chat
         public async Task<IActionResult> RequestChat(UserModel user, int chatId)

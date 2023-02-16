@@ -4,7 +4,6 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @layout Loginlayout
 
-@page "/Login"
 
 <div class="main">
    <input type="checkbox" id="chk" aria-hidden="true">
@@ -52,6 +51,7 @@
          string result = await UserService.LoginUser(LoginModel);
          Console.WriteLine("LoginUser()  result ="+result);
 
+         //interact with browser's local storage API, set value and key.
          await LocalStorageService.SetItemAsStringAsync("isauthenticated", "true");
          NavigationManager.NavigateTo("/");
          StateHasChanged();

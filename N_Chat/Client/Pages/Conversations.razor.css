@@ -1,4 +1,75 @@
-﻿.content{
+.page-container
+{
+
+}
+.field-container
+{
+    object-fit: contain;
+    width: fit-content;
+}
+.chat_container
+{
+    background-color: grey;
+    display: flex;
+    flex-direction: column;
+    border-radius: 15px;
+    box-sizing: border-box!important;
+    width: 450px!important;
+    height: 45rem;
+    overflow-y: auto;
+}
+.chat_container::-webkit-scrollbar
+{
+    border-radius: 15px!important;
+}
+.messageContainer * >{
+    display: flex;
+    margin-top: 2px;
+    box-sizing: border-box!important;
+    max-width: 412px;
+    min-height: 44px;
+    max-height: 150px;
+    height: auto;
+    width: auto;
+}
+/*.messageContainer > * {
+    max-height: 150px!important;
+    justify-content: center;
+}*/
+.messageText-user{
+    background-color: #1982FC;
+    border-radius: 5px;
+    float:left;
+    max-width: 412px;
+    padding: 5px;
+}
+.messageText-others{
+    border-radius: 5px;
+    background-color:  #222323 ;
+    float: right!important;
+    padding: 5px;
+}
+.item-user{
+    font-size: 10px;
+    font-weight: bold;
+}
+.item-others{
+    float: right;
+    font-size: 10px;
+    font-weight: bold;
+}
+p{
+    margin: 0;
+}
+.message{
+    height: 100%;
+    display: flex;
+    align-items: end;
+}
+.messageText{
+    
+}
+.content{
     align-items: end;
 }
 
@@ -22,11 +93,7 @@ button {
     cursor: pointer;
 }
 
-.message{
-    height: 100%;
-    display: flex;
-    align-items: end;
-}
+
 
 #Pencil{
     background-color: #e0dede;
@@ -58,7 +125,7 @@ button {
     align-items:end
 }
 body{
-   
+
 }
 
 /* improved for chat text box */
@@ -73,7 +140,6 @@ textarea {
 /* improved for speech bubbles */
 .received, .sent {
     position: relative;
-    font-family: arial;
     font-size: 1.1em;
     border-radius: 10px;
     padding: 20px;
