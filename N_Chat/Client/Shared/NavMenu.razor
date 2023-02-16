@@ -29,11 +29,26 @@
             <span class="Chat" aria-hidden="true">Conversations</span>
          </NavLink>
       </div>
+      <AuthorizeView>
+          <Authorized>
+                <button Class="signOut" @onclick="Disconnect">Signout</button>
+          </Authorized>
+      </AuthorizeView>
    </nav>
 </div>
 
 @code {
 
+   private async Task Disconnect()
+   {
+      await UserService.Signout();
+      await LocalStorageService.RemoveItemAsync("isauthenticated");
+      
+      //refresh the page.
+      NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+      NavigationManager.NavigateTo("/StartPage");
+   }
+   
    [Parameter]
    public UserModel User { get; set; } = new();
 

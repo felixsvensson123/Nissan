@@ -6,7 +6,7 @@
 <PageTitle>About Nchat</PageTitle>
 <AuthorizeView>
     <Authorized>
-          You are authorized! <MudButton Color="Color.Dark" Variant="Variant.Filled" @onclick="Disconnect">Signout</MudButton>
+          You are authorized! @*<MudButton Color="Color.Dark" Variant="Variant.Filled" @onclick="Disconnect">Signout</MudButton>*@
     </Authorized>
 </AuthorizeView>
 
@@ -15,9 +15,10 @@
 
 @code {
 
-    private async Task Disconnect()
+    //below is moved to NavMenu.razor
+    /*private async Task Disconnect()
     {
         await UserService.Signout();
         await LocalStorageService.RemoveItemAsync("isauthenticated");
-    }
+    }*/
 }
