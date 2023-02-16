@@ -38,20 +38,20 @@ namespace N_Chat.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = "e02d359e-6bfb-47ed-9fbc-4c99e5d2db9b",
-                            ConcurrencyStamp = "04c8ccd9-7fb1-4ade-8250-1e6084636150",
+                            ConcurrencyStamp = "ef041358-3e2d-438f-99be-d3299e532b41",
                             Name = "Member",
                             NormalizedName = "MEMBER"
                         },
                         new
                         {
                             Id = "d1678ba6-7957-21a7-96b5-12b64c06bc25",
-                            ConcurrencyStamp = "405cdd18-7b31-4f1f-bfa0-a3481bafa687",
+                            ConcurrencyStamp = "0cbcba21-9538-43f8-bc20-ed777a99a8f2",
                             Name = "Admin",
                             NormalizedName = "admin"
                         });
@@ -76,7 +76,7 @@ namespace N_Chat.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RoleClaims");
+                    b.ToTable("RoleClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -98,7 +98,7 @@ namespace N_Chat.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserClaims");
+                    b.ToTable("UserClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
@@ -115,7 +115,7 @@ namespace N_Chat.Server.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(max)");
 
-                    b.ToTable("UserLogins");
+                    b.ToTable("UserLogins", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
@@ -128,7 +128,7 @@ namespace N_Chat.Server.Migrations
 
                     b.HasKey("UserId", "RoleId");
 
-                    b.ToTable("UserRoles");
+                    b.ToTable("UserRoles", (string)null);
 
                     b.HasData(
                         new
@@ -152,7 +152,7 @@ namespace N_Chat.Server.Migrations
                     b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");
 
-                    b.ToTable("UserTokens");
+                    b.ToTable("UserTokens", (string)null);
                 });
 
             modelBuilder.Entity("N_Chat.Shared.ChatModel", b =>
@@ -190,7 +190,7 @@ namespace N_Chat.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Chats");
+                    b.ToTable("Chats", (string)null);
                 });
 
             modelBuilder.Entity("N_Chat.Shared.Connections", b =>
@@ -207,7 +207,7 @@ namespace N_Chat.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Connections");
+                    b.ToTable("Connections", (string)null);
                 });
 
             modelBuilder.Entity("N_Chat.Shared.MessageModel", b =>
@@ -251,7 +251,7 @@ namespace N_Chat.Server.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Messages");
+                    b.ToTable("Messages", (string)null);
                 });
 
             modelBuilder.Entity("N_Chat.Shared.UserChat", b =>
@@ -266,7 +266,7 @@ namespace N_Chat.Server.Migrations
 
                     b.HasIndex("ChatId");
 
-                    b.ToTable("UserChats");
+                    b.ToTable("UserChats", (string)null);
                 });
 
             modelBuilder.Entity("N_Chat.Shared.UserModel", b =>
@@ -316,27 +316,24 @@ namespace N_Chat.Server.Migrations
                     b.Property<string>("UserName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("isDeleted")
-                        .HasColumnType("bit");
-
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = "ded90182-7b04-41e0-aef6-8977a4d1c292",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "2fe7d88e-1823-4120-b366-67b87d7daf5b",
+                            ConcurrencyStamp = "88e7fed6-2551-4abe-9271-33526c6df73b",
                             Email = "adminuser@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "adminuser@gmail.com",
                             NormalizedUserName = "admin",
-                            PasswordHash = "AQAAAAEAACcQAAAAEH/6hPdX5d82uDOTTh8qG5+hr5b6mqcnwtszzwF7mAK2aLDJAc+B2MspMpczGiki9A==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEAujpaVHYHV1sJUMdqLvZ2oZDu2CyS0s1Io16DAwpJx+oyYP2H+3cvNiZPzEhUviYg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "747d94b5-7e3d-4442-89e6-11cc0dc5ed0e",
+                            SecurityStamp = "2f38eda8-84e4-4b12-9c94-d6ee48ab81b9",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         },
@@ -344,15 +341,15 @@ namespace N_Chat.Server.Migrations
                         {
                             Id = "d7fc4ba6-4957-41a7-96b5-52b65c06bc35",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "51df1116-be20-44a7-9696-252b1812122b",
+                            ConcurrencyStamp = "44dce2d8-7297-4c6c-a729-1ab8b1575d1e",
                             Email = "Css@live.se",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "css@live.se",
                             NormalizedUserName = "felix",
-                            PasswordHash = "AQAAAAEAACcQAAAAEGKBvxfcF3vzMhrPpPzWz4yFkRHBkHpGT7VZ/+CL29mz4R3PWGTlxHzwksdMcoOv6A==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEL1mmijZxAuqiKa+st+/0kW41LI9Zx4u2WQaB4K8XCYprePwGJEaa23ScWPQwrd4+g==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "11f5ff12-4203-41a5-8b86-4d747cdf4735",
+                            SecurityStamp = "3e8fd506-cd64-4743-8241-c9cb515debc4",
                             TwoFactorEnabled = false,
                             UserName = "felix"
                         });
