@@ -73,17 +73,18 @@
             UsertToBeDeleted.isDeleted = true;
             await UserService.UpdateUser(UsertToBeDeleted, UserName);
         }
+        StateHasChanged();
     }
 
     public async Task DeleteChat(int id)
     {
         ChatToBeDeleted= await ChatService.GetChatById(id);
-        ChatToBeDeleted.IsChatEnded = true;
-        await ChatService.UpdateChat(ChatToBeDeleted, id);
+        if(ChatToBeDeleted != null)
+        {
+            ChatToBeDeleted.IsChatEnded = true;
+            await ChatService.UpdateChat(ChatToBeDeleted, id);
+        }
+        StateHasChanged();
     }
-
-
-
-
 }
 

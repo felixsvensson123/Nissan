@@ -30,6 +30,7 @@ namespace N_Chat.Server.Controllers{
             ICollection<UserModel> users = await context.Users
                 .Include(u => u.Chats)
                 .Include(t => t.Messages)
+                .Where(u => u.isDeleted != true)
                 .ToListAsync();
             return users;
         }
@@ -224,8 +225,8 @@ namespace N_Chat.Server.Controllers{
             }
         }
 
-       [HttpPut("update/{id}")]
-       public async Task<ActionResult> SoftDeletUser(UserModel user, string userName)
+        [HttpPut("update/{username}")]
+        public async Task<ActionResult> SoftDeletUser(UserModel user, string userName)
         {
             if (!ModelState.IsValid)
             {
