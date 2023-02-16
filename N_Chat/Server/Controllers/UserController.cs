@@ -222,5 +222,19 @@ namespace N_Chat.Server.Controllers{
                 
             }
         }
+
+       [HttpPut("softdeleteuser/{id}")]
+       public async Task<ActionResult> SoftDeletUser(UserModel user, string userName)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            UserModel UserToBeUpdated = await GetUserWithIncludes(userName);
+            UserToBeUpdated.isDeleted = user.isDeleted;
+            context.Update(UserToBeUpdated);
+            await context.SaveChangesAsync();
+            return Ok(UserToBeUpdated);
+        }
     }
 }
