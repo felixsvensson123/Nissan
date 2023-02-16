@@ -9,7 +9,24 @@
             <div style="width: 100%; overflow: hidden;">
                 <div style="float: left;">Username</div>
                 <div style="float: right;">
-                    <button>Delete User </button>
+                    <button class="btn btn-danger" @onclick="@(() => DeleteUser(User.UserName))">Delete User </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<h1 class="text-white">------------------------------------------------------------------------------------</h1>
+
+@foreach (var Chat in ChatList)
+{
+    <div class="card">
+        <div class="card-body">
+            <h2>@Chat.Name</h2>
+            <div style="width: 100%; overflow: hidden;">
+                <div style="float: left;">@Chat.Id</div>
+                <div style="float: right;">
+                    <button class="btn btn-danger" @onclick="@(() => DeleteChat(Chat.Id))">Delet Chat </button>
                 </div>
             </div>
         </div>
@@ -17,11 +34,13 @@
 }
 
 
-
 @code {
     ICollection<UserModel>? UserList { get; set; } = new List<UserModel>();
     ICollection<ChatModel>? ChatList { get; set; } = new List<ChatModel>();
     UserModel CurrentUser = new();
+    UserModel UserttoBeDeleted = new();
+    ChatModel ChatToBeDeleted = new();
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -30,6 +49,28 @@
         UserList = await UserService.GetAllUsers();
         ChatList = await ChatService.GetChats();
         StateHasChanged();
+
     }
+
+    public async Task DeleteUser(String UserName)
+    {
+        UserttoBeDeleted = await UserService.GetUser(UserName);
+
+    }
+
+
+
+
+    public async Task DeleteChat(int id)
+    {
+        ChatToBeDeleted= await ChatService.GetChatById(id);
+        ChatToBeDeleted.IsChatEnded = true;
+        await ChatService.UpdateChat(ChatToBeDeleted, id);
+
+    }
+
+
+
+
 }
 
