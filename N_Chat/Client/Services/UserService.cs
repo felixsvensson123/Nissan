@@ -13,13 +13,22 @@ namespace N_Chat.Client.Services
             this.httpClientFactory = httpClientFactory;
         }
 
+        // This function is responsible for login and it receives a LoginModel object. 
         public async Task<string> LoginUser(LoginModel loginModel)
         {
             var result = await httpClient.PostAsJsonAsync("api/user/login/", loginModel);
+            
             if(result.IsSuccessStatusCode)
             {
                 return "Success";
             }
+            
+            //response says  PasswordTooShort
+            if (result.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                return "BadRequest, could be PasswordTooShort. Is password minimum 6 characters?";
+            }
+            
             return null;
         }
         public async Task<string> Signout()
@@ -45,6 +54,16 @@ namespace N_Chat.Client.Services
         public async Task<UserModel> GetUser(string userName)
         {
             var result = await httpClient.GetFromJsonAsync<UserModel>($"api/user/{userName}");
+            return result;
+        }
+
+        /*public async Task<ICollection<UserChat>> GetUserChats(string userName)
+        {
+            
+        }*/
+        public async Task<UserModel> GetUserByName(string name)
+        {
+            var result = await httpClient.GetFromJsonAsync<UserModel>($"api/user/getbyname/{name}");
             return result;
         }
 
@@ -89,6 +108,7 @@ namespace N_Chat.Client.Services
     {
         Task<string> LoginUser(LoginModel loginModel); // Login User Method
         Task<string> SignUp(RegisterModel registerModel); // Signup User Method
+        Task<UserModel> GetUserByName(string name);// Get user by username method
         Task<string> Signout(); // Signout user
         Task<(string Message, UserModel? user)> GetUserClaim(); //Gets user via claims
         Task<UserModel> GetUser(string userName); // gets specific user

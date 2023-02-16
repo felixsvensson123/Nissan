@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.Collections;
+using System.Net.Http.Json;
 
 
 
@@ -65,7 +66,12 @@ namespace N_Chat.Client.Services
             return null;
         }
 
-       
+        public async Task<ICollection<MessageModel>> GetChatMessages(int chatId)
+        {
+            return await _httpClient.GetFromJsonAsync<ICollection<MessageModel>>($"api/message/GetChatMessages/{chatId}");
+        }
+
+
     }
 
     public interface IMessageService
@@ -74,7 +80,7 @@ namespace N_Chat.Client.Services
         Task<MessageModel> GetById(int id);       
         Task<string> PutMessage(MessageModel messageModel, int id);
         Task<IEnumerable<MessageModel>> GetAllMessages();
-
+        Task<ICollection<MessageModel>> GetChatMessages(int chatId);
         Task<string> PostMessage(MessageModel messageModel);
     }
 }

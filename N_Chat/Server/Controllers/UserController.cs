@@ -23,20 +23,22 @@ namespace N_Chat.Server.Controllers{
             this.signInManager = signInManager;
             this.context = context;
         }
-
-        [HttpGet("joinertable/{userName}")]
-        public async Task<IActionResult> GetUserAsJoinerTable(string userName)
+        [Authorize(Roles = "Admin")]
+        [HttpGet("chats")]
+        public async Task<ICollection<UserModel>> getAllUsers()
         {
-            var user = await userManager.FindByNameAsync(userName);
-            if (user == null)
-                return NotFound(user);
-
-            UserChat joinerTable = new()
-            {
-                UserId = user.Id
-            };
-            return Ok(joinerTable);
-        } 
+            ICollection<UserModel> users = await context.Users
+                .Include(u => u.Chats)
+                .Include(t => t.Messages)
+                .ToListAsync();
+            return users;
+        }
+        [HttpGet("getbyname/{userName}")]
+        public async Task<ActionResult> GetUserByName(string userName)
+        {
+            UserModel foundUser = await context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
+            return Ok(foundUser);
+        }
         [HttpGet("{userName}")] // Gets user with chat and message list // made to reduce redundancy
         public async Task<UserModel> GetUserWithIncludes (string userName) // rör ej funkar
         {
@@ -44,19 +46,9 @@ namespace N_Chat.Server.Controllers{
                 .Include(u => u.Chats)
                 .ThenInclude(uc => uc.Chat)
                 .ThenInclude(c => c.Messages)
-                .AsSingleQuery();
+                .AsSplitQuery();
 
             return await result.SingleOrDefaultAsync(x => x.UserName == userName);
-        }
-        
-        [HttpGet("chats")] 
-        public async Task<ICollection<UserModel>> GetAllUsers()
-        {
-            ICollection<UserModel> dbUsers = await context.Users
-                .Include(u => u.Chats)
-                .Include(m => m.Messages)
-                .ToListAsync();
-            return dbUsers;
         }
         
         [Authorize]
@@ -69,47 +61,60 @@ namespace N_Chat.Server.Controllers{
 
             UserModel? user = await context.Users
                     .Include(u => u.Chats)
-                    .ThenInclude(uc => uc.Chat)
-                    .ThenInclude(c => c.Messages)
+                    .Include(c => c.Messages)
+                    .AsSplitQuery()
                     .FirstOrDefaultAsync(u => u.UserName == claimValue);
             
             return Ok(user);
         }
 
+        // This function is responsible for handling the HTTP POST request for login.
         [HttpPost("login")]
         public async Task<IActionResult> LoginUser(LoginModel user) // rör ej funkar
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            // Signs in the user by using the SignInManager with the username and password provided by the user.
             var result = await signInManager
                 .PasswordSignInAsync(user.Username, user.Password, true, false); // signs in user.
 
+            // If the sign in process is successful, create user claims and sign them in with the ClaimsIdentity and ClaimsPrincipal objects.
             if (result.Succeeded)
             {
                 var currentUser =
                     await signInManager.UserManager.FindByNameAsync(user.Username);
                 
+                // Creates a list of claims for the current user.
                 var claims = new List<Claim> //sets up user claim
                 {
+                    // Adds a claim for the user's name.
                     new(ClaimTypes.Name,
                         currentUser.UserName)
                 };
 
+                // Creates a ClaimsIdentity object with the list of claims and sets the default authentication scheme to CookieAuthenticationDefaults.
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                var authProperties = new AuthenticationProperties();
+                var authProperties = new AuthenticationProperties{
+                    
+                    // Sets the expiration time for the authentication cookie. Benefits of doing this: when we set an expiration time for the authentication cookie, we limit the amount of time that sensitive information is stored in the user's browser and reduce the risk of session hijacking (since it will expire).
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(4),
+                    IsPersistent = false
+                };
 
+                // Signs in the user by creating a ClaimsPrincipal object with the created ClaimsIdentity and signs them in with the HttpContext.
                 await HttpContext.SignInAsync( //sets claims principals and signs in user 
                     CookieAuthenticationDefaults.AuthenticationScheme,
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
 
+                // Returns the result of the sign in process.
                 return Ok(result);
             }
             
+            // If the sign in process is unsuccessful, adds an error message to the ModelState and returns a bad request with the ModelState.
             ModelState.AddModelError(string.Empty, "Invalid Login Attempt"); // Error Message if string is empty
             return BadRequest(ModelState);
-            
         }
 
         [HttpPost("signup")]
@@ -179,9 +184,15 @@ namespace N_Chat.Server.Controllers{
             return BadRequest(updateModel);
         }
 
-        [HttpGet("{userId}/getuserchat/{chatId}")]
-        public async Task GetUserChatById(string userId, string chatId)
+        [HttpGet("{userId}/userchat/")]
+        public async Task<IActionResult> GetUserChats(string userId)
         {
+            var userChat =  context.UserChats
+                .Where(x => x.UserId == userId)
+                .Include(uc => uc.User)
+                .ThenInclude(u => u.Chats);
+            
+            return Ok(userChat);
         }
         [HttpPost("chatrequest/{chatId}")] // adds user to chat
         public async Task<IActionResult> RequestChat(UserModel user, int chatId)
@@ -224,49 +235,5 @@ namespace N_Chat.Server.Controllers{
                 
             }
         }
-        
-
-        /*
-        [HttpPost("ListMessages")]
-        public async Task<ActionResult<List<MessageModel>>> GetMessages(MessageModel messageModel)
-        {
-            var CurrentUser = await userManager.FindByIdAsync(messageModel.UserId);
-            List<MessageModel> messages = new();
-            using (var db = context){
-                messages = await db.Messages.Where(m => m.UserId == messageModel.UserId).ToListAsync();
-                
-                foreach (var message in messages)
-                {
-                    CurrentUser.Messages.Add(message);
-                }
-
-                db.SaveChanges();
-            }
-
-            return Ok();
-        }
-
-        [HttpPost("ChatList")]
-        public async Task<ActionResult<List<ChatModel>>> AddChatsToUser(string userId)
-        {
-            var CurrentUser = await userManager.FindByIdAsync(userId);
-
-            List<ChatModel> chats = new();
-
-            await using (var db = context)
-            {
-                chats = await db.Chats.Where(c => c.UserName == userId).ToListAsync();
-
-                foreach (var chat in chats)
-                {
-                    CurrentUser.Chats.Add(chat);
-                }
-
-                await db.SaveChangesAsync();
-            }
-
-            return Ok();
-        }
-        */
     }
 }
