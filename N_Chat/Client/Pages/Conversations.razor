@@ -74,6 +74,13 @@ else
                         </div>
                     }
                 </div>
+                <div class="user-container">
+                    @foreach (var item in SelectedChat.Users)
+                    {
+                        if (item.User != null)
+                            @item.User.UserName;
+                    }
+                </div>
                 <div class="message">
                     <input @bind="_message.Message" class="messageinput" type="text" name="txt" placeholder="Write something..." wrap="hard" rows="5" cols="30" required="">
                     @*<button class="oi oi-pencil" aria-hidden="true" id="Pencil"></button>
@@ -91,7 +98,8 @@ else
 
 @code {
     ICollection<MessageModel> MessageList { get; set; } = new List<MessageModel>();
-
+    ICollection<UserModel> UserList { get; set; } = new List<UserModel>();
+    
     UserModel? User { get; set; }
     ChatModel? SelectedChat { get; set; } = new();
     HubConnection hubConnection;

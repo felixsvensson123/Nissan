@@ -122,11 +122,12 @@ namespace N_Chat.Server.Controllers{
         {
             if (ModelState.IsValid)
             {
-                var checkUser = await context.Users.FirstOrDefaultAsync(x => x.UserName == registerModel.Username); //Checks if user already exists in DB
+                var checkUser = await context.Users.FirstOrDefaultAsync(x => x.UserName == registerModel.Username);
                 if (checkUser != null)
                 {
-                    return BadRequest(("Username taken") + checkUser);
+                    return BadRequest("Username taken");
                 }
+
                 var user = new UserModel() // sets usermodel props to registerModel props
                 {
                     UserName = registerModel.Username,
