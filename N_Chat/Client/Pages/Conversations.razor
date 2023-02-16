@@ -5,31 +5,6 @@
 
 @page "/conversations"
 
-<style>
-    .chat-paper{
-        height: 50rem!important;
-        border-radius: 15px!important;    
-        overflow-y: auto;
-    }
-    .messageChip{
-        margin-left: 20px;
-        margin-top: 5px;
-        margin-right: 20px;
-        max-width: 220px!important;
-        max-height: 250px!important;
-        height: auto;
-        background: #0a58ca;
-        box-sizing: border-box!important;
-        border-radius: 5px!important;
-    }
-    .chip-text{
-        flex-wrap: wrap;
-        word-wrap: break-word!important;
-        overflow-y: visible;
-        color: white;
-    }
-</style>
-
 @if (_pageLoaded)
 {
 @if (!_isChatting)
@@ -75,39 +50,20 @@ else
 {
     @*<div class="alert alert-secondary mt-4" role="alert">
         <span class="oi oi-person mr-2" aria-hidden="true"></span>*@
-    <span>Connected As: <b>@User.UserName.ToUpperInvariant()</b></span>
-    <div class="page-container">
+    <span>Connected As: <b>@User.UserName.ToUpperInvariant()</b>
+        <button @onclick="() => DisposeAsync(SelectedChat.Name)"></button>
+        </span>
+    <body class="page-container">
         @if (SelectedChat != null)
         {
             <div class="field-container">
                 <div class="chat_container">
-                    <MudPaper Width="480px" Height="100%" Class="chat-paper">
-                        @*<p>@SelectedChat.User.UserName</p>*@
-                        @foreach (var item in MessageList)
-                        {
-                            <div class="messageContainer">
-                                <p class="messageHeader">
-                                    @item.User.UserName.ToUpper()
-                                </p>
-                                @if (item.User.UserName == User.UserName)
-                                {
-                                <MudChip Style="" Class="messageChip">
-                                    <MudText Class="chip-text">
-                                        @item.Message
-                                    </MudText>
-                                </MudChip>
-                                }
-                                @if (item.User.UserName != User.UserName)
-                                {
-                                <MudChip Style="background: darkgrey" Class="messageChip">
-                                    <MudText Class="chip-text">
-                                        @item.Message
-                                    </MudText>
-                                </MudChip>
-                                }
-                            </div>
-                        }
-                    </MudPaper>
+                    @foreach (var item in MessageList)
+                    {
+                        <div class="messageContainer">
+                            <div class="messageText-user">@item.Message</div>
+                        </div>
+                    }
                 </div>
                 <div class="message">
                     <input @bind="_message.Message" class="messageinput" type="text" name="txt" placeholder="Write something..." wrap="hard" rows="5" cols="30" required="">
@@ -119,24 +75,26 @@ else
         }
         @*</div>*@
 
-    </div>
+    </body>
 }
 }
 
 
 @code {
+    ICollection<MessageModel> MessageList { get; set; } = new List<MessageModel>();
+    List<UserModel> UsersInChat { get; set; } = new();
+    
     private bool _isChatting = false;
     private bool _pageLoaded = false;
     private bool _invitingUser = false;
     UserModel? User { get; set; } // name of the user who will be chatting
-    UserChat? SelectedChat { get; set; } = new(); // Current Chat
+    //UserChat? SelectedChat { get; set; } = new(); // Current Chat
+    ChatModel? SelectedChat { get; set; } = new();
     HubConnection hubConnection;
     MessageModel _message { get; set; } = new();
-    ICollection<MessageModel> MessageList { get; set; } = new List<MessageModel>();
+    
     // string? _message;
-    string? encryptedMessage;
     string? _chatName { get; set; }
-    string? _userName;
 
     protected override async Task OnInitializedAsync()
     {
@@ -159,11 +117,12 @@ else
     private async Task Chat(string chatName, int chatId)
     {
         MessageList = await MessageService.GetChatMessages(chatId);
-        SelectedChat = User.Chats.FirstOrDefault(c => c.Chat.Name == chatName); //remove
+        SelectedChat = User.Chats.FirstOrDefault(x => x.ChatId == chatId).Chat;
         _chatName = chatName;
 
         hubConnection.On<MessageModel>("ReceiveMessage", (message) =>
         {
+                 //checks if its your message so list doesnt double add
             MessageList.Add(message);
             InvokeAsync(StateHasChanged);
             StateHasChanged();
@@ -172,7 +131,7 @@ else
         await hubConnection.StartAsync();
 
         await hubConnection.InvokeAsync("EnterChat", chatName);
-        await hubConnection.SendAsync("SendMessage", _message, chatName);
+        await hubConnection.SendAsync("SendMessage", chatName);
         _isChatting = true;
         await InvokeAsync(StateHasChanged);
     }
@@ -186,21 +145,20 @@ else
                 Message = messageModel.Message,
                 MessageCreated = DateTime.Now,
                 UserId = User.Id,
-                ChatId = SelectedChat.ChatId,
-                IsMessageEncrypted = SelectedChat.Chat.IsChatEncrypted
+                ChatId = SelectedChat.Id,
+                IsMessageEncrypted = SelectedChat.IsChatEncrypted
             };
             await MessageService.PostMessage(messageModel);
             await hubConnection.SendAsync("SendMessage", messageModel, _chatName);
             _message.Message = string.Empty;
-            messageModel = default(MessageModel)!;
             await InvokeAsync(StateHasChanged);
         }
     }
 
-    /*public async Task DisposeAsync()
+    public async Task DisposeAsync(string chatName)
     {
         await hubConnection.DisposeAsync();
-        await base.InvokeAsync("HasDisconnected", );
-    }*/
+        await hubConnection.InvokeAsync("ExitChat", chatName);
+    }
 
 }
