@@ -1,7 +1,9 @@
 ﻿using N_Chat.Server.Data;
 using N_Chat.Server.Controllers;
 using Microsoft.EntityFrameworkCore;
+using N_Chat.Client.Services;
 using N_Chat.Shared;
+
 
 namespace Test{
     public class _{
@@ -9,6 +11,7 @@ namespace Test{
         public class MessageControllerTests{
             private DataContext _context;
             private MessageController _controller;
+            private IKeyVaultService _keyVaultService;
 
             [SetUp]
             public void Setup(){
@@ -16,7 +19,10 @@ namespace Test{
                     .UseInMemoryDatabase(databaseName: "UserMessageTest")
                     .Options;
                 _context = new DataContext(options);
-                _controller = new MessageController(_context);
+                
+                _keyVaultService = this._keyVaultService;
+               
+                _controller = new MessageController(_context,_keyVaultService);
             }
 
             [TearDown]
@@ -34,11 +40,11 @@ namespace Test{
 
                 MessageModel messageModel = new MessageModel();
 
-                //Act                                                                   GER ERROR EFTER MERGE, FIXA
-             //   var okResult = _controller.GetAllUserMessages(messageModel);
+                //Act
+                var okResult = _controller.GetAllUserMessages(userId);
 
-                //Assert                                                  GER ERROR EFTER MERGE, FIXA
-              //   Assert.IsTrue(okResult.IsCompletedSuccessfully);
+                //Assert
+                Assert.IsTrue(okResult.IsCompletedSuccessfully);
             }
 
             [Test]
@@ -46,14 +52,14 @@ namespace Test{
                 //Arrange
                 //var messageId = 1;
                 var user = _context.Users.FirstOrDefaultAsync();
-                string userId = user.Id.ToString();
+                int id = user.Id;
                 MessageModel messageModel = new MessageModel();
 
-                //Act                                               GER ERROR EFTER MERGE, FIXA   
-               // var okResult = _controller.GetById(id);
+                //Act
+                var okResult = _controller.GetById(id);
 
-                //Assert                                                GER ERROR EFTER MERGE, FIXA
-                //Assert.IsTrue(okResult.IsCompleted);
+                //Assert
+                Assert.IsTrue(okResult.IsCompleted);
             }
 
         }

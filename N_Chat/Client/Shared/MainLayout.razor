@@ -18,9 +18,13 @@
     <main>
         <div class="top-row px-4">
             <input class="Searchbar" name="txt" placeholder="Search" @bind="userName" required="">
-            <button class="btn btn-primary btn-sm" @onclick="search" ></button>
-            <button class="oi oi-person" aria-hidden="true" @onclick="@(() => navigationManager.NavigateTo("/Register"))"></button>
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+            <button class="btn btn-primary btn-sm" @onclick="search"></button>
+            <AuthorizeView>
+                <Authorized>
+                    <button class="oi oi-person" aria-hidden="true" @onclick="@(() => navigationManager.NavigateTo("/Profile"))"></button>
+                </Authorized>
+            </AuthorizeView>
+            <a href="https://localhost:7280/StartPage" target="_blank">About</a>
         </div>
         <AuthorizeView>
             <NotAuthorized>
