@@ -76,6 +76,7 @@
         };
         
         await ChatService.CreateChat(chatModel);
+        NavigationManager.NavigateTo("/conversations");
     }
 
     private void UpdateBool(string decision)
