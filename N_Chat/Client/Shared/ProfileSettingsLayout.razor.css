@@ -15,6 +15,7 @@ main {
 
 .sidebar {
     background-color: rgb(211, 178, 232);
+    min-width: 238px;
     border-right: solid;
     border-color: black;
 }
