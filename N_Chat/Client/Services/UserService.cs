@@ -13,13 +13,22 @@ namespace N_Chat.Client.Services
             this.httpClientFactory = httpClientFactory;
         }
 
+        // This function is responsible for login and it receives a LoginModel object. 
         public async Task<string> LoginUser(LoginModel loginModel)
         {
             var result = await httpClient.PostAsJsonAsync("api/user/login/", loginModel);
+            
             if(result.IsSuccessStatusCode)
             {
                 return "Success";
             }
+            
+            //response says  PasswordTooShort
+            if (result.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                return "BadRequest, could be PasswordTooShort. Is password minimum 6 characters?";
+            }
+            
             return null;
         }
         public async Task<string> Signout()
