@@ -48,6 +48,7 @@ namespace N_Chat.Server.Controllers
         {
             if (!ModelState.IsValid)
             {
+                Console.WriteLine("models state is def not valid");
                 return BadRequest(ModelState);
             }
             ChatModel chatToBeUpdated = await GetById(id);

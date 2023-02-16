@@ -20,7 +20,7 @@ namespace N_Chat.Client.Services
 
         public async Task<ChatModel> GetChatById(int id)
         {
-            var result = await _httpClient.GetFromJsonAsync<ChatModel>("api/chat/getbyid/{id}");
+            var result = await _httpClient.GetFromJsonAsync<ChatModel>($"api/chat/getbyid/{id}");
             return result;
         }
 

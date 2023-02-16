@@ -98,10 +98,10 @@ namespace N_Chat.Client.Services
             return null;
         }
         
-        public async Task<Task<string>> UpdateUser(UserModel user, string userName)
+        public async Task<string> UpdateUser(UserModel user, string userName)
         {
-            var result = await httpClient.PutAsJsonAsync<UserModel>("api/user/softdeleteuser/{userName}", user);
-            return result.Content.ReadAsStringAsync();
+            var result = await httpClient.PutAsJsonAsync($"api/user/update/{userName}", user);
+            return await result.Content.ReadAsStringAsync();
         }
     }
 
@@ -115,7 +115,7 @@ namespace N_Chat.Client.Services
         Task<UserModel> GetUser(string userName); // gets specific user
         Task<ICollection<UserModel>> GetAllUsers(); //Gets All Users 
         Task<string> AddUserToChat(UserModel user, int chatId);
-        Task<Task<string>> UpdateUser(UserModel user, string userName);
+        Task<string> UpdateUser(UserModel user, string userName);
     }
 }
  
