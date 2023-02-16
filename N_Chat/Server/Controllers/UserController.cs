@@ -23,8 +23,8 @@ namespace N_Chat.Server.Controllers{
             this.signInManager = signInManager;
             this.context = context;
         }
-        [Authorize(Roles = "Admin")]
-        [HttpGet("chats")]
+        [Authorize(Roles="Admin")]
+        [HttpGet("users")]
         public async Task<ICollection<UserModel>> getAllUsers()
         {
             ICollection<UserModel> users = await context.Users
@@ -35,10 +35,16 @@ namespace N_Chat.Server.Controllers{
             return users;
         }
         [HttpGet("getbyname/{userName}")]
-        public async Task<ActionResult> GetUserByName(string userName)
+        public async Task<bool> GetUserByName(string userName)
         {
             UserModel foundUser = await context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
-            return Ok(foundUser);
+
+            if (foundUser != null)
+            {
+                if (await userManager.IsInRoleAsync(foundUser, "Admin"))
+                    return true;
+            }
+            return false;
         }
         [HttpGet("{userName}")] // Gets user with chat and message list // made to reduce redundancy
         public async Task<UserModel> GetUserWithIncludes (string userName) // rör ej funkar
@@ -239,5 +245,7 @@ namespace N_Chat.Server.Controllers{
             await context.SaveChangesAsync();
             return Ok(UserToBeUpdated);
         }
+
+
     }
 }

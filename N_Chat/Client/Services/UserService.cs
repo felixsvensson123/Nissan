@@ -57,9 +57,9 @@ namespace N_Chat.Client.Services
             return result;
         }
 
-        public async Task<UserModel> GetUserByName(string name)
+        public async Task<bool> CheckIfAdmin(string name)
         {
-            var result = await httpClient.GetFromJsonAsync<UserModel>($"api/user/getbyname/{name}");
+            var result = await httpClient.GetFromJsonAsync<bool>($"api/user/getbyname/{name}");
             return result;
         }
 
@@ -85,7 +85,7 @@ namespace N_Chat.Client.Services
 
         public async Task<ICollection<UserModel>> GetAllUsers()
         {
-            return await httpClient.GetFromJsonAsync<ICollection<UserModel>>($"api/user/chats/");
+            return await httpClient.GetFromJsonAsync<ICollection<UserModel>>("api/user/users");
         }
         
         public async Task<string> AddUserToChat(UserModel user, int chatId)
@@ -109,7 +109,7 @@ namespace N_Chat.Client.Services
     {
         Task<string> LoginUser(LoginModel loginModel); // Login User Method
         Task<string> SignUp(RegisterModel registerModel); // Signup User Method
-        Task<UserModel> GetUserByName(string name);// Get user by username method
+        Task<bool> CheckIfAdmin(string name);// Get user by username method
         Task<string> Signout(); // Signout user
         Task<(string Message, UserModel? user)> GetUserClaim(); //Gets user via claims
         Task<UserModel> GetUser(string userName); // gets specific user
