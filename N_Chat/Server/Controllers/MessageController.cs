@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using N_Chat.Server.Services;
 
 namespace N_Chat.Server.Controllers{
     [Route("api/[controller]")]
