@@ -18,7 +18,7 @@
     <main>
         <div class="top-row px-4">
             <input class="Searchbar" name="txt" placeholder="Search" @bind="userName" required="">
-            <button class="btn btn-primary btn-sm" @onclick="search"></button>
+            <button class="oi oi-magnifying-glass" @onclick="search"></button>
             <AuthorizeView>
                 <Authorized>
                     <button class="oi oi-person" aria-hidden="true" @onclick="@(() => navigationManager.NavigateTo("/Profile"))"></button>

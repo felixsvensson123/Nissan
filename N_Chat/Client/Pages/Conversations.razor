@@ -78,7 +78,7 @@ else
                     <input @bind="_message.Message" class="messageinput" type="text" name="txt" placeholder="Write something..." wrap="hard" rows="5" cols="30" required="">
                     @*<button class="oi oi-pencil" aria-hidden="true" id="Pencil"></button>
                     <button class="oi oi-trash" aria-hidden="true" id="Trash"></button>*@
-                    <button @onclick="@(() => SendMessage(_message))" class="oi oi-location" aria-hidden="true" id="Send"></button>
+                    <button @onclick="@(() => SendMessage(_message))" class="oi oi-location" aria-hidden="true"></button>
                 </div>
             </div>
         }
