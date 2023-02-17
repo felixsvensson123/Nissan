@@ -1,76 +1,113 @@
 ﻿@inject NavigationManager NavManeger
 @page "/Admin"
 
-@foreach(var User in UserList)
+@if (pageHasLoded)
 {
-    <div class="card">
-        <div class="card-body">
-            <h2>@User.UserName</h2>
-            <div style="width: 100%; overflow: hidden;">
-                <div style="float: left;">Username</div>
-                <div style="float: right;">
-                    <button class="btn btn-danger" @onclick="@(() => DeleteUser(User.UserName))">Delete User </button>
+    if (isAdmin == true)
+    {
+        <h1 style="color:black">Users</h1>
+        if (UserList != null)
+        {
+            foreach (var User in UserList)
+            {
+                <div class="card">
+                    <div class="card-body">
+                        <h2 style="color:black">@User.UserName</h2>
+                        <div style="width: 100%; overflow: hidden;">
+                            <div style="float: left; color:black">@User.Id</div>
+                            <div style="float: right;">
+                                <button class="btn btn-danger" @onclick="@(() => DeleteUser(User.UserName))">Delete User </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            }
+        }
+
+        <div>
+            <br>
+            <spacer type="horizontal" width="100" height="100"> </spacer>
+            <br>
         </div>
-    </div>
+
+        <h1 style="color:black">Chats</h1>
+        if (ChatList != null)
+        {
+            foreach (var Chat in ChatList)
+            {
+                <div class="card">
+                    <div class="card-body">
+                        <h2 style="color:black">@Chat.Name</h2>
+                        <div style="width: 100%; overflow: hidden;">
+                            <div style="float: left; color:black">@Chat.Id</div>
+                            <div style="float: right;">
+                                <button class="btn btn-danger" @onclick="@(() => DeleteChat(Chat.Id))">Delet Chat </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    }
+    if (isAdmin == false)
+    {
+        NavManeger.NavigateTo("/");
+    }
 }
 
-<h1 class="text-white">------------------------------------------------------------------------------------</h1>
 
-@foreach (var Chat in ChatList)
-{
-    <div class="card">
-        <div class="card-body">
-            <h2>@Chat.Name</h2>
-            <div style="width: 100%; overflow: hidden;">
-                <div style="float: left;">@Chat.Id</div>
-                <div style="float: right;">
-                    <button class="btn btn-danger" @onclick="@(() => DeleteChat(Chat.Id))">Delet Chat </button>
-                </div>
-            </div>
-        </div>
-    </div>
-}
 
 
 @code {
     ICollection<UserModel>? UserList { get; set; } = new List<UserModel>();
     ICollection<ChatModel>? ChatList { get; set; } = new List<ChatModel>();
     UserModel CurrentUser = new();
-    UserModel UserttoBeDeleted = new();
+    UserModel UsertToBeDeleted = new();
     ChatModel ChatToBeDeleted = new();
-
+    bool isAdmin = new();
+    bool pageHasLoded = new();
 
     protected override async Task OnInitializedAsync()
     {
         var user = await UserService.GetUserClaim();
-        CurrentUser = user.user;
-        UserList = await UserService.GetAllUsers();
-        ChatList = await ChatService.GetChats();
+        if (user.user != null)
+        {
+            CurrentUser = user.user;
+            var adminUser = await UserService.CheckIfAdmin(CurrentUser.UserName);
+            Console.WriteLine(adminUser);
+            if (adminUser == true)
+            {
+                isAdmin = true;
+                UserList = await UserService.GetAllUsers();
+                ChatList = await ChatService.GetChats();
+                pageHasLoded = true;
+                StateHasChanged();
+            }
+        }
         StateHasChanged();
 
     }
 
-    public async Task DeleteUser(String UserName)
+    public async Task DeleteUser(string UserName)
     {
-        UserttoBeDeleted = await UserService.GetUser(UserName);
-
+        UsertToBeDeleted = await UserService.GetUser(UserName);
+        if (UsertToBeDeleted != null)
+        {
+            UsertToBeDeleted.isDeleted = true;
+            await UserService.UpdateUser(UsertToBeDeleted, UserName);
+        }
+        StateHasChanged();
     }
-
-
-
 
     public async Task DeleteChat(int id)
     {
-        ChatToBeDeleted= await ChatService.GetChatById(id);
-        ChatToBeDeleted.IsChatEnded = true;
-        await ChatService.UpdateChat(ChatToBeDeleted, id);
-
+        ChatToBeDeleted = await ChatService.GetChatById(id);
+        if (ChatToBeDeleted != null)
+        {
+            ChatToBeDeleted.IsChatEnded = true;
+            await ChatService.UpdateChat(ChatToBeDeleted, id);
+        }
+        StateHasChanged();
     }
-
-
-
-
 }
 

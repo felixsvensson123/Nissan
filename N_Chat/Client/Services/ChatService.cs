@@ -20,13 +20,13 @@ namespace N_Chat.Client.Services
 
         public async Task<ChatModel> GetChatById(int id)
         {
-            var result = await _httpClient.GetFromJsonAsync<ChatModel>("api/chat/getbyid/{id}");
+            var result = await _httpClient.GetFromJsonAsync<ChatModel>($"api/chat/getbyid/{id}");
             return result;
         }
 
         public async Task<string> UpdateChat(ChatModel chat, int id)
         {
-            var result = await _httpClient.PutAsJsonAsync<ChatModel>("api/chat/updatechat/{id}", chat);
+            var result = await _httpClient.PutAsJsonAsync<ChatModel>($"api/chat/updatechat/{id}", chat);
             return await result.Content.ReadAsStringAsync();
         }
 
