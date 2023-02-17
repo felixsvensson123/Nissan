@@ -122,6 +122,13 @@ namespace N_Chat.Server.Controllers{
                 {
                     return BadRequest("Username taken");
                 }
+                
+                //to ensure unique identification (on the email at least).
+                var checkEmail = await context.Users.FirstOrDefaultAsync(x => x.Email == registerModel.Email);
+                if (checkEmail != null)
+                {
+                    return BadRequest("User with this email is already registered");
+                }
 
                 var user = new UserModel() // sets usermodel props to registerModel props
                 {
