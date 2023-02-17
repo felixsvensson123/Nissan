@@ -49,6 +49,7 @@ else
 {
     @*<div class="alert alert-secondary mt-4" role="alert">
         <span class="oi oi-person mr-2" aria-hidden="true"></span>*@
+        /*the logged in user*/
     <span>Connected As: <b>@User.UserName.ToUpperInvariant()</b>
         <button @onclick="() => DisposeAsync(SelectedChat.Name)"></button>
         </span>
@@ -57,16 +58,14 @@ else
         {
             <div class="field-container">
                 <div class="chat_container">
-                    @foreach (var item in MessageList)
-                    {
+                    @* display messages that lie in MessageList *@
+                    @foreach (var item in MessageList){
                         <div class="messageContainer">
-                            @if (item.UserName == User.UserName)
-                            {
+                            @if (item.UserName == User.UserName){
                                 <div class="item-user">@item.UserName</div>
                                 <div class="messageText-user">@item.Message</div>
                             }
-                            @if (item.UserName != User.UserName)
-                            {
+                            @if (item.UserName != User.UserName){
                                 <div class="item-others">@item.UserName</div>
                                 <div class="messageText-others">@item.Message</div>
                             }
@@ -112,6 +111,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        //new SignalR HubConnectionBuilder, it uses the "/conversations" as endpoint.
         hubConnection = new HubConnectionBuilder()
             .WithUrl(NavigationManager.ToAbsoluteUri("/conversations"))
             .Build();
@@ -123,17 +123,23 @@ else
             User = await UserService.GetUser(currentUser.user.UserName);
 
             _pageLoaded = true;
+            
+            //Invoke StateHasChanged method to update the component's state.
             await InvokeAsync(StateHasChanged);
+            
+            // Call StateHasChanged method again to ensure that the state is updated.
             StateHasChanged();
         }
     }
 
+    //this method is responsible for setting up a connection to a SignalR hub and retrieving the messages associated with a chat based on its chat ID.
     private async Task Chat(string chatName, int chatId)
     {
         MessageList = await MessageService.GetChatMessages(chatId);
         SelectedChat = User.Chats.FirstOrDefault(x => x.ChatId == chatId).Chat;
         _chatName = chatName;
 
+        //  Register callback to handle incoming messages from the SignalR hub.
         hubConnection.On<MessageModel>("ReceiveMessage", (message) =>
         {
                  //checks if its your message so list doesnt double add
@@ -142,40 +148,54 @@ else
             StateHasChanged();
         });
 
+        // Start the SignalR connection and join the chat room.
         await hubConnection.StartAsync();
-
         await hubConnection.InvokeAsync("EnterChat", chatName);
+        
+        // Send message to the chat.
         await hubConnection.SendAsync("SendMessage", chatName);
+        
+        // Update the state of the component to indicate that the user is chatting.
         _isChatting = true;
         await InvokeAsync(StateHasChanged);
     }
 
+    //sends a message to the SignalR hub and updates the UI.
     private async Task SendMessage(MessageModel messageModel)
     {
         if (_isChatting)
         {
             messageModel = new()
             {
-                Message = messageModel.Message,
-                MessageCreated = DateTime.Now,
-                UserName = User.UserName,
-                UserId = User.Id,
-                ChatId = SelectedChat.Id,
-                IsMessageEncrypted = SelectedChat.IsChatEncrypted
+                Message = messageModel.Message, // Set the message content.
+                MessageCreated = DateTime.Now, // Set the message creation date.
+                UserName = User.UserName, // Set the name of the user who sent the message.
+                UserId = User.Id, // Set the ID of the user who sent the message.
+                ChatId = SelectedChat.Id, // Set the ID of the chat to which the message belongs.
+                IsMessageEncrypted = SelectedChat.IsChatEncrypted // Set the encryption status of the chat.
             };
+            
             await MessageService.PostMessage(messageModel);
+            
+            //// Send message to the SignalR hub.
             await hubConnection.SendAsync("SendMessage", messageModel, _chatName);
+            
+            // Clear message input field.
             _message.Message = string.Empty;
+            
+            //// Update the UI to show the new message.
             await InvokeAsync(StateHasChanged);
         }
     }
 
     private async Task DisposeAsync(string chatName)
     {
+        // Disposes the SignalR connection.
         await hubConnection.DisposeAsync();
+        
+        // Sends a message to the SignalR hub to indicate that the user has exited the chat.
         await hubConnection.InvokeAsync("ExitChat", chatName);
     }
     
-
 
 }
