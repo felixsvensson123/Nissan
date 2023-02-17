@@ -145,6 +145,10 @@ input[id="isEncrypted"]
     color: white;
 }
 
+.New-Group-Chat input::placeholder{
+    color: white;
+}
+
 .New-Group-Chat button {
     background: rgb(58, 6, 71);
     color: white;
