@@ -26,7 +26,7 @@ namespace N_Chat.Client.Services
             //response says  PasswordTooShort
             if (result.StatusCode == System.Net.HttpStatusCode.BadRequest)
             {
-                return "BadRequest, could be PasswordTooShort. Is password minimum 6 characters?";
+                return "BadRequest";
             }
             
             return null;

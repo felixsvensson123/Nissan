@@ -112,6 +112,7 @@ namespace N_Chat.Server.Controllers{
             
         }
 
+        // the method specifies that the parameter is of type RegisterModel
         [HttpPost("signup")]
         public async Task<IActionResult> SignupUser(RegisterModel registerModel) // funkar rör ej!
         {
