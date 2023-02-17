@@ -12,11 +12,12 @@
     background-color: grey;
     display: flex;
     flex-direction: column;
-    border-radius: 15px;
     width: 450px!important;
     height: 45rem;
     overflow-y: scroll;
     scroll-behavior: smooth;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
 }
 .chat_container::-webkit-scrollbar
 {
@@ -88,51 +89,25 @@ input {
     background: #e0dede;
     border: none;
     outline: none;
-    border-top-left-radius: 5px;
     border-bottom-left-radius: 5px;
     padding: 0.5rem;
 }
 
 button {
-    width: 8%;
+    width: 9%;
     height: 30px;
     background: rgb(163, 111, 195);
     border: none;
     outline: none;
     cursor: pointer;
-}
-
-
-
-#Pencil{
-    background-color: #e0dede;
-    width: 3%;
-}
-
-#Pencil:hover{
-    color: dimgray;
-}
-
-#Trash{
-    background-color: #e0dede;
-    width: 3%;
-}
-
-#Trash:hover {
-    color: dimgray;
-}
-
-#Send {
-    border-top-right-radius: 5px;
+    margin-bottom: 1px;
     border-bottom-right-radius: 5px;
 }
 
-#Send:hover{
+button:hover{
     color: white;
-    height:100%;
-    display:flex;
-    align-items:end
 }
+
 body{
 
 }

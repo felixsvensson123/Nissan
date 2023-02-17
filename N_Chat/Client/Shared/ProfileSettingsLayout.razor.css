@@ -10,18 +10,18 @@ main {
 
 .content {
     height: 100%;
-    background: rgb(220, 206, 229);
+    background-image: linear-gradient(0deg, #1e2124 -55%, #6d6f72 120%);
+    color: white;
 }
 
 .sidebar {
-    background-color: rgb(211, 178, 232);
-    min-width: 238px;
+    background-image: linear-gradient(180deg, rgb(58, 6, 71) 20%, #8a2be2 230%);
     border-right: solid;
     border-color: black;
 }
 
 .top-row {
-    background-color: rgb(211, 178, 232);
+    background-color: rgb(58, 6, 71);
     border-bottom: solid;
     border-color: black;
     justify-content: flex-end;
@@ -33,15 +33,22 @@ main {
 .Searchbar {
     width: 15%;
     height: 20px;
-    background: #e0dede;
+    background: #424549;
     border: none;
     outline: none;
     border-radius: 5px;
     margin-right: 15px;
+    padding: 0.5rem 1rem;
+    color: white;
+}
+
+.Searchbar::placeholder{
+    color: white;
 }
 
 .oi {
-    background-color: rgb(211, 178, 232);
+    background-color: rgb(58, 6, 71);
+    color: white;
     border: none;
 }
 

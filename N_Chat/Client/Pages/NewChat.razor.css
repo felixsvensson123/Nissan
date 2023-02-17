@@ -39,11 +39,13 @@ label {
     cursor: pointer;
     transition: .5s ease-in-out;
 }
+
 label[for="isEncrypted"]
 {
     font-size: small!important;
     margin: 5px;
 }
+
 .New-Chat-FieldContainer
 {
     display: flex;
@@ -53,11 +55,13 @@ label[for="isEncrypted"]
     margin: 0;
     
 }
+
 .Chat-Form-Container{
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
 }
+
 #div-flex{
     display: flex;
 }
@@ -94,7 +98,6 @@ input[id="isEncrypted"]
     width: 60%;
     height: 40px;
     margin: 10px auto;
-    /*    margin-left: 4rem;*/
     justify-content: center;
     display: block;
     color: rgb(58, 6, 71);
@@ -133,9 +136,18 @@ input[id="isEncrypted"]
     height: 460px;
     background: #eee;
     border-radius: 60% / 10%;
-    transform: translateY(-150px);
+    transform: translateY(-130px);
     transition: .8s ease-in-out;
-    margin-top: 10px;
+}
+
+.New-Group-Chat input {
+    background: rgb(58, 6, 71);
+    color: white;
+}
+
+.New-Group-Chat button {
+    background: rgb(58, 6, 71);
+    color: white;
 }
 
 .New-Group-Chat label {
