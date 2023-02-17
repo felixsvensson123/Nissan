@@ -1,6 +1,6 @@
 ﻿.card {
     margin-top: 15px;
-    background: #eee;
+    background: rgb(58, 6, 71);
     border-radius: 10px;
 }
 
@@ -40,7 +40,7 @@
 }
 
 .UserContent {
-    background: rgb(222, 196, 238);
+    background: rgb(58, 6, 71);
     margin-top: 3%;
     border-radius: 10px;
     box-shadow: 5px 20px 50px #000;
@@ -52,7 +52,7 @@
 
 .UserContent-left {
     text-align: center;
-    color: #fff;
+    color: white;
     margin-top: 4%;
     margin-right: auto;
 }
@@ -62,7 +62,7 @@
     border-radius: 1.5rem;
     padding: 2%;
     width: 60%;
-    background: #eee;
+    background: white;
     font-weight: bold;
     color: #383d41;
     margin-top: 30%;
@@ -71,7 +71,7 @@
 }
 
 .UserContent-right {
-    background: #eee;
+    background: white;
     border-top-left-radius: 10% 50%;
     border-bottom-left-radius: 10% 50%;
     margin-left: auto;
@@ -84,10 +84,15 @@
     margin-left: 30px;
 }
 
+.UserContent-heading {
+    color: rgb(58, 6, 71);
+    font-weight: bolder;
+}
+
 .form-control {
     width: 140%;
     height: 20px;
-    background: #e0dede;
+    background: rgb(58, 6, 71);
     justify-content: center;
     display: flex;
     margin: 20px auto;
@@ -95,6 +100,11 @@
     border: none;
     outline: none;
     border-radius: 5px;
+    color: white;
+}
+
+.form-control::placeholder{
+    color: white;
 }
 
 .btnUserContent {
@@ -102,8 +112,8 @@
     height: 40px;
     justify-content: center;
     display: block;
-    color: #fff;
-    background: rgb(163, 111, 195);
+    color: white;
+    background: rgb(58, 6, 71);
     font-size: 1em;
     font-weight: bold;
     margin-top: 20px;

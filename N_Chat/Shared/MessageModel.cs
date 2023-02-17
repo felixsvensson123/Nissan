@@ -13,12 +13,14 @@ namespace N_Chat.Shared
     {
         public int Id { get; set; }
         public string? Message  { get; set; }
+        public string? UserName { get; set; }
         public DateTime MessageCreated { get; set; }
         public DateTime? MessageDeleted { get; set; }
         public DateTime? MessageEdited { get; set; }
         public bool IsMessageEncrypted { get; set; }
         public bool IsMessageEdited { get; set; }
         public bool IsMessageDeleted { get; set; }
+        public bool ShowDetails { get; set; }  
 
         [ForeignKey(nameof(Chat))]
         public int ChatId { get; set; }

@@ -1,4 +1,85 @@
-﻿.content{
+.page-container
+{
+    background-color: inherit;
+}
+.field-container
+{
+    object-fit: contain;
+    width: fit-content;
+}
+.chat_container
+{
+    background-color: grey;
+    display: flex;
+    flex-direction: column;
+    width: 450px!important;
+    height: 45rem;
+    overflow-y: scroll;
+    scroll-behavior: smooth;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+.chat_container::-webkit-scrollbar
+{
+    border-radius: 15px!important;
+}
+.messageContainer
+{
+    margin-top: 5px!important;
+    margin-left: 10px;
+    margin-right: 10px;
+    max-width: 450px;
+    min-height: 44px;
+    max-height: 150px!important;
+    height: auto;
+    width: auto;
+}
+.messageContainer * >{
+    display: flex;
+    margin-top: 5px!important;
+    box-sizing: border-box!important;
+}
+.item-user{
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: bold;
+
+    color: white;
+}
+.item-others{
+    font-size: 10px;
+    font-weight: bold;
+    float: right!important;
+    color: white;
+}
+.messageText-user{
+    
+    background-color: #1982FC;
+    border-radius: 5px;
+    float:left!important;
+    padding: 7px;
+    color: white;
+}
+.messageText-others{
+    border-radius: 5px;
+    background-color:  #222323 ;
+    float: right!important;
+    padding: 7px;
+    color: white;
+}
+
+p{
+    margin: 0;
+}
+.message{
+    height: 100%;
+    display: flex;
+    align-items: end;
+}
+.messageText{
+    
+}
+.content{
     align-items: end;
 }
 
@@ -8,57 +89,27 @@ input {
     background: #e0dede;
     border: none;
     outline: none;
-    border-top-left-radius: 5px;
     border-bottom-left-radius: 5px;
     padding: 0.5rem;
 }
 
 button {
-    width: 8%;
+    width: 9%;
     height: 30px;
     background: rgb(163, 111, 195);
     border: none;
     outline: none;
     cursor: pointer;
-}
-
-.message{
-    height: 100%;
-    display: flex;
-    align-items: end;
-}
-
-#Pencil{
-    background-color: #e0dede;
-    width: 3%;
-}
-
-#Pencil:hover{
-    color: dimgray;
-}
-
-#Trash{
-    background-color: #e0dede;
-    width: 3%;
-}
-
-#Trash:hover {
-    color: dimgray;
-}
-
-#Send {
-    border-top-right-radius: 5px;
+    margin-bottom: 1px;
     border-bottom-right-radius: 5px;
 }
 
-#Send:hover{
+button:hover{
     color: white;
-    height:100%;
-    display:flex;
-    align-items:end
 }
+
 body{
-   
+
 }
 
 /* improved for chat text box */
@@ -73,7 +124,6 @@ textarea {
 /* improved for speech bubbles */
 .received, .sent {
     position: relative;
-    font-family: arial;
     font-size: 1.1em;
     border-radius: 10px;
     padding: 20px;

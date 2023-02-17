@@ -26,8 +26,9 @@
          <label for="chk" aria-hidden="true">Sign up</label>
          <input @bind-value="RegisterModel.Username" type="text" name="txt" placeholder="Username" required="">
          <input @bind-value="RegisterModel.Email" type="email" name="email" placeholder="Email" required="">
-         <input @bind-value="RegisterModel.Password" type="password" name="pswd" placeholder="Password" required="">
+         <input @bind-value="RegisterModel.Password" type="password" id="password" name="pswd" placeholder="Password" required="">
          <input @bind-value="RegisterModel.ConfirmPassword" type="password" name="pswd" placeholder="Password" required="">
+         @* password minimum 6 characters, is user clicks submit and password is too short we display "your password must be minimum 6 characters long."*@
          <div class="termsofserviceregister">
             <input type="checkbox" id="TermsOfService"/>
             <label class="termsofservice" for="TermsOfService">Terms Of Service</label>
@@ -51,6 +52,7 @@
          string result = await UserService.LoginUser(LoginModel);
          Console.WriteLine("LoginUser()  result ="+result);
 
+         //interact with browser's local storage API, set value and key.
          await LocalStorageService.SetItemAsStringAsync("isauthenticated", "true");
          NavigationManager.NavigateTo("/");
          StateHasChanged();
@@ -65,8 +67,19 @@
 }
 
    public async Task RegisterUser(){
+       Console.WriteLine("aaa  ");
+
+      //not accessible.
       string result = await UserService.SignUp(RegisterModel);
-      Console.WriteLine(result);
+      Console.WriteLine("result = " + result);
+      
+      @*password must be minimum 6 characters long*@
+      if(RegisterModel.Password.Length < 6){
+         Console.WriteLine("your password must be minimum 6 characters long.");
+      }
+
+      Console.WriteLine("your password = " + RegisterModel.Password);
+
       NavigationManager.NavigateTo("/");
       StateHasChanged();
    }

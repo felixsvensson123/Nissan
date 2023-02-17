@@ -23,20 +23,28 @@ namespace N_Chat.Server.Controllers{
             this.signInManager = signInManager;
             this.context = context;
         }
-        [Authorize(Roles = "Admin")]
-        [HttpGet("chats")]
+        [Authorize(Roles="Admin")]
+        [HttpGet("users")]
         public async Task<ICollection<UserModel>> getAllUsers()
         {
             ICollection<UserModel> users = await context.Users
                 .Include(u => u.Chats)
-                .Include(t => t.Messages).ToListAsync();
+                .Include(t => t.Messages)
+                .Where(u => u.isDeleted != true)
+                .ToListAsync();
             return users;
         }
         [HttpGet("getbyname/{userName}")]
-        public async Task<ActionResult> GetUserByName(string userName)
+        public async Task<bool> GetUserByName(string userName)
         {
             UserModel foundUser = await context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
-            return Ok(foundUser);
+
+            if (foundUser != null)
+            {
+                if (await userManager.IsInRoleAsync(foundUser, "Admin"))
+                    return true;
+            }
+            return false;
         }
         [HttpGet("{userName}")] // Gets user with chat and message list // made to reduce redundancy
         public async Task<UserModel> GetUserWithIncludes (string userName) // rör ej funkar
@@ -45,7 +53,8 @@ namespace N_Chat.Server.Controllers{
                 .Include(u => u.Chats)
                 .ThenInclude(uc => uc.Chat)
                 .ThenInclude(c => c.Messages)
-                .AsSingleQuery();
+                .AsSplitQuery();
+            await Task.Delay(100);
 
             return await result.SingleOrDefaultAsync(x => x.UserName == userName);
         }
@@ -60,8 +69,8 @@ namespace N_Chat.Server.Controllers{
 
             UserModel? user = await context.Users
                     .Include(u => u.Chats)
-                    .ThenInclude(uc => uc.Chat)
-                    .ThenInclude(c => c.Messages)
+                    .Include(c => c.Messages)
+                    .AsSplitQuery()
                     .FirstOrDefaultAsync(u => u.UserName == claimValue);
             
             return Ok(user);
@@ -108,11 +117,12 @@ namespace N_Chat.Server.Controllers{
         {
             if (ModelState.IsValid)
             {
-                var checkUser = await context.Users.FirstOrDefaultAsync(x => x.UserName == registerModel.Username); //Checks if user already exists in DB
+                var checkUser = await context.Users.FirstOrDefaultAsync(x => x.UserName == registerModel.Username);
                 if (checkUser != null)
                 {
-                    return BadRequest(("Username taken") + checkUser);
+                    return BadRequest("Username taken");
                 }
+
                 var user = new UserModel() // sets usermodel props to registerModel props
                 {
                     UserName = registerModel.Username,
@@ -170,9 +180,15 @@ namespace N_Chat.Server.Controllers{
             return BadRequest(updateModel);
         }
 
-        [HttpGet("{userId}/getuserchat/{chatId}")]
-        public async Task GetUserChatById(string userId, string chatId)
+        [HttpGet("{userId}/userchat/")]
+        public async Task<IActionResult> GetUserChats(string userId)
         {
+            var userChat =  context.UserChats
+                .Where(x => x.UserId == userId)
+                .Include(uc => uc.User)
+                .ThenInclude(u => u.Chats);
+            
+            return Ok(userChat);
         }
         [HttpPost("chatrequest/{chatId}")] // adds user to chat
         public async Task<IActionResult> RequestChat(UserModel user, int chatId)
@@ -215,5 +231,22 @@ namespace N_Chat.Server.Controllers{
                 
             }
         }
+
+        [HttpPut("update/{username}")]
+        public async Task<ActionResult> SoftDeletUser(UserModel user, string userName)
+        {
+            if (!ModelState.IsValid)
+            {
+                Console.WriteLine("models state is def not valid");
+                return BadRequest(ModelState);
+            }
+            UserModel UserToBeUpdated = await GetUserWithIncludes(userName);
+            UserToBeUpdated.isDeleted = user.isDeleted;
+            context.Update(UserToBeUpdated);
+            await context.SaveChangesAsync();
+            return Ok(UserToBeUpdated);
+        }
+
+
     }
 }

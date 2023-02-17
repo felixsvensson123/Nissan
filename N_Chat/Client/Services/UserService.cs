@@ -13,13 +13,22 @@ namespace N_Chat.Client.Services
             this.httpClientFactory = httpClientFactory;
         }
 
+        // This function is responsible for login and it receives a LoginModel object. 
         public async Task<string> LoginUser(LoginModel loginModel)
         {
             var result = await httpClient.PostAsJsonAsync("api/user/login/", loginModel);
+            
             if(result.IsSuccessStatusCode)
             {
                 return "Success";
             }
+            
+            //response says  PasswordTooShort
+            if (result.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                return "BadRequest, could be PasswordTooShort. Is password minimum 6 characters?";
+            }
+            
             return null;
         }
         public async Task<string> Signout()
@@ -48,9 +57,9 @@ namespace N_Chat.Client.Services
             return result;
         }
 
-        public async Task<UserModel> GetUserByName(string name)
+        public async Task<bool> CheckIfAdmin(string name)
         {
-            var result = await httpClient.GetFromJsonAsync<UserModel>($"api/user/getbyname/{name}");
+            var result = await httpClient.GetFromJsonAsync<bool>($"api/user/getbyname/{name}");
             return result;
         }
 
@@ -76,7 +85,7 @@ namespace N_Chat.Client.Services
 
         public async Task<ICollection<UserModel>> GetAllUsers()
         {
-            return await httpClient.GetFromJsonAsync<ICollection<UserModel>>($"api/user/chats/");
+            return await httpClient.GetFromJsonAsync<ICollection<UserModel>>("api/user/users");
         }
         
         public async Task<string> AddUserToChat(UserModel user, int chatId)
@@ -89,18 +98,24 @@ namespace N_Chat.Client.Services
             return null;
         }
         
+        public async Task<string> UpdateUser(UserModel user, string userName)
+        {
+            var result = await httpClient.PutAsJsonAsync($"api/user/update/{userName}", user);
+            return await result.Content.ReadAsStringAsync();
+        }
     }
 
     public interface IUserService 
     {
         Task<string> LoginUser(LoginModel loginModel); // Login User Method
         Task<string> SignUp(RegisterModel registerModel); // Signup User Method
-        Task<UserModel> GetUserByName(string name);// Get user by username method
+        Task<bool> CheckIfAdmin(string name);// Get user by username method
         Task<string> Signout(); // Signout user
         Task<(string Message, UserModel? user)> GetUserClaim(); //Gets user via claims
         Task<UserModel> GetUser(string userName); // gets specific user
         Task<ICollection<UserModel>> GetAllUsers(); //Gets All Users 
         Task<string> AddUserToChat(UserModel user, int chatId);
+        Task<string> UpdateUser(UserModel user, string userName);
     }
 }
  

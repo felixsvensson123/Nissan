@@ -16,31 +16,30 @@ namespace N_Chat.Server.Controllers
             this.context = context;
         }
 
-        /*
-        [HttpGet("getall")]
-        public async Task<IEnumerable<ChatModel>> GetAll()
-        {
-            List<ChatModel> chatList = await context.Chats.OfType<ChatModel>().Where(c => c.IsChatEnded != true).ToListAsync();
-            return chatList;
-        }
-        */
-        
         [HttpGet("getall")] 
         public async Task<ICollection<ChatModel>> GetIncludedChats()
         {
             var dbChats = await context.Chats
                 .Include(u => u.Users)
-                .ThenInclude(uc => uc.User)
-                .ThenInclude(u => u.Messages)
+                .Include(u => u.Messages)
+                .Where(u => u.IsChatEnded != true)
+                .AsSplitQuery()
                 .ToListAsync();
+            
             return dbChats;
         }
 
-        [HttpGet("getchatbyid/{id}")]
+        [HttpGet("getbyid/{id}")]
         public async Task<ChatModel> GetById(int id)
         {
-            var result = await GetIncludedChats(); 
-            return result.FirstOrDefault(x => x.Id == id);
+            var result = await GetIncludedChats();
+
+            var chat = result.FirstOrDefault(x => x.Id == id);
+            
+            if (chat != null)
+                return chat;
+
+            return null;
         }
 
         [HttpPut("updatechat/{id}")]
@@ -48,6 +47,7 @@ namespace N_Chat.Server.Controllers
         {
             if (!ModelState.IsValid)
             {
+                Console.WriteLine("models state is def not valid");
                 return BadRequest(ModelState);
             }
             ChatModel chatToBeUpdated = await GetById(id);

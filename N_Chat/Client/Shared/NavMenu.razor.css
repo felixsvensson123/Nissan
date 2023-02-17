@@ -34,6 +34,27 @@
     padding-bottom: 0.5rem;
     font-weight: bolder;
 }
+.signOut {
+/*make this button look like a nav-link */
+    color: white;
+    border: 5px solid black;
+    height: 3rem;
+    display: flex;
+    text-align: left;
+    line-height: 3rem;
+    background: #424549;
+    justify-content: flex-start;
+    padding: 0 12px;
+    font-size: 0.9rem;
+    font-weight: bolder;
+    margin: 0 1rem;
+    width: 13.8rem;
+}
+/*when hovering on signOut*/
+.signOut:hover {
+    background-color: #1e2124;
+    color: white;
+}
 
     .nav-item:first-of-type {
         padding-top: 1rem;

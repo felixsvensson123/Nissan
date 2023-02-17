@@ -14,7 +14,7 @@
                     <p style="margin: 1px!important; color: white;" >Encryption</p>
                     <input type="radio" id="isEncrypted" name="Encryption" value="True" @onchange="@(() => UpdateBool("true"))">
                     <label for="isEncrypted">On</label>
-                    <input type="radio" id="isEncrypted" name="Encryption" value="True" @onchange="@(() => UpdateBool("false"))">
+                    <input type="radio" id="isEncrypted" name="Encryption" value="False" @onchange="@(() => UpdateBool("false"))">
                     <label for="isEncrypted">Off</label>
                 </div>
                 <button class="create" @onclick=@(() => CreateChat(Chat))>Start Chat</button>
@@ -35,7 +35,7 @@
                     <input type="radio" id="isEncrypted" name="Encryption" value="True" @onchange="@(() => UpdateBool("false"))">
                     <label for="isEncrypted">Off</label>
                 </div>
-            <button class="create"@onclick=@(() => CreateChat(Chat))>Start Group Chat</button>
+                <button class="create"@onclick=@(() => CreateChat(Chat))>Start Group Chat</button>
             </div>
         </EditForm>
     </div>
@@ -76,6 +76,7 @@
         };
         
         await ChatService.CreateChat(chatModel);
+        NavigationManager.NavigateTo("/conversations");
     }
 
     private void UpdateBool(string decision)

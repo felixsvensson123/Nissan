@@ -69,21 +69,26 @@
 	
     protected override async Task OnInitializedAsync()
     {
+		// användaruppgifter för den aktuella användaren.
         var currentUser = await UserService.GetUserClaim();
 	    if (currentUser.user == null)
 		    throw new Exception("User was not found!");
-	    
+
+	    //detaljerad information om användaren, inklusive deras användarnamn.
         User = await UserService.GetUser(currentUser.user.UserName);
 	    await Task.Delay(1);
-	    ChatList = await ChatService.GetChats();
+	    ChatList = await ChatService.GetChats();//tillgängliga chattar.
 	    await Task.Delay(1);
-	    FriendList = await UserService.GetAllUsers();
+	    FriendList = await UserService.GetAllUsers();// tillgängliga användare som kan läggas till som vänner.
 	    await Task.Delay(1);
 	    
 	    _pageLoaded = true;
-	    StateHasChanged();
+	    StateHasChanged();// signalera att tillståndet för komponenten har ändrats, gränssnittet behöver uppdateras.
     }
 
+
+	 // kallas när användaren skapa en ny chatt. 
+	 // tar emot en parameter som innehåller formulärdata som ett "EditContext" objekt.
 	private async Task HandleSubmit(EditContext context)
 	{
 
@@ -101,6 +106,9 @@
 		};
 		await ChatService.CreateChat(ChosenChat);
 	}
+
+	// hitta det chatt-rum som matchar det angivna chatt-rumsnamnet.
+	//orsaka att chattens detaljer visas eller döljs beroende på det nuvarande värdet på "ShowDetails" för det valda chatt-rummet.
 	private void ShowBtnPress(string chatName)
 	{
 		ChosenChat = ChatList.First(f => f.Name == chatName);
@@ -110,6 +118,7 @@
 		ChosenChat.ShowDetails = !ChosenChat.ShowDetails;
 		StateHasChanged();
 	}
+	//Denna kod implementerar en metod som kallas när användaren vill skapa en ny chatt med en annan användare.
     private async Task RequestChat(UserModel chosenUser)
     {
 	    if (chosenUser == null)

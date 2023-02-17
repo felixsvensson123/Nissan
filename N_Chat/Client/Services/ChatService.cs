@@ -12,21 +12,21 @@ namespace N_Chat.Client.Services
             _httpClient = httpClient;
         }
 
-        public async Task<List<ChatModel>> GetChats()
+        public async Task<ICollection<ChatModel>> GetChats()
         {
-            var result = await _httpClient.GetFromJsonAsync<List<ChatModel>>("api/chat/getall");
-            return result;
+            var results = await _httpClient.GetFromJsonAsync<ICollection<ChatModel>>("api/chat/getall");
+            return results;
         }
 
         public async Task<ChatModel> GetChatById(int id)
         {
-            var result = await _httpClient.GetFromJsonAsync<ChatModel>("api/chat/getbyid/{id}");
+            var result = await _httpClient.GetFromJsonAsync<ChatModel>($"api/chat/getbyid/{id}");
             return result;
         }
 
         public async Task<string> UpdateChat(ChatModel chat, int id)
         {
-            var result = await _httpClient.PutAsJsonAsync<ChatModel>("api/chat/updatechat/{id}", chat);
+            var result = await _httpClient.PutAsJsonAsync<ChatModel>($"api/chat/updatechat/{id}", chat);
             return await result.Content.ReadAsStringAsync();
         }
 
@@ -43,7 +43,7 @@ namespace N_Chat.Client.Services
 
     public interface IChatService
     {
-        Task<List<ChatModel>> GetChats();
+        Task<ICollection<ChatModel>> GetChats();
         Task<ChatModel> GetChatById(int id);
         Task<string> UpdateChat(ChatModel chat, int id);
         Task<string> CreateChat(ChatModel chat);

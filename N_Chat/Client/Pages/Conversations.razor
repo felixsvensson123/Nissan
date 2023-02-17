@@ -1,10 +1,9 @@
 ﻿@using Microsoft.AspNetCore.SignalR.Client
 @using Microsoft.AspNetCore.Connections
-
-
+@inject IJSRuntime JsRuntime
+@layout MainLayout
 
 @page "/conversations"
-
 
 @if (_pageLoaded)
 {
@@ -19,14 +18,15 @@
             <col/>
         </ColGroup>
         <HeaderContent>
-            <MudTh>Chat</MudTh>
-            <MudTh>Action</MudTh>
+            <MudTh>Chats</MudTh>
+            <MudTh>Actions</MudTh>
+            <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Name">@context.Chat.Name</MudTd>
+            <MudTd> @context.ChatId </MudTd>
             <MudTd>
-                <MudButton Color="Color.Dark" @onclick="(() => Chat(context.Chat.Name))">Enter</MudButton>
-                <MudButton Color="Color.Dark">Manage Chat</MudButton>
+                <MudButton Color="Color.Dark" @onclick="(() => Chat(context.Chat.Name, context.ChatId))">Enter</MudButton>
             </MudTd>
         </RowTemplate>
     </MudTable>
@@ -47,114 +47,155 @@
 }
 else
 {
-    <body>
-    <div class="alert alert-secondary mt-4" role="alert">
-        <span class="oi oi-person mr-2" aria-hidden="true"></span>
-        <span>Connected As: <b>@User.UserName</b></span>
+    @*<div class="alert alert-secondary mt-4" role="alert">
+        <span class="oi oi-person mr-2" aria-hidden="true"></span>*@
+        /*the logged in user*/
+    <span>Connected As: <b>@User.UserName.ToUpperInvariant()</b>
+        <button @onclick="() => DisposeAsync(SelectedChat.Name)"></button>
+        </span>
+    <body class="page-container">
         @if (SelectedChat != null)
         {
-            @foreach (var item in SelectedChat.Chat.Messages)
-            {
-                <div class="scrollbox">
-                    <div class="msg">
-                        @if (item.User != null)
-                        {
-                            <span>@item.User.UserName: </span>
-                        }
-                        <p>Message: @item.Message</p>
-                    </div>
+            <div class="field-container">
+                <div class="chat_container">
+                    @* display messages that lie in MessageList *@
+                    @foreach (var item in MessageList){
+                        <div class="messageContainer">
+                            @if (item.UserName == User.UserName){
+                                <div class="item-user">@item.UserName</div>
+                                <div class="messageText-user">@item.Message</div>
+                            }
+                            @if (item.UserName != User.UserName){
+                                <div class="item-others">@item.UserName</div>
+                                <div class="messageText-others">@item.Message</div>
+                            }
+                        </div>
+                    }
                 </div>
-            }
+                <div class="user-container">
+                    @foreach (var item in SelectedChat.Users)
+                    {
+                        if (item.User != null)
+                            @item.User.UserName;
+                    }
+                </div>
+                <div class="message">
+                    <input @bind="_message.Message" class="messageinput" type="text" name="txt" placeholder="Write something..." wrap="hard" rows="5" cols="30" required="">
+                    @*<button class="oi oi-pencil" aria-hidden="true" id="Pencil"></button>
+                    <button class="oi oi-trash" aria-hidden="true" id="Trash"></button>*@
+                    <button @onclick="@(() => SendMessage(_message))" class="oi oi-location" aria-hidden="true"></button>
+                </div>
+            </div>
         }
-    </div>
-    <div class="message">
-        <input @bind="_message.Message" class="messageinput" type="text" name="txt" placeholder="Write something..." wrap="hard" rows="5" cols="30" required="">
-        <button class="oi oi-pencil" aria-hidden="true" id="Pencil"></button>
-        <button class="oi oi-trash" aria-hidden="true" id="Trash"></button>
-        <button @onclick="@(() => SendMessage(_message))" class="oi oi-location" aria-hidden="true" id="Send"></button>
-    </div>
+        @*</div>*@
+
     </body>
 }
 }
 
 
 @code {
+    ICollection<MessageModel> MessageList { get; set; } = new List<MessageModel>();
+    ICollection<UserModel> UserList { get; set; } = new List<UserModel>();
+    
+    UserModel? User { get; set; }
+    ChatModel? SelectedChat { get; set; } = new();
+    HubConnection hubConnection;
+    MessageModel _message { get; set; } = new();
+    
     private bool _isChatting = false;
     private bool _pageLoaded = false;
     private bool _invitingUser = false;
-    private UserModel? User { get; set; }// name of the user who will be chatting
-    private UserChat? SelectedChat { get; set; } = new(); // Current Chat
-    private List<ChatModel> UserChats { get; set; } = new();
-    private string _hubUrl;
-    private HubConnection hubConnection;
-    MessageModel _message { get; set; } = new();
-    // string? _message;
-    private string? encryptedMessage;
-    private string? _chatName { get; set; }
-    private string? _userName;
     
+    string? _chatName { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
+        //new SignalR HubConnectionBuilder, it uses the "/conversations" as endpoint.
         hubConnection = new HubConnectionBuilder()
             .WithUrl(NavigationManager.ToAbsoluteUri("/conversations"))
             .Build();
 
         var currentUser = await UserService.GetUserClaim();
-        
+
         if (currentUser.Message == "Success")
         {
             User = await UserService.GetUser(currentUser.user.UserName);
-            
+
             _pageLoaded = true;
+            
+            //Invoke StateHasChanged method to update the component's state.
             await InvokeAsync(StateHasChanged);
+            
+            // Call StateHasChanged method again to ensure that the state is updated.
             StateHasChanged();
         }
     }
 
-    private async Task Chat(string chatName)
+    //this method is responsible for setting up a connection to a SignalR hub and retrieving the messages associated with a chat based on its chat ID.
+    private async Task Chat(string chatName, int chatId)
     {
-        SelectedChat = User.Chats.FirstOrDefault(c => c.Chat.Name == chatName);
+        MessageList = await MessageService.GetChatMessages(chatId);
+        SelectedChat = User.Chats.FirstOrDefault(x => x.ChatId == chatId).Chat;
         _chatName = chatName;
-        
+
+        //  Register callback to handle incoming messages from the SignalR hub.
         hubConnection.On<MessageModel>("ReceiveMessage", (message) =>
         {
-            SelectedChat.Chat.Messages.Add(message);
+                 //checks if its your message so list doesnt double add
+            MessageList.Add(message);
             InvokeAsync(StateHasChanged);
             StateHasChanged();
         });
 
+        // Start the SignalR connection and join the chat room.
         await hubConnection.StartAsync();
-        
         await hubConnection.InvokeAsync("EnterChat", chatName);
-        await hubConnection.SendAsync("SendMessage", _message ,chatName);
+        
+        // Send message to the chat.
+        await hubConnection.SendAsync("SendMessage", chatName);
+        
+        // Update the state of the component to indicate that the user is chatting.
         _isChatting = true;
         await InvokeAsync(StateHasChanged);
     }
 
+    //sends a message to the SignalR hub and updates the UI.
     private async Task SendMessage(MessageModel messageModel)
     {
         if (_isChatting)
         {
             messageModel = new()
             {
-                Message = messageModel.Message,
-                MessageCreated = DateTime.Now,
-                UserId = User.Id,
-                ChatId = SelectedChat.ChatId,
-                IsMessageEncrypted = SelectedChat.Chat.IsChatEncrypted
+                Message = messageModel.Message, // Set the message content.
+                MessageCreated = DateTime.Now, // Set the message creation date.
+                UserName = User.UserName, // Set the name of the user who sent the message.
+                UserId = User.Id, // Set the ID of the user who sent the message.
+                ChatId = SelectedChat.Id, // Set the ID of the chat to which the message belongs.
+                IsMessageEncrypted = SelectedChat.IsChatEncrypted // Set the encryption status of the chat.
             };
+            
             await MessageService.PostMessage(messageModel);
+            
+            //// Send message to the SignalR hub.
             await hubConnection.SendAsync("SendMessage", messageModel, _chatName);
+            
+            // Clear message input field.
             _message.Message = string.Empty;
-            messageModel = default(MessageModel)!;
+            
+            //// Update the UI to show the new message.
             await InvokeAsync(StateHasChanged);
         }
     }
 
-    /*public async Task DisposeAsync()
+    private async Task DisposeAsync(string chatName)
     {
+        // Disposes the SignalR connection.
         await hubConnection.DisposeAsync();
-        await base.InvokeAsync("HasDisconnected", );
-    }*/
+        
+        // Sends a message to the SignalR hub to indicate that the user has exited the chat.
+        await hubConnection.InvokeAsync("ExitChat", chatName);
+    }
+    
 
 }
