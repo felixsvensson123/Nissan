@@ -23,21 +23,28 @@ namespace N_Chat.Server.Controllers{
             this.signInManager = signInManager;
             this.context = context;
         }
-        [Authorize(Roles = "Admin")]
-        [HttpGet("chats")]
+        [Authorize(Roles="Admin")]
+        [HttpGet("users")]
         public async Task<ICollection<UserModel>> getAllUsers()
         {
             ICollection<UserModel> users = await context.Users
                 .Include(u => u.Chats)
                 .Include(t => t.Messages)
+                .Where(u => u.isDeleted != true)
                 .ToListAsync();
             return users;
         }
         [HttpGet("getbyname/{userName}")]
-        public async Task<ActionResult> GetUserByName(string userName)
+        public async Task<bool> GetUserByName(string userName)
         {
             UserModel foundUser = await context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
-            return Ok(foundUser);
+
+            if (foundUser != null)
+            {
+                if (await userManager.IsInRoleAsync(foundUser, "Admin"))
+                    return true;
+            }
+            return false;
         }
         [HttpGet("{userName}")] // Gets user with chat and message list // made to reduce redundancy
         public async Task<UserModel> GetUserWithIncludes (string userName) // rör ej funkar
@@ -47,6 +54,7 @@ namespace N_Chat.Server.Controllers{
                 .ThenInclude(uc => uc.Chat)
                 .ThenInclude(c => c.Messages)
                 .AsSplitQuery();
+            await Task.Delay(100);
 
             return await result.SingleOrDefaultAsync(x => x.UserName == userName);
         }
@@ -68,53 +76,40 @@ namespace N_Chat.Server.Controllers{
             return Ok(user);
         }
 
-        // This function is responsible for handling the HTTP POST request for login.
         [HttpPost("login")]
         public async Task<IActionResult> LoginUser(LoginModel user) // rör ej funkar
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Signs in the user by using the SignInManager with the username and password provided by the user.
             var result = await signInManager
                 .PasswordSignInAsync(user.Username, user.Password, true, false); // signs in user.
 
-            // If the sign in process is successful, create user claims and sign them in with the ClaimsIdentity and ClaimsPrincipal objects.
             if (result.Succeeded)
             {
                 var currentUser =
                     await signInManager.UserManager.FindByNameAsync(user.Username);
                 
-                // Creates a list of claims for the current user.
                 var claims = new List<Claim> //sets up user claim
                 {
-                    // Adds a claim for the user's name.
                     new(ClaimTypes.Name,
                         currentUser.UserName)
                 };
 
-                // Creates a ClaimsIdentity object with the list of claims and sets the default authentication scheme to CookieAuthenticationDefaults.
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                var authProperties = new AuthenticationProperties{
-                    
-                    // Sets the expiration time for the authentication cookie. Benefits of doing this: when we set an expiration time for the authentication cookie, we limit the amount of time that sensitive information is stored in the user's browser and reduce the risk of session hijacking (since it will expire).
-                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(4),
-                    IsPersistent = false
-                };
+                var authProperties = new AuthenticationProperties();
 
-                // Signs in the user by creating a ClaimsPrincipal object with the created ClaimsIdentity and signs them in with the HttpContext.
                 await HttpContext.SignInAsync( //sets claims principals and signs in user 
                     CookieAuthenticationDefaults.AuthenticationScheme,
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
 
-                // Returns the result of the sign in process.
                 return Ok(result);
             }
             
-            // If the sign in process is unsuccessful, adds an error message to the ModelState and returns a bad request with the ModelState.
             ModelState.AddModelError(string.Empty, "Invalid Login Attempt"); // Error Message if string is empty
             return BadRequest(ModelState);
+            
         }
 
         [HttpPost("signup")]
@@ -236,5 +231,22 @@ namespace N_Chat.Server.Controllers{
                 
             }
         }
+
+        [HttpPut("update/{username}")]
+        public async Task<ActionResult> SoftDeletUser(UserModel user, string userName)
+        {
+            if (!ModelState.IsValid)
+            {
+                Console.WriteLine("models state is def not valid");
+                return BadRequest(ModelState);
+            }
+            UserModel UserToBeUpdated = await GetUserWithIncludes(userName);
+            UserToBeUpdated.isDeleted = user.isDeleted;
+            context.Update(UserToBeUpdated);
+            await context.SaveChangesAsync();
+            return Ok(UserToBeUpdated);
+        }
+
+
     }
 }
