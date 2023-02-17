@@ -78,7 +78,9 @@
          Console.WriteLine("your password must be minimum 6 characters long.");
       }
 
-      Console.WriteLine("your password = " + RegisterModel.Password);
+      if (result == "success"){
+         Console.WriteLine("you have successfully registered.");
+      }
 
       NavigationManager.NavigateTo("/");
       StateHasChanged();
