@@ -19,7 +19,11 @@ namespace Test.UITests_Playwright
                 using var playwright = await Playwright.CreateAsync();
 
                 //Browser
-                await using var browser = await playwright.Chromium.LaunchAsync();
+                await using var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+                {
+                    Headless = false, // set headless mode to true
+                   
+                });
 
                 //Page
                 var Page = await browser.NewPageAsync();
@@ -69,7 +73,7 @@ namespace Test.UITests_Playwright
                 {
                     Assert.That(userName, Is.EqualTo("hanna"));
                     Assert.That(chatName, Is.EqualTo("Chat with hanna"));
-                    Assert.That(Page.IsCheckedAsync("#isEncrypted"), Is.False);
+                    Assert.That(Page.IsCheckedAsync("#input"), Is.False);
                     Assert.That(urlAfterClick, Is.EqualTo("https://localhost:7280/conversations"));
                 });
 
