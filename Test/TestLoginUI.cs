@@ -26,7 +26,11 @@ namespace Test
                 using var playwright = await Playwright.CreateAsync();
 
                 //Browser
-                await using var browser = await playwright.Chromium.LaunchAsync();
+                await using var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+                {
+                    Headless = false // set headless mode to false
+                   
+                });
 
                 //Page
                 var Page = await browser.NewPageAsync();
@@ -34,22 +38,26 @@ namespace Test
                 //navigate to homepage
                 await Page.GotoAsync("https://localhost:7280/");
 
-                var userName = "";
+                var userName = "Patrik";
+
                 //fill in username
+                await Page.WaitForSelectorAsync("input[type=text]");
                 await Page.FillAsync("input[type=text]",userName);
 
-                var password = "";
+                var password = "patrik123";
                 //fill in password
+                await Page.WaitForSelectorAsync("input[type=password]");
                 await Page.FillAsync("input[type=password]",password);
 
                 //submit registration
+                await Page.WaitForSelectorAsync("input[type=submit]");
                 await Page.ClickAsync("button[type=submit]");
 
                 var userLocalStorage=(userName,password);
                 await Page.EvaluateAsync("() => window.localStorage.getItem(userLocalStorage)");
 
                 //navigate to startpage
-                await Page.GotoAsync("https://localhost:7280/startPage");
+                await Page.GotoAsync("https://localhost:7280/StartPage");
 
 
                             
@@ -59,7 +67,7 @@ namespace Test
                 {
                     Assert.That(userName,Is.EqualTo("Patrik"));
                     Assert.That(password, Is.EqualTo("patrik123"));
-                    Assert.That(urlAfterClick, Is.EqualTo("https://localhost:7280/startPage"));
+                    Assert.That(urlAfterClick, Is.EqualTo("https://localhost:7280/StartPage"));
                     Assert.That(userLocalStorage,Is.True);
                 });
 

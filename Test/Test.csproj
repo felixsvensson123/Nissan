@@ -24,4 +24,8 @@
     <ProjectReference Include="..\N_Chat\Server\N_Chat.Server.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="UITests-Playwright\" />
+  </ItemGroup>
+
 </Project>
