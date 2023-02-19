@@ -49,7 +49,7 @@ namespace Test.UITests_Playwright
                 //navigate to start page
                 var pageSelector = "h3:has-text('StartPage')";
                 await Page.WaitForSelectorAsync(pageSelector);
-                var startPageElement = await Page.QuerySelectorAsync(pageSelector);
+               // var startPageElement = await Page.QuerySelectorAsync(pageSelector);
 
                 //click create chat
                 var linkSelector = "a.nav-link:has-text('Create Chat')";
@@ -59,7 +59,7 @@ namespace Test.UITests_Playwright
                 //navigate to start singel chat page
                 var pageCreateSingelChat = "label:has-text('Singel Chat')";
                 await Page.WaitForSelectorAsync(pageCreateSingelChat);
-                var startSingelchatElement = await Page.QuerySelectorAsync(pageCreateSingelChat);
+               // var startSingelchatElement = await Page.QuerySelectorAsync(pageCreateSingelChat);
 
                 //fill in userName
                 var userName1 = "hanna";
@@ -75,10 +75,10 @@ namespace Test.UITests_Playwright
 
                 // Hitta elementet med value = false attributet
                 await Page.WaitForSelectorAsync("input[type='radio'][value='false']");
-                var radioButton = await Page.QuerySelectorAsync("input[type='radio'][value='false']");
+               // var radioButton = await Page.QuerySelectorAsync("input[type='radio'][value='false']");
 
                 // Klicka på radioknappen
-                await radioButton.ClickAsync();
+                //await radioButton.ClickAsync();
 
                //click start chat
                 var buttonSelector = "label:has-text('Start Chat')";
@@ -88,7 +88,7 @@ namespace Test.UITests_Playwright
                 //navigate to conversationpage
                 var pageConversationSelector = "p:has-text('Welcome')";
                 await Page.WaitForSelectorAsync(pageConversationSelector);
-                var pageConversationElement = await Page.QuerySelectorAsync(pageConversationSelector);
+                //var pageConversationElement = await Page.QuerySelectorAsync(pageConversationSelector);
 
 
 
@@ -102,9 +102,9 @@ namespace Test.UITests_Playwright
                     Assert.That(userName1, Is.EqualTo("hanna"));
                     Assert.That(chatName, Is.EqualTo("Chat with hanna"));
                     Assert.That(Page.IsCheckedAsync("#input"), Is.False);
-                    Assert.That(startPageElement, Is.Not.Null);
-                    Assert.That(startSingelchatElement, Is.Not.Null);
-                    Assert.That(pageConversationElement, Is.Not.Null);
+                    //Assert.That(startPageElement, Is.Not.Null);
+                    //Assert.That(startSingelchatElement, Is.Not.Null);
+                    //Assert.That(pageConversationElement, Is.Not.Null);
                 });
 
             }

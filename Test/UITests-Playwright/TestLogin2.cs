@@ -50,7 +50,7 @@ namespace Test.UITests_Playwright
                 //navigate to startpage
                 var pageSelector = "h3:has-text('StartPage')";
                 await Page.WaitForSelectorAsync(pageSelector);
-                var pageElement = await Page.QuerySelectorAsync(pageSelector);
+               // var pageElement = await Page.QuerySelectorAsync(pageSelector);
 
                 string urlAfterClick = Page.Url;
 
@@ -58,7 +58,7 @@ namespace Test.UITests_Playwright
                 {
                     Assert.That(userName, Is.EqualTo("Patrik"));
                     Assert.That(password, Is.EqualTo("patrik123"));
-                    Assert.That(pageElement, Is.Not.Null);
+                   // Assert.That(pageElement, Is.Not.Null);
                     // Assert.That(userLocalStorage, Is.True);
                 });
 

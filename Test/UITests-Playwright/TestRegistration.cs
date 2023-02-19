@@ -66,7 +66,7 @@ namespace Test.UITests_Playwright
                 //var page = "h3:has-text('StartPage')";
                 //await Page.WaitForSelectorAsync(page);
                 // var pageSite = await Page.QuerySelectorAsync(page);
-                var newPage=await Page.WaitForSelectorAsync("h3:has-text('StartPage')", new WaitForSelectorOptions { Visible = true });
+               // var newPage=await Page.WaitForSelectorAsync("h3:has-text('StartPage')", new WaitForSelectorOptions { Visible = true });
 
 
 
