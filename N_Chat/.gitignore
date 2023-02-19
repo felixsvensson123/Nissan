@@ -534,3 +534,5 @@ _NCrunch*
 #idea
 .idea*
 .vs/*
+# ignore IDE stuffs
+../.vs/N_Chat/*
