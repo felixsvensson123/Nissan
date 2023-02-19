@@ -23,7 +23,7 @@ namespace N_Chat.Client.Services
                 return "Success";
             }
             
-            //response says  PasswordTooShort
+            //response 
             if (result.StatusCode == System.Net.HttpStatusCode.BadRequest)
             {
                 return "BadRequest";
