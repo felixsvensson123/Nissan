@@ -7,7 +7,7 @@ using Microsoft.Playwright;
 
 namespace Test.UITests_Playwright
 {
-    public class SingelChatNotEncrypt
+    public class SingelChatEncrypted
     {
         [Test]
         public async Task TestSendingSingelChatMessageNotEncrypted()
@@ -22,7 +22,7 @@ namespace Test.UITests_Playwright
                 await using var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
                 {
                     Headless = false // set headless mode to false
-                   
+
                 });
 
                 //Page
@@ -49,7 +49,7 @@ namespace Test.UITests_Playwright
                 //navigate to start page
                 var pageSelector = "h3:has-text('Start Page')";
                 await Page.WaitForSelectorAsync(pageSelector);
-               // var startPageElement = await Page.QuerySelectorAsync(pageSelector);
+                // var startPageElement = await Page.QuerySelectorAsync(pageSelector);
 
                 //click create chat
                 var linkSelector = "a.nav-link:has-text('Create Chat')";
@@ -59,7 +59,7 @@ namespace Test.UITests_Playwright
                 //navigate to start singel chat page
                 var pageCreateSingelChat = "label:has-text('Singel Chat')";
                 await Page.WaitForSelectorAsync(pageCreateSingelChat);
-               // var startSingelchatElement = await Page.QuerySelectorAsync(pageCreateSingelChat);
+                // var startSingelchatElement = await Page.QuerySelectorAsync(pageCreateSingelChat);
 
                 //fill in userName
                 var userName1 = "hanna";
@@ -74,13 +74,13 @@ namespace Test.UITests_Playwright
 
 
                 // Hitta elementet med value = false attributet
-                await Page.WaitForSelectorAsync("input[type='radio'][value='false']");
-                var radioButton = await Page.QuerySelectorAsync("input[type='radio'][value='false']");
+                await Page.WaitForSelectorAsync("input[type='radio'][value='true']");
+                var radioButton = await Page.QuerySelectorAsync("input[type='radio'][value='true']");
 
                 // Klicka på radioknappen
                 await radioButton.ClickAsync();
 
-               //click start chat
+                //click start chat
                 var buttonSelector = "label:has-text('Start Chat')";
                 await Page.WaitForSelectorAsync(buttonSelector);
                 await Page.ClickAsync(buttonSelector);
@@ -101,7 +101,7 @@ namespace Test.UITests_Playwright
                 {
                     Assert.That(userName1, Is.EqualTo("hanna"));
                     Assert.That(chatName, Is.EqualTo("Chat with hanna"));
-                    Assert.That(Page.IsCheckedAsync("#input"), Is.False);
+                    Assert.That(Page.IsCheckedAsync("#input"), Is.True);
                     Assert.That(pageConversationSelector, Is.Not.Null);
                     Assert.That(pageCreateSingelChat, Is.Not.Null);
                     Assert.That(pageSelector, Is.Not.Null);
@@ -122,5 +122,4 @@ namespace Test.UITests_Playwright
 
         }
     }
-
 }
