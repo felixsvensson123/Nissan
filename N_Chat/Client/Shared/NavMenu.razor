@@ -1,5 +1,4 @@
 @using N_Chat.Client.Pages
-@inject IUserService UserService
 @using N_Chat.Client.Services;
 
 <div class="top-row ps-3 navbar navbar-dark">
@@ -57,26 +56,7 @@
 
    /*get the logged in user, if success then we call the method GetTheChats*/
 
-   protected override async Task OnInitializedAsync(){
-      var currentuser = await UserService.GetUserClaim();
-      if (currentuser.Message == "Success"){
-         User = currentuser.user;
-         StateHasChanged();
-         GetTheChats();
-      }
-   }
-
    public HttpClient HttpClient { get; set; }
-
-   private void GetTheChats(){
-      ChatService chatService = new ChatService(HttpClient);
-
-   //call method GetAll in class ChatController
-      
-
-      /*
-      Chats = chatService.GetChats();*/
-   }
 
 
    private bool collapseNavMenu = true;

@@ -25,13 +25,13 @@ namespace N_Chat.Server.Controllers{
         }
         [Authorize(Roles="Admin")]
         [HttpGet("users")]
-        public async Task<ICollection<UserModel>> getAllUsers()
+        public async Task<ICollection<UserModel>> GetAllUsers()
         {
             ICollection<UserModel> users = await context.Users
                 .Include(u => u.Chats)
-                .Include(t => t.Messages)
-                .Where(u => u.isDeleted != true)
+                .AsSplitQuery()
                 .ToListAsync();
+            
             return users;
         }
         [HttpGet("getbyname/{userName}")]
@@ -54,7 +54,6 @@ namespace N_Chat.Server.Controllers{
                 .ThenInclude(uc => uc.Chat)
                 .ThenInclude(c => c.Messages)
                 .AsSplitQuery();
-            await Task.Delay(100);
 
             return await result.SingleOrDefaultAsync(x => x.UserName == userName);
         }
@@ -68,10 +67,7 @@ namespace N_Chat.Server.Controllers{
                 return NotFound("User Claim was not found" + claimValue);
 
             UserModel? user = await context.Users
-                    .Include(u => u.Chats)
-                    .Include(c => c.Messages)
-                    .AsSplitQuery()
-                    .FirstOrDefaultAsync(u => u.UserName == claimValue);
+                .FirstOrDefaultAsync(u => u.UserName == claimValue);
             
             return Ok(user);
         }
@@ -112,6 +108,7 @@ namespace N_Chat.Server.Controllers{
             
         }
 
+        // the method specifies that the parameter is of type RegisterModel
         [HttpPost("signup")]
         public async Task<IActionResult> SignupUser(RegisterModel registerModel) // funkar rör ej!
         {
@@ -121,6 +118,13 @@ namespace N_Chat.Server.Controllers{
                 if (checkUser != null)
                 {
                     return BadRequest("Username taken");
+                }
+                
+                //to ensure unique identification (on the email at least).
+                var checkEmail = await context.Users.FirstOrDefaultAsync(x => x.Email == registerModel.Email);
+                if (checkEmail != null)
+                {
+                    return BadRequest("User with this email is already registered");
                 }
 
                 var user = new UserModel() // sets usermodel props to registerModel props

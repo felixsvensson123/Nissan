@@ -1,9 +1,9 @@
-﻿@inject IUserService UserService;
+﻿@using System.Text.RegularExpressions
+@inject IUserService UserService;
 @inject NavigationManager NavigationManager;
 @inject ILocalStorageService LocalStorageService
 @inject AuthenticationStateProvider AuthStateProvider
 @layout Loginlayout
-
 
 <div class="main">
    <input type="checkbox" id="chk" aria-hidden="true">
@@ -48,40 +48,59 @@
 
 
    public async Task LoginUser(){
-      try{
-         string result = await UserService.LoginUser(LoginModel);
-         Console.WriteLine("LoginUser()  result ="+result);
+   //check for unusual characters, if there are none then proceed with login.
+      if (!ContainsPossiblyMaliciousCharacters(LoginModel.Password) || !ContainsPossiblyMaliciousCharacters(LoginModel.Username)){
+         try{
+            string result = await UserService.LoginUser(LoginModel);
+            Console.WriteLine("LoginUser()  result =" + result);
 
-         //interact with browser's local storage API, set value and key.
-         await LocalStorageService.SetItemAsStringAsync("isauthenticated", "true");
-         NavigationManager.NavigateTo("/");
-         StateHasChanged();
+   //interact with browser's local storage API, set value and key.
+            await LocalStorageService.SetItemAsStringAsync("isauthenticated", "true");
+            NavigationManager.NavigateTo("/");
+            StateHasChanged();
+         }
+         catch (Exception e){
+            Console.WriteLine(e);
+            Console.WriteLine("Login Failed");
+            Console.WriteLine(e.Message);
+            Console.WriteLine(e.StackTrace);
+         }
       }
-      catch (Exception e){
-         Console.WriteLine(e);
-         Console.WriteLine("Login Failed");
-         Console.WriteLine(e.Message);
-         Console.WriteLine(e.StackTrace);
+   }
+
+   
+   //this method looks for unusual characters, because some HTML tags and special characters can potentially be used for XSS or SQL injection attacks in a text-field, returns true if there are any unusual characters.
+   private static bool ContainsPossiblyMaliciousCharacters(string text){
+   /*below selection will check if the text contains only alphanumeric characters  (upper and lowercase letters and digits) and a few special characters that are commonly allowed in passwords, such as @#$%^&+=! and if the text contains any other characters that are not in that list, the code will print the message*/
+      if (Regex.IsMatch(text, @"^[a-zA-Z0-9@#$%^&+=!]+$")){
+         Console.WriteLine("Text contains unusual or by our organization not approved characters.");
+         return true;
       }
-      
-}
+      return false;
+   }
+
 
    public async Task RegisterUser(){
-       Console.WriteLine("aaa  ");
-
-      //not accessible.
-      string result = await UserService.SignUp(RegisterModel);
-      Console.WriteLine("result = " + result);
-      
-      @*password must be minimum 6 characters long*@
-      if(RegisterModel.Password.Length < 6){
+   //password must be minimum 6 characters long
+      if (RegisterModel.Password.Length < 6){
          Console.WriteLine("your password must be minimum 6 characters long.");
       }
 
-      Console.WriteLine("your password = " + RegisterModel.Password);
+   //check for unusual characters, if there are none then proceed with registration. 
+      if (!ContainsPossiblyMaliciousCharacters(RegisterModel.Password) ||
+          !ContainsPossiblyMaliciousCharacters(RegisterModel.Username) ||
+          !ContainsPossiblyMaliciousCharacters(RegisterModel.Email)){
+   //not accessible.
+         string result = await UserService.SignUp(RegisterModel);
+         Console.WriteLine("result = " + result);
 
-      NavigationManager.NavigateTo("/");
-      StateHasChanged();
+         if (result == "success"){
+            Console.WriteLine("you have successfully registered.");
+         }
+
+         NavigationManager.NavigateTo("/");
+         StateHasChanged();
+      }
    }
 
 }
