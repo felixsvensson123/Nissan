@@ -112,6 +112,7 @@ namespace N_Chat.Server.Controllers{
             
         }
 
+        // the method specifies that the parameter is of type RegisterModel
         [HttpPost("signup")]
         public async Task<IActionResult> SignupUser(RegisterModel registerModel) // funkar rör ej!
         {
@@ -121,6 +122,13 @@ namespace N_Chat.Server.Controllers{
                 if (checkUser != null)
                 {
                     return BadRequest("Username taken");
+                }
+                
+                //to ensure unique identification (on the email at least).
+                var checkEmail = await context.Users.FirstOrDefaultAsync(x => x.Email == registerModel.Email);
+                if (checkEmail != null)
+                {
+                    return BadRequest("User with this email is already registered");
                 }
 
                 var user = new UserModel() // sets usermodel props to registerModel props
