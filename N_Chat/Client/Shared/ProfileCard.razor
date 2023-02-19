@@ -1,18 +1,20 @@
-﻿<div class="profile-container">
-    <img src="profile-picture.jpg" alt="Profile Picture">
-    <div class="username">Username</div>
-    <div class="username-field">
-        <label for="username">Username:</label>
-        <input type="text" class="form-control" placeholder="Username" value="">
-    </div>
-    <div class="input-field">
-        <label for="input">Create chatt with:</label>
-        <input type="text" class="form-control" placeholder="Create chatt with" value="">
-    </div>
+﻿@page "/profilecard"
 
-    <button class="chat-request">Send Chat Request</button>
-    <button class="delete-profile">Delete Profile</button>
-</div>
+<main>
+	<MudThemeProvider />
+	<MudDialogProvider />
+	<MudSnackbarProvider />
+
+	<div class="profile-container">
+		<button class="oi oi-x" aria-hidden="true" id="cross" @onclick=@(() => NavigationManager.NavigateTo("/Profile"))></button>
+		<MudAvatar Class="userAvatar">D</MudAvatar>
+		<div class="username" id="usernametag">Username</div>
+
+		<div class="Buttons">
+			<button class="chat-request">Send Chat Request</button>
+		</div>
+	</div>
+</main>
 
 
 
@@ -20,6 +22,5 @@
     
 
 @code {
-
 
 }
