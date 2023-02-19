@@ -59,7 +59,7 @@ namespace Test.UITests_Playwright
                 //navigate to start singel chat page
                 var pageCreateSingelChat = "label:has-text('Singel Chat')";
                 await Page.WaitForSelectorAsync(pageCreateSingelChat);
-                var startSingelchatPage = await Page.QuerySelectorAsync(pageCreateSingelChat);
+                var startSingelchatElement = await Page.QuerySelectorAsync(pageCreateSingelChat);
 
                 //fill in userName
                 var userName1 = "hanna";
@@ -103,7 +103,7 @@ namespace Test.UITests_Playwright
                     Assert.That(chatName, Is.EqualTo("Chat with hanna"));
                     Assert.That(Page.IsCheckedAsync("#input"), Is.False);
                     Assert.That(startPageElement, Is.Not.Null);
-                    Assert.That(startSingelchatPage, Is.Not.Null);
+                    Assert.That(startSingelchatElement, Is.Not.Null);
                     Assert.That(pageConversationElement, Is.Not.Null);
                 });
 
