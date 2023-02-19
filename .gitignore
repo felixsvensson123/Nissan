@@ -377,3 +377,5 @@ FodyWeavers.xsd
 .vs/ProjectEvaluation/n_chat.metadata.v5.2
 .vs/ProjectEvaluation/n_chat.projects.v5.2
 /N_Chat/Client/Pages/ProfileCard.razor
+
+Test/
