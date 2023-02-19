@@ -53,5 +53,5 @@ jobs:
         with:
           app-name: 'nissanchat'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_9E9AE16382FF49919D5D01862ED3E3E9 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_78D0E0E5CEBC4A3FBD679FD773AB696D }}
           package: .
