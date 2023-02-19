@@ -30,7 +30,7 @@ namespace Test.UITests_Playwright
 
 
                 //Navigate to startpage
-                await Page.GotoAsync("https://nissanchat.azurewebsites.net/");
+                await Page.GotoAsync("https://enchat.azurewebsites.net/");
 
                 var userName = "Patrik";
                 //fill in username

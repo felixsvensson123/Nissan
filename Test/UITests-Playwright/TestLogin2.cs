@@ -28,7 +28,7 @@ namespace Test.UITests_Playwright
                 var Page = await browser.NewPageAsync();
 
                 //navigate to homepage
-                await Page.GotoAsync("https://nissanchat.azurewebsites.net/");
+                await Page.GotoAsync("https://enchat.azurewebsites.net/");
 
                 var userName = "Patrik";
                 //fill in username

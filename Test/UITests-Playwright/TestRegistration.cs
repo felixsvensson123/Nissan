@@ -30,7 +30,7 @@ namespace Test.UITests_Playwright
 
 
                 //navigate to homepage
-                await Page.GotoAsync("https://nissanchat.azurewebsites.net/");
+                await Page.GotoAsync("https://enchat.azurewebsites.net/");
 
                 //locate to label Signup and click
                 var Selector = "label:has-text('Sign Up')";
