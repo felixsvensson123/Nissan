@@ -3,20 +3,20 @@
 
 @if (pageHasLoded)
 {
-    if (isAdmin == true)
+    if (isAdmin)
     {
         <h1 style="color:black">Users</h1>
         if (UserList != null)
         {
-            foreach (var User in UserList)
+            foreach (var user in UserList)
             {
                 <div class="card">
                     <div class="card-body">
-                        <h2 style="color:black">@User.UserName</h2>
+                        <h2 style="color:black">@user.UserName</h2>
                         <div style="width: 100%; overflow: hidden;">
-                            <div style="float: left; color:black">@User.Id</div>
+                            <div style="float: left; color:black">@user.Id</div>
                             <div style="float: right;">
-                                <button class="btn btn-danger" @onclick="@(() => DeleteUser(User.UserName))">Delete User </button>
+                                <button class="btn btn-danger" @onclick="@(() => DeleteUser(user.UserName))">Delete User </button>
                             </div>
                         </div>
                     </div>
@@ -64,8 +64,9 @@
     UserModel CurrentUser = new();
     UserModel UsertToBeDeleted = new();
     ChatModel ChatToBeDeleted = new();
-    bool isAdmin = new();
-    bool pageHasLoded = new();
+    
+    bool isAdmin = false;
+    bool pageHasLoded = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -75,17 +76,21 @@
             CurrentUser = user.user;
             var adminUser = await UserService.CheckIfAdmin(CurrentUser.UserName);
             Console.WriteLine(adminUser);
-            if (adminUser == true)
+            if (adminUser)
             {
-                isAdmin = true;
                 UserList = await UserService.GetAllUsers();
                 ChatList = await ChatService.GetChats();
-                pageHasLoded = true;
-                StateHasChanged();
+                if (ChatList != null && UserList != null)
+                {
+                    pageHasLoded = true;
+                    isAdmin = true;
+                    StateHasChanged();
+                }
+                 StateHasChanged();
             }
+            StateHasChanged();
         }
         StateHasChanged();
-
     }
 
     public async Task DeleteUser(string UserName)
