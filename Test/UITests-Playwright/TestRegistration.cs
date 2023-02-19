@@ -18,7 +18,11 @@ namespace Test.UITests_Playwright
                 using var playwright = await Playwright.CreateAsync();
 
                 //Browser
-                await using var browser = await playwright.Chromium.LaunchAsync();
+                await using var browser = await playwright.Chromium.LaunchAsync((new BrowserTypeLaunchOptions
+                {
+                    Headless = false // set headless mode to true
+
+                }));
 
                 //Page
                 var Page = await browser.NewPageAsync();
@@ -26,34 +30,45 @@ namespace Test.UITests_Playwright
 
 
                 //navigate to homepage
-                await Page.GotoAsync("https://localhost:7280/");
+                await Page.GotoAsync("https://nissanchat.azurewebsites.net/");
 
                 //locate to label Signup and click
-                await Page.Locator("label=Sign Up").ClickAsync();
-
+                var Selector = "label:has-text('Sign Up')";
+                await Page.WaitForSelectorAsync(Selector);
+                await Page.ClickAsync(Selector);
                 //fill in username
-                string userName = "Patrik";
-                await Page.Locator("input[type=text]").FillAsync(userName);
+                string userName = "Bob";
+                await Page.WaitForSelectorAsync("input[type=text]");
+                await Page.FillAsync("input[type=text]", userName);
 
                 //fill in email
-                string email = "patrik@yahoo.com";
-                await Page.Locator("input[type=email]").FillAsync(email);
+                string email = "bob@yahoo.com";
+                await Page.WaitForSelectorAsync("input[type=email]");
+                await Page.FillAsync("input[type=email]", email);
 
                 //fill in password
-                string password = "patrik123";
-                await Page.Locator("input[type=password]").FillAsync(password);
+                string password = "bob123";
+                await Page.WaitForSelectorAsync("input[type=password]");
+                await Page.FillAsync("input[type=password]", password);
 
                 //fill in confirm password
-                string confirmPassword = "patrik123";
-                await Page.Locator("input[type=password]").FillAsync(confirmPassword);
+                string confirmPassword = "bob123";
+                await Page.WaitForSelectorAsync("input[type=password]");
+                await Page.FillAsync("input[type=password]",confirmPassword);
 
                 //submit registration
-                await Page.ClickAsync("button[type=submit]");
+                // await Page.WaitForSelectorAsync("button[type=submit]");
+                //await Page.ClickAsync("button[type=submit]");
+                var buttonSelector = "button:has-text('Sign Up')";
+                await Page.WaitForSelectorAsync(buttonSelector);
+                await Page.ClickAsync(buttonSelector);
 
-                var urlAfterClick = "https://localhost:7280/StartPage";
-                await Page.GotoAsync(urlAfterClick);
+                //var page = "h3:has-text('StartPage')";
+                //await Page.WaitForSelectorAsync(page);
+                // var pageSite = await Page.QuerySelectorAsync(page);
+                var newPage=await Page.WaitForSelectorAsync("h3:has-text('StartPage')", new WaitForSelectorOptions { Visible = true });
 
-                
+
 
 
 
@@ -61,11 +76,11 @@ namespace Test.UITests_Playwright
 
                 Assert.Multiple(() =>
                 {
-                    Assert.That(userName, Is.EqualTo("Patrik"));
-                    Assert.That(email, Is.EqualTo("patrik@yahoo.com"));
-                    Assert.That(password, Is.EqualTo("patrik123"));
-                    Assert.That(confirmPassword, Is.EqualTo("patrik123"));
-                    Assert.That(urlAfterClick, Is.EqualTo("https://localhost:7280/StartPage"));
+                    Assert.That(userName, Is.EqualTo("Bob"));
+                    Assert.That(email, Is.EqualTo("bob@yahoo.com"));
+                    Assert.That(password, Is.EqualTo("bob123"));
+                    Assert.That(confirmPassword, Is.EqualTo("bob123"));
+                    Assert.That(newPage, Is.Not.Null);
                 });
 
 
@@ -74,7 +89,7 @@ namespace Test.UITests_Playwright
             }
             catch (Exception e)
             {
-                Console.WriteLine("Exception caught!! Message: ");
+                Console.WriteLine("Exception caught!! Error! ");
 
                 Console.WriteLine(e.Message);
 
@@ -85,5 +100,10 @@ namespace Test.UITests_Playwright
             }
 
         }
+    }
+
+    internal class WaitForSelectorOptions : PageWaitForSelectorOptions
+    {
+        public bool Visible { get; set; }
     }
 }
