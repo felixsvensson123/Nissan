@@ -10,7 +10,7 @@ namespace Test.UITests_Playwright
     public class TestLogin2
     {
         [Test]
-        public async Task TestUserLogin()
+        public async Task TestUserLogin()//funkar!!
         {
             try
             {
@@ -20,7 +20,7 @@ namespace Test.UITests_Playwright
                 //Browser
                 await using var browser = await playwright.Chromium.LaunchAsync((new BrowserTypeLaunchOptions
                 {
-                    Headless = false, // set headless mode to true
+                    Headless = false // set headless mode to true
 
                 }));
 
@@ -32,8 +32,8 @@ namespace Test.UITests_Playwright
 
                 var userName = "Patrik";
                 //fill in username
-                await Page.WaitForSelectorAsync("input[type=text]");
-                await Page.FillAsync("input[type=text]", userName);
+                await Page.WaitForSelectorAsync("input[type=Username]");
+                await Page.FillAsync("input[type=Username]", userName);
 
                 var password = "patrik123";
                 //fill in password
@@ -48,9 +48,9 @@ namespace Test.UITests_Playwright
                 //await Page.EvaluateAsync("() => window.localStorage.getItem(userLocalStorage)");
 
                 //navigate to startpage
-                await Page.GotoAsync("https://localhost:7280/StartPage");
-
-
+                var pageSelector = "h3:has-text('StartPage')";
+                await Page.WaitForSelectorAsync(pageSelector);
+                var pageElement = await Page.QuerySelectorAsync(pageSelector);
 
                 string urlAfterClick = Page.Url;
 
@@ -58,15 +58,15 @@ namespace Test.UITests_Playwright
                 {
                     Assert.That(userName, Is.EqualTo("Patrik"));
                     Assert.That(password, Is.EqualTo("patrik123"));
-                    Assert.That(urlAfterClick, Is.EqualTo("https://localhost:7280/StartPage"));
-                   // Assert.That(userLocalStorage, Is.True);
+                    Assert.That(pageElement, Is.Not.Null);
+                    // Assert.That(userLocalStorage, Is.True);
                 });
 
 
             }
             catch (Exception e)
             {
-                Console.WriteLine("Exception caught!! Message: ");
+                Console.WriteLine("Exception caught!!Error ");
 
                 Console.WriteLine(e.Message);
 
