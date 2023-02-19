@@ -21,7 +21,7 @@ namespace Test.UITests_Playwright
                 //Browser
                 await using var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
                 {
-                    Headless = false, // set headless mode to true
+                    Headless = false // set headless mode to false
                    
                 });
 
@@ -30,51 +30,81 @@ namespace Test.UITests_Playwright
 
 
                 //Navigate to startpage
-                await Page.GotoAsync("https://localhost:7280/StartPage");
+                await Page.GotoAsync("https://nissanchat.azurewebsites.net/");
 
-                //click creat chat button
+                var userName = "Patrik";
+                //fill in username
+                await Page.WaitForSelectorAsync("input[type=Username]");
+                await Page.FillAsync("input[type=Username]", userName);
 
-                await Page.ClickAsync("link[text=Create Chat]");
+                var password = "patrik123";
+                //fill in password
+                await Page.WaitForSelectorAsync("input[type=password]");
+                await Page.FillAsync("input[type=password]", password);
 
-                //navigate to create singel chat
-                await Page.GotoAsync("https://localhost:7280/New_chat");
+                //submit 
+                await Page.WaitForSelectorAsync("button[type=submit]");
+                await Page.ClickAsync("button[type=submit]");
+
+                //navigate to start page
+                var pageSelector = "h3:has-text('StartPage')";
+                await Page.WaitForSelectorAsync(pageSelector);
+                var startPageElement = await Page.QuerySelectorAsync(pageSelector);
+
+                //click create chat
+                var linkSelector = "a.nav-link:has-text('Create Chat')";
+                await Page.WaitForSelectorAsync(linkSelector);
+                await Page.ClickAsync(linkSelector);
+
+                //navigate to start singel chat page
+                var pageCreateSingelChat = "label:has-text('Singel Chat')";
+                await Page.WaitForSelectorAsync(pageCreateSingelChat);
+                var startSingelchatPage = await Page.QuerySelectorAsync(pageCreateSingelChat);
 
                 //fill in userName
-                var userName = "hanna";
-
-                await Page.FillAsync("#singelChatMember", userName);
+                var userName1 = "hanna";
+                await Page.WaitForSelectorAsync("#singelChatMember");
+                await Page.FillAsync("#singelChatMember", userName1);
 
                 //fill in chatName
                 var chatName = "Chat with hanna";
+                await Page.WaitForSelectorAsync("input[type=text]");
                 await Page.FillAsync("input[type=text]", chatName);
 
-              
+
 
                 // Hitta elementet med value = false attributet
+                await Page.WaitForSelectorAsync("input[type='radio'][value='false']");
                 var radioButton = await Page.QuerySelectorAsync("input[type='radio'][value='false']");
 
                 // Klicka på radioknappen
                 await radioButton.ClickAsync();
 
+               //click start chat
+                var buttonSelector = "label:has-text('Start Chat')";
+                await Page.WaitForSelectorAsync(buttonSelector);
+                await Page.ClickAsync(buttonSelector);
+
+                //navigate to conversationpage
+                var pageConversationSelector = "p:has-text('Welcome')";
+                await Page.WaitForSelectorAsync(pageConversationSelector);
+                var pageConversationElement = await Page.QuerySelectorAsync(pageConversationSelector);
 
 
 
 
-                //click start chat
-                await Page.ClickAsync("button[text=Start Chat]");
-
-                await Page.GotoAsync("https://localhost:7280/conversations");
 
 
 
-
-                string urlAfterClick = Page.Url;
+                //string urlAfterClick = Page.Url;
                 Assert.Multiple(() =>
                 {
-                    Assert.That(userName, Is.EqualTo("hanna"));
+                    Assert.That(userName1, Is.EqualTo("hanna"));
                     Assert.That(chatName, Is.EqualTo("Chat with hanna"));
                     Assert.That(Page.IsCheckedAsync("#input"), Is.False);
-                    Assert.That(urlAfterClick, Is.EqualTo("https://localhost:7280/conversations"));
+                    Assert.That(startPageElement, Is.Not.Null);
+                    Assert.That(startSingelchatPage, Is.Not.Null);
+                    Assert.That(pageConversationElement, Is.Not.Null);
                 });
 
             }
