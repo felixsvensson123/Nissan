@@ -57,14 +57,18 @@ namespace Test.UITests_Playwright
                 await Page.FillAsync("input[type=password]",confirmPassword);
 
                 //submit registration
+
+
                 // await Page.WaitForSelectorAsync("button[type=submit]");
                 //await Page.ClickAsync("button[type=submit]");
                 var buttonSelector = "button:has-text('Sign Up')";
                 await Page.WaitForSelectorAsync(buttonSelector);
                 await Page.ClickAsync(buttonSelector);
 
-                //var page = "h3:has-text('StartPage')";
-                //await Page.WaitForSelectorAsync(page);
+                //go to startpage
+
+                var startPage = "h3:has-text('Start Page')";
+                await Page.WaitForSelectorAsync(startPage);
                 // var pageSite = await Page.QuerySelectorAsync(page);
                // var newPage=await Page.WaitForSelectorAsync("h3:has-text('StartPage')", new WaitForSelectorOptions { Visible = true });
 
@@ -80,7 +84,7 @@ namespace Test.UITests_Playwright
                     Assert.That(email, Is.EqualTo("bob@yahoo.com"));
                     Assert.That(password, Is.EqualTo("bob123"));
                     Assert.That(confirmPassword, Is.EqualTo("bob123"));
-                    Assert.That(newPage, Is.Not.Null);
+                    Assert.That(startPage, Is.Not.Null);
                 });
 
 

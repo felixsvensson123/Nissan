@@ -47,7 +47,7 @@ namespace Test.UITests_Playwright
                 await Page.ClickAsync("button[type=submit]");
 
                 //navigate to start page
-                var pageSelector = "h3:has-text('StartPage')";
+                var pageSelector = "h3:has-text('Start Page')";
                 await Page.WaitForSelectorAsync(pageSelector);
                // var startPageElement = await Page.QuerySelectorAsync(pageSelector);
 
@@ -75,10 +75,10 @@ namespace Test.UITests_Playwright
 
                 // Hitta elementet med value = false attributet
                 await Page.WaitForSelectorAsync("input[type='radio'][value='false']");
-               // var radioButton = await Page.QuerySelectorAsync("input[type='radio'][value='false']");
+                var radioButton = await Page.QuerySelectorAsync("input[type='radio'][value='false']");
 
                 // Klicka på radioknappen
-                //await radioButton.ClickAsync();
+                await radioButton.ClickAsync();
 
                //click start chat
                 var buttonSelector = "label:has-text('Start Chat')";
@@ -102,9 +102,9 @@ namespace Test.UITests_Playwright
                     Assert.That(userName1, Is.EqualTo("hanna"));
                     Assert.That(chatName, Is.EqualTo("Chat with hanna"));
                     Assert.That(Page.IsCheckedAsync("#input"), Is.False);
-                    //Assert.That(startPageElement, Is.Not.Null);
-                    //Assert.That(startSingelchatElement, Is.Not.Null);
-                    //Assert.That(pageConversationElement, Is.Not.Null);
+                    Assert.That(pageConversationSelector, Is.Not.Null);
+                    Assert.That(pageCreateSingelChat, Is.Not.Null);
+                    Assert.That(pageSelector, Is.Not.Null);
                 });
 
             }

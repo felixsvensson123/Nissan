@@ -48,7 +48,7 @@ namespace Test.UITests_Playwright
                 //await Page.EvaluateAsync("() => window.localStorage.getItem(userLocalStorage)");
 
                 //navigate to startpage
-                var pageSelector = "h3:has-text('StartPage')";
+                var pageSelector = "h3:has-text('Start Page')";
                 await Page.WaitForSelectorAsync(pageSelector);
                // var pageElement = await Page.QuerySelectorAsync(pageSelector);
 
@@ -58,7 +58,7 @@ namespace Test.UITests_Playwright
                 {
                     Assert.That(userName, Is.EqualTo("Patrik"));
                     Assert.That(password, Is.EqualTo("patrik123"));
-                   // Assert.That(pageElement, Is.Not.Null);
+                    Assert.That(pageSelector, Is.Not.Null);
                     // Assert.That(userLocalStorage, Is.True);
                 });
 
