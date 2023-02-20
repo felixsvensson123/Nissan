@@ -16,3 +16,8 @@ https://cryptonissan.azurewebsites.net - Deployad apps hemsida
 - connectionen är ganska säker då vi inte lagrar någon secret eller key i vår kod då azure har
 access policies man kan ställa in för att tillåta olika databaser / ip-adresser ha tillåtelse att
 sig av nyckeln för att decrypta/encrypta.
+
+LOGIN PÅ HEMSIDAN -
+
+username: Felix
+password: qwe123
